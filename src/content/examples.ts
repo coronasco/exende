@@ -1,6 +1,6 @@
 import { siteConfig } from "@/content/site";
 
-const callbackId = "cb_9nHT0f4VG4n3L2xC8Q";
+const callbackId = "cb_3t2cC09baD4yOvoeVMDK2vGQ";
 
 export const exampleValues = {
   callbackId,
@@ -14,19 +14,18 @@ export const codeExamples = {
   -H "Content-Type: application/json" \\
   -d '{}'`,
   sendWebhook: `curl -X POST \\
-  ${siteConfig.callbackBase}/hooks/cb_... \\
+  ${siteConfig.callbackBase}/hooks/${callbackId} \\
   -H "Content-Type: application/json" \\
   -d '{"status":"completed","result":"https://example.com/output"}'`,
   waitForEvent: `curl \\
-  "${siteConfig.apiBase}/v1/callbacks/cb_.../wait?timeout=30" \\
+  "${siteConfig.apiBase}/v1/callbacks/${callbackId}/wait?timeout=30" \\
   -H "Authorization: Bearer ex_cb_sk_..."`,
   readEvents: `curl \\
-  ${siteConfig.apiBase}/v1/callbacks/cb_.../events \\
+  ${siteConfig.apiBase}/v1/callbacks/${callbackId}/events \\
   -H "Authorization: Bearer ex_cb_sk_..."`,
   deleteCallback: `curl -X DELETE \\
-  ${siteConfig.apiBase}/v1/callbacks/cb_... \\
+  ${siteConfig.apiBase}/v1/callbacks/${callbackId} \\
   -H "Authorization: Bearer ex_cb_sk_..."`,
-  health: `curl ${siteConfig.apiBase}/health`,
   x402Challenge: `HTTP/2 402 Payment Required
 PAYMENT-REQUIRED: <base64-encoded x402 challenge>
 x-request-id: req_4a87c34d-e4e9-4029-9270-2465c4ee0272`,
@@ -34,10 +33,10 @@ x-request-id: req_4a87c34d-e4e9-4029-9270-2465c4ee0272`,
 
 export const responseExamples = {
   createdCallback: `{
-  "id": "cb_...",
-  "callback_url": "${siteConfig.callbackBase}/hooks/cb_...",
-  "events_url": "${siteConfig.apiBase}/v1/callbacks/cb_.../events",
-  "wait_url": "${siteConfig.apiBase}/v1/callbacks/cb_.../wait",
+  "id": "${callbackId}",
+  "callback_url": "${siteConfig.callbackBase}/hooks/${callbackId}",
+  "events_url": "${siteConfig.apiBase}/v1/callbacks/${callbackId}/events",
+  "wait_url": "${siteConfig.apiBase}/v1/callbacks/${callbackId}/wait",
   "read_token": "ex_cb_sk_...",
   "expires_at": "2026-08-22T14:30:00.000Z",
   "limits": {
@@ -47,23 +46,31 @@ export const responseExamples = {
 }`,
   webhookAccepted: `{
   "received": true,
-  "event_id": "evt_..."
+  "event_id": "${exampleValues.eventId}"
 }`,
   waitReceived: `{
   "received": true,
+  "timeout": false,
   "event": {
-    "id": "evt_...",
+    "id": "${exampleValues.eventId}",
+    "received_at": "2026-08-22T14:05:17.000Z",
     "method": "POST",
+    "content_type": "application/json",
+    "headers": {
+      "content-type": "application/json"
+    },
     "body": {
       "status": "completed",
       "result": "https://example.com/output"
-    }
+    },
+    "size_bytes": 60
   },
-  "next_wait_url": "..."
+  "next_wait_url": "/v1/callbacks/${callbackId}/wait?after=${exampleValues.eventId}&timeout=30"
 }`,
   waitTimeout: `{
   "received": false,
-  "timeout": true
+  "timeout": true,
+  "after": null
 }`,
   events: `{
   "callback_id": "${callbackId}",
@@ -83,25 +90,20 @@ export const responseExamples = {
         "status": "completed",
         "result": "https://example.com/output"
       },
-      "size_bytes": 63
+      "size_bytes": 60
     }
   ]
 }`,
   deleted: `{
   "deleted": true,
-  "callback_id": "cb_..."
+  "callback_id": "${callbackId}"
 }`,
   error: `{
   "error": {
     "code": "INVALID_TOKEN",
-    "message": "...",
-    "request_id": "req_..."
+    "message": "The read token is invalid.",
+    "request_id": "req_81731247-7585-44a8-8716-d9dda3e0ff61"
   }
-}`,
-  health: `{
-  "status": "ok",
-  "service": "exende-api",
-  "version": "0.1.0"
 }`,
   x402DecodedSummary: `{
   "x402Version": 2,

@@ -1,9 +1,12 @@
 import { CodeBlock } from "@/components/code-block";
 import { DocsFrame } from "@/components/docs-frame";
 import {
+  authenticatedCallbackErrorRows,
   callbackErrorRows,
   callbackFacts,
   callbackFieldRows,
+  waitErrorRows,
+  webhookErrorRows,
 } from "@/content/docs";
 import { codeExamples, responseExamples } from "@/content/examples";
 import { siteConfig } from "@/content/site";
@@ -50,7 +53,9 @@ export default function CallbackDocsPage() {
           </p>
         </div>
         <p className="mt-5 text-[1rem] leading-8 text-[var(--color-muted)]">
-          Without a valid x402 payment, the server responds with HTTP 402 Payment Required.
+          Without a valid x402 payment, the server responds with HTTP 402 Payment Required. This is
+          the only operation that requires payment; receiving webhooks, reading events, waiting,
+          and deleting the callback do not trigger another x402 payment.
         </p>
         <CodeBlock code={codeExamples.createCallback} language="bash" title="Create callback" />
         <div className="mt-6">
@@ -113,7 +118,7 @@ export default function CallbackDocsPage() {
           Send a Webhook
         </h2>
         <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
-          The external service sends an event to POST, PUT, or PATCH {siteConfig.callbackBase}/hooks/{"{callback_id}"}.
+          The external service sends an event using POST, PUT, or PATCH on the callback host: {siteConfig.callbackBase}/hooks/{"{callback_id}"}.
         </p>
         <CodeBlock code={codeExamples.sendWebhook} language="bash" title="Webhook event" />
         <div className="mt-6">
@@ -126,21 +131,32 @@ export default function CallbackDocsPage() {
               <td>application/json, text/*, application/x-www-form-urlencoded</td>
             </tr>
             <tr>
-              <th>415</th>
-              <td>UNSUPPORTED_MEDIA_TYPE</td>
-            </tr>
-            <tr>
-              <th>400</th>
-              <td>INVALID_JSON</td>
-            </tr>
-            <tr>
-              <th>413</th>
-              <td>PAYLOAD_TOO_LARGE</td>
+              <th>Missing Content-Type</th>
+              <td>Accepted and stored as text</td>
             </tr>
             <tr>
               <th>Event cap</th>
               <td>10 events per callback</td>
             </tr>
+          </tbody>
+        </table>
+        <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          JSON bodies are validated before storage. Binary and file uploads are not supported.
+        </p>
+        <table className="spec-table mt-6">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Webhook error</th>
+            </tr>
+          </thead>
+          <tbody>
+            {webhookErrorRows.map(([status, code]) => (
+              <tr key={`${status}-${code}`}>
+                <td className="font-mono text-[0.82rem] text-white">{status}</td>
+                <td className="font-mono text-[0.82rem] text-[var(--color-muted)]">{code}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </section>
@@ -162,6 +178,10 @@ export default function CallbackDocsPage() {
               <th>timeout</th>
               <td>1–30 seconds, default 30 seconds</td>
             </tr>
+            <tr>
+              <th>after</th>
+              <td>Optional event ID; wait only for the next event after it</td>
+            </tr>
           </tbody>
         </table>
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -169,8 +189,27 @@ export default function CallbackDocsPage() {
           <CodeBlock code={responseExamples.waitTimeout} language="json" title="Timed out" />
         </div>
         <p className="mt-5 text-[1rem] leading-8 text-[var(--color-muted)]">
-          next_wait_url can be used to continue waiting after the returned event.
+          When an event is received, the response includes received: true, timeout: false, the full
+          event object, and a relative next_wait_url. A timeout returns received: false, timeout:
+          true, and after as the supplied event ID or null. An unknown after event returns HTTP 404
+          EVENT_NOT_FOUND.
         </p>
+        <table className="spec-table mt-6">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Wait error</th>
+            </tr>
+          </thead>
+          <tbody>
+            {waitErrorRows.map(([status, code]) => (
+              <tr key={`${status}-${code}`}>
+                <td className="font-mono text-[0.82rem] text-white">{status}</td>
+                <td className="font-mono text-[0.82rem] text-[var(--color-muted)]">{code}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section id="read-events" className="surface-rule mt-12 pt-8">
@@ -188,9 +227,27 @@ export default function CallbackDocsPage() {
           <CodeBlock code={responseExamples.events} language="json" title="Events response" />
         </div>
         <p className="mt-5 text-[1rem] leading-8 text-[var(--color-muted)]">
-          Returns callback metadata plus all events currently received for the callback. Events are
-          read-only.
+          Returns callback_id, status, expires_at, event_count, and all stored events ordered by
+          received_at ascending. Each event includes id, received_at, method, content_type, filtered
+          headers, body, and size_bytes. JSON bodies are returned as parsed JSON; text and form
+          bodies remain strings. Events are read-only.
         </p>
+        <table className="spec-table mt-6">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Events error</th>
+            </tr>
+          </thead>
+          <tbody>
+            {authenticatedCallbackErrorRows.map(([status, code]) => (
+              <tr key={`${status}-${code}`}>
+                <td className="font-mono text-[0.82rem] text-white">{status}</td>
+                <td className="font-mono text-[0.82rem] text-[var(--color-muted)]">{code}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section id="delete-callback" className="surface-rule mt-12 pt-8">
@@ -210,6 +267,22 @@ export default function CallbackDocsPage() {
         <p className="mt-5 text-[1rem] leading-8 text-[var(--color-muted)]">
           Deletes the callback and its stored events before automatic expiration.
         </p>
+        <table className="spec-table mt-6">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Delete error</th>
+            </tr>
+          </thead>
+          <tbody>
+            {authenticatedCallbackErrorRows.map(([status, code]) => (
+              <tr key={`${status}-${code}`}>
+                <td className="font-mono text-[0.82rem] text-white">{status}</td>
+                <td className="font-mono text-[0.82rem] text-[var(--color-muted)]">{code}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section id="expiration" className="surface-rule mt-12 pt-8">
@@ -233,10 +306,6 @@ export default function CallbackDocsPage() {
                 <td>{fact.value}</td>
               </tr>
             ))}
-            <tr>
-              <th>Wait timeout</th>
-              <td>max 30 seconds</td>
-            </tr>
           </tbody>
         </table>
       </section>
@@ -245,6 +314,10 @@ export default function CallbackDocsPage() {
         <h2 className="font-display text-[1.9rem] leading-tight tracking-[-0.04em] text-white">
           Errors
         </h2>
+        <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          These are the standard error codes used across the Callback API. Each endpoint section
+          above lists the subset it can return.
+        </p>
         <table className="spec-table mt-4">
           <thead>
             <tr>

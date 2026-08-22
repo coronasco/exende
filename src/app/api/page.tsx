@@ -40,6 +40,10 @@ export default function ApiPage() {
               ))}
             </tbody>
           </table>
+          <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+            Callback management and authenticated reads use api.exende.dev. Public webhook
+            delivery uses cb.exende.dev.
+          </p>
         </section>
 
         <section className="surface-rule mt-12 pt-8">
@@ -68,6 +72,10 @@ export default function ApiPage() {
               </tbody>
             </table>
           </div>
+          <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+            Only POST /v1/callbacks requires x402 payment. Webhook delivery, event reads, waiting,
+            and deletion do not trigger another payment.
+          </p>
         </section>
 
         <section className="surface-rule mt-12 flex flex-col gap-4 pt-8 sm:flex-row sm:items-center sm:justify-between">

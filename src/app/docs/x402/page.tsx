@@ -58,7 +58,8 @@ export default function X402DocsPage() {
         </table>
         <p className="mt-6 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
           The x402 payment is required only when creating the callback. Reading events, waiting for
-          events, and deleting an existing callback do not require another payment.
+          events, receiving webhooks, and deleting an existing callback do not require another
+          payment.
         </p>
       </section>
 
@@ -68,7 +69,7 @@ export default function X402DocsPage() {
         </h2>
         <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
           Exende is discoverable through Coinbase x402 Bazaar. x402-compatible clients and agents
-          can discover and purchase the API programmatically.
+          can discover and purchase the API programmatically through Coinbase x402 Bazaar.
         </p>
         <div className="mt-6 border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4">
           <p className="annotation text-[var(--color-accent)]">Live resource</p>

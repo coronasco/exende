@@ -19,7 +19,7 @@ export default function DocsOverviewPage() {
     <DocsFrame
       currentHref="/docs"
       title="Exende Documentation"
-      intro="Exende provides infrastructure APIs designed for autonomous software and AI agents. Services are accessed directly over HTTP and can be paid per request using x402."
+      intro="Exende provides infrastructure APIs designed for autonomous software and AI agents. Callback creation is accessed directly over HTTP and paid per request using x402."
       toc={toc}
     >
       <section id="callback-api" className="surface-rule pt-8">
