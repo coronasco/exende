@@ -118,7 +118,8 @@ export default function CallbackDocsPage() {
           Send a Webhook
         </h2>
         <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
-          The external service sends an event using POST, PUT, or PATCH on the callback host: {siteConfig.callbackBase}/hooks/{"{callback_id}"}.
+          The external service sends an event using POST, PUT, or PATCH on the callback host:{" "}
+          {siteConfig.callbackBase}/hooks/{"{callback_id}"}.
         </p>
         <CodeBlock code={codeExamples.sendWebhook} language="bash" title="Webhook event" />
         <div className="mt-6">
@@ -138,10 +139,26 @@ export default function CallbackDocsPage() {
               <th>Event cap</th>
               <td>10 events per callback</td>
             </tr>
+            <tr>
+              <th>Event ID format</th>
+              <td className="font-mono text-[0.82rem]">{"^evt_[a-f0-9]{32}$"}</td>
+            </tr>
+            <tr>
+              <th>Rate limit</th>
+              <td>30 requests per 60 seconds per callback</td>
+            </tr>
           </tbody>
         </table>
         <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
-          JSON bodies are validated before storage. Binary and file uploads are not supported.
+          JSON bodies are validated before storage. Binary and file uploads are not supported. Only
+          content-type, user-agent, stripe-signature, svix-id, svix-timestamp, svix-signature,
+          x-hub-signature, x-hub-signature-256, webhook-id, webhook-timestamp, webhook-signature,
+          x-signature, and x-webhook-signature headers are retained.
+        </p>
+        <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          Callback ID validation and per-callback rate limiting run before callback lookup and body
+          parsing. POST, PUT, and PATCH use the same handler and return the same response and error
+          shapes.
         </p>
         <table className="spec-table mt-6">
           <thead>
@@ -176,7 +193,11 @@ export default function CallbackDocsPage() {
           <tbody>
             <tr>
               <th>timeout</th>
-              <td>1–30 seconds, default 30 seconds</td>
+              <td>
+                Coerced with JavaScript Number. Missing or non-finite values default to 30. Finite
+                values are floored, then clamped to 1–30 seconds. Examples: 1.9 → 1, 0 → 1, 31 →
+                30, invalid → 30.
+              </td>
             </tr>
             <tr>
               <th>after</th>
@@ -230,7 +251,8 @@ export default function CallbackDocsPage() {
           Returns callback_id, status, expires_at, event_count, and all stored events ordered by
           received_at ascending. Each event includes id, received_at, method, content_type, filtered
           headers, body, and size_bytes. JSON bodies are returned as parsed JSON; text and form
-          bodies remain strings. Events are read-only.
+          bodies remain strings. Events with the same second-level received_at timestamp preserve
+          deterministic receipt order. Events are read-only.
         </p>
         <table className="spec-table mt-6">
           <thead>
@@ -317,6 +339,14 @@ export default function CallbackDocsPage() {
         <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
           These are the standard error codes used across the Callback API. Each endpoint section
           above lists the subset it can return.
+        </p>
+        <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          Authenticated routes validate the callback ID first, then the Authorization header and
+          Bearer scheme, callback existence, read token, and expiration in that order.
+        </p>
+        <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          A missing Authorization header returns MISSING_AUTHORIZATION. A non-Bearer header returns
+          INVALID_AUTHORIZATION. An empty or incorrect Bearer token returns INVALID_TOKEN.
         </p>
         <table className="spec-table mt-4">
           <thead>

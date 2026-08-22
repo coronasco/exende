@@ -33,19 +33,19 @@ Typical flow:
 5. Client waits or reads events
 6. Callback expires automatically
 
-## Production configuration
+## Production
 
-Price: $0.01 USDC
-
-Network: Base Mainnet
-
-x402: v2
-
-Lifetime: 10 minutes
-
-Events: 10
-
-Payload: 256 KB
+- API version: 1.0.0
+- Price: $0.01 USDC per callback creation
+- Network: Base Mainnet (`eip155:8453`)
+- Protocol: x402 v2
+- Lifetime: 10 minutes
+- Maximum events: 10
+- Maximum payload: 262144 bytes (256 KB) per event
+- Webhook methods: POST, PUT, PATCH
+- Callback ID format: `^cb_[A-Za-z0-9]{24}$`
+- Event ID format: `^evt_[a-f0-9]{32}$`
+- Wait timeout: missing or non-finite values default to 30 seconds; finite values are floored and clamped to 1–30 seconds
 
 ## Endpoints
 
@@ -76,6 +76,8 @@ Receive webhook event.
 Exende uses x402 for pay-per-request access.
 
 There are no Exende accounts, subscriptions, prepaid balances or API keys required to create a callback.
+
+Only callback creation requires payment. Reading events, waiting, webhook delivery and deletion do not trigger another Exende payment.
 
 ## Bazaar
 

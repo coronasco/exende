@@ -4,6 +4,7 @@ export const siteConfig = {
   description:
     "Agent-native infrastructure APIs accessed directly over HTTP and paid per request using x402.",
   url: "https://exende.dev",
+  apiVersion: "1.0.0",
   apiBase: "https://api.exende.dev",
   callbackBase: "https://cb.exende.dev",
   openapiUrl: "https://api.exende.dev/openapi.json",

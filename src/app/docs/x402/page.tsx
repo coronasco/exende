@@ -28,13 +28,13 @@ export default function X402DocsPage() {
         <h2 className="font-display text-[1.9rem] leading-tight tracking-[-0.04em] text-white">
           Flow
         </h2>
-        <ol className="mt-5 space-y-3 text-[1rem] leading-8 text-[var(--color-muted)]">
-          <li>1. Client sends POST /v1/callbacks.</li>
-          <li>2. Exende responds HTTP 402 with PAYMENT-REQUIRED.</li>
-          <li>3. x402-compatible client authorizes payment.</li>
-          <li>4. Request is retried with payment.</li>
-          <li>5. Payment is verified and settled.</li>
-          <li>6. Exende returns HTTP 201 with the callback.</li>
+        <ol className="mt-5 list-inside list-decimal space-y-3 text-[1rem] leading-8 text-[var(--color-muted)]">
+          <li>Client sends POST /v1/callbacks.</li>
+          <li>Exende responds HTTP 402 with PAYMENT-REQUIRED.</li>
+          <li>x402-compatible client authorizes payment.</li>
+          <li>Request is retried with payment.</li>
+          <li>Payment is verified and settled.</li>
+          <li>Exende returns HTTP 201 with the callback.</li>
         </ol>
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <CodeBlock code={codeExamples.x402Challenge} language="http" title="HTTP 402 response" />

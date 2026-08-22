@@ -7,6 +7,7 @@ export const docsNavigation = [
 ] as const;
 
 export const callbackFacts = [
+  { label: "API version", value: siteConfig.apiVersion },
   { label: "Lifetime", value: "10 minutes" },
   { label: "Maximum events", value: "10" },
   { label: "Maximum payload", value: "262144 bytes (256 KB) per event" },
@@ -68,8 +69,14 @@ export const authenticatedCallbackErrorRows = [
 ] as const;
 
 export const waitErrorRows = [
-  ...authenticatedCallbackErrorRows,
+  ["400", "INVALID_CALLBACK_ID"],
+  ["401", "MISSING_AUTHORIZATION"],
+  ["401", "INVALID_AUTHORIZATION"],
+  ["401", "INVALID_TOKEN"],
+  ["404", "CALLBACK_NOT_FOUND"],
   ["404", "EVENT_NOT_FOUND"],
+  ["410", "CALLBACK_EXPIRED"],
+  ["500", "INTERNAL_ERROR"],
 ] as const;
 
 export const x402Facts = [
@@ -129,6 +136,7 @@ export const apiEndpointRows = [
 ] as const;
 
 export const productionSurface = [
+  ["API version", siteConfig.apiVersion],
   ["Base URL", siteConfig.apiBase],
   ["Callback host", siteConfig.callbackBase],
   ["OpenAPI", siteConfig.openapiUrl],
