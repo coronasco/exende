@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { siteConfig } from "@/content/site";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full">
         <SiteHeader />
         <main>{children}</main>
+        <Analytics />
       </body>
     </html>
   );
