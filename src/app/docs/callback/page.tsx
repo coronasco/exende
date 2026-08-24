@@ -1,5 +1,6 @@
 import { CodeBlock } from "@/components/code-block";
 import { DocsFrame } from "@/components/docs-frame";
+import { JsonLd } from "@/components/json-ld";
 import {
   authenticatedCallbackErrorRows,
   callbackErrorRows,
@@ -11,10 +12,23 @@ import {
 import { codeExamples, responseExamples } from "@/content/examples";
 import { siteConfig } from "@/content/site";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Callback API",
+  title: "Callback API documentation",
+  description:
+    "Complete Exende Callback API reference: x402 creation, webhook delivery, event reads, long polling, errors, limits, and examples.",
   alternates: { canonical: "/docs/callback" },
+  openGraph: {
+    title: "Exende Callback API documentation",
+    description: "Canonical reference for temporary callback endpoints and captured webhook events.",
+    url: "/docs/callback",
+  },
+  twitter: {
+    card: "summary",
+    title: "Exende Callback API documentation",
+    description: "Canonical reference for temporary callback endpoints and captured webhook events.",
+  },
 };
 
 const toc = [
@@ -27,6 +41,7 @@ const toc = [
   { id: "limits", label: "Limits" },
   { id: "errors", label: "Errors" },
   { id: "workflow", label: "Typical AI Agent Workflow" },
+  { id: "openapi", label: "OpenAPI specification" },
 ] as const;
 
 export default function CallbackDocsPage() {
@@ -37,6 +52,17 @@ export default function CallbackDocsPage() {
       intro="Temporary public webhook endpoints for AI agents, scripts and automated workflows."
       toc={toc}
     >
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          headline: "Exende Callback API documentation",
+          description: "Canonical Callback API v1 documentation.",
+          url: `${siteConfig.url}/docs/callback`,
+          dateModified: "2026-08-24",
+          author: { "@type": "Organization", name: "Exende" },
+        }}
+      />
       <section id="create-callback" className="surface-rule pt-8">
         <h2 className="font-display text-[1.9rem] leading-tight tracking-[-0.04em] text-white">
           Create Callback
@@ -57,6 +83,11 @@ export default function CallbackDocsPage() {
           the only operation that requires payment; receiving webhooks, reading events, waiting,
           and deleting the callback do not trigger another x402 payment.
         </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link href="/products/callback" className="button-link">Callback product</Link>
+          <Link href="/pricing" className="button-link">Pricing</Link>
+          <Link href={siteConfig.callbackOpenApi} className="button-link" data-variant="accent">OpenAPI</Link>
+        </div>
         <CodeBlock code={codeExamples.createCallback} language="bash" title="Create callback" />
         <div className="mt-6">
           <p className="annotation text-[var(--color-muted)]">Payment-required advertises</p>
@@ -432,6 +463,19 @@ export default function CallbackDocsPage() {
             <li>agent workflows without a public server</li>
           </ul>
         </div>
+      </section>
+
+      <section id="openapi" className="surface-rule mt-12 pt-8">
+        <h2 className="font-display text-[1.9rem] leading-tight tracking-[-0.04em] text-white">
+          OpenAPI specification
+        </h2>
+        <p className="mt-4 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">
+          The static OpenAPI 3.1 contract mirrors the production Callback surface and includes
+          authentication, request and response schemas, errors, limits, and x402 payment notes.
+        </p>
+        <Link href={siteConfig.callbackOpenApi} className="button-link mt-6" data-variant="accent">
+          Open Callback OpenAPI
+        </Link>
       </section>
     </DocsFrame>
   );

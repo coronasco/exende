@@ -1,30 +1,33 @@
 "use client";
 
+import { BrandMark } from "@/components/brand-mark";
 import { topNav } from "@/content/site";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  if (pathname === "/") {
-    return null;
-  }
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[rgba(6,8,13,0.92)] backdrop-blur-md">
-      <div className="page-shell flex h-16 items-center justify-between gap-6">
-        <Link
-          href="/"
-          className="font-display text-[1.9rem] font-semibold tracking-[0.08em] text-[var(--color-foreground)]"
-        >
-          EXENDE
-        </Link>
+    <header className="site-header">
+      <div className="page-shell flex h-[72px] items-center justify-between gap-6">
+        <BrandMark />
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden h-full items-center gap-12 md:flex" aria-label="Primary navigation">
           {topNav.map((item) =>
             item.external ? (
               <a
@@ -32,7 +35,7 @@ export function SiteHeader() {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="annotation text-[var(--color-muted)] transition hover:text-[var(--color-foreground)]"
+                className="site-nav-link"
               >
                 {item.label}
               </a>
@@ -40,11 +43,8 @@ export function SiteHeader() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`annotation transition ${
-                  pathname.startsWith(item.href)
-                    ? "text-[var(--color-accent)]"
-                    : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-                }`}
+                className="site-nav-link"
+                data-active={pathname.startsWith(item.href)}
               >
                 {item.label}
               </Link>
@@ -54,9 +54,10 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center border border-[var(--color-border)] text-[var(--color-foreground)] md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-[var(--color-border)] text-[var(--color-foreground)] md:hidden"
           onClick={() => setMenuOpen((value) => !value)}
           aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
           aria-label="Toggle navigation menu"
         >
           {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -64,7 +65,7 @@ export function SiteHeader() {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-[var(--color-border)] bg-[var(--color-background)] md:hidden">
+        <div id="mobile-navigation" className="border-t border-[var(--color-border)] bg-[rgba(2,6,15,0.98)] md:hidden">
           <div className="page-shell py-4">
             <div className="grid gap-1">
               {topNav.map((item) =>
@@ -74,7 +75,7 @@ export function SiteHeader() {
                     href={item.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-between border-b border-[var(--color-border)] py-3 text-sm text-[var(--color-foreground)]"
+                    className="flex items-center justify-between border-b border-[var(--color-border)] py-4 text-sm text-[var(--color-foreground)]"
                   >
                     <span>{item.label}</span>
                     <span className="annotation">open</span>
@@ -84,7 +85,7 @@ export function SiteHeader() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center justify-between border-b border-[var(--color-border)] py-3 text-sm ${
+                    className={`flex items-center justify-between border-b border-[var(--color-border)] py-4 text-sm ${
                       pathname.startsWith(item.href)
                         ? "text-[var(--color-accent)]"
                         : "text-[var(--color-foreground)]"

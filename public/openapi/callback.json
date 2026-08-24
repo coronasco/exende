@@ -1,0 +1,355 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Exende Callback API",
+    "version": "1.0.0",
+    "description": "Temporary webhook endpoints for AI agents and automated workflows. Creating a callback costs $0.01 USDC through x402 v2 on Base Mainnet."
+  },
+  "servers": [
+    { "url": "https://api.exende.dev", "description": "Callback management API" }
+  ],
+  "security": [],
+  "tags": [
+    { "name": "Callbacks", "description": "Create and manage temporary callback receivers." },
+    { "name": "Webhooks", "description": "Deliver events to a public callback URL." },
+    { "name": "System", "description": "Service health and identity." }
+  ],
+  "paths": {
+    "/v1/callbacks": {
+      "post": {
+        "tags": ["Callbacks"],
+        "summary": "Create a temporary callback",
+        "description": "x402-protected operation. The unpaid response advertises an exact $0.01 USDC payment on eip155:8453 in PAYMENT-REQUIRED.",
+        "operationId": "createCallback",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": false },
+              "example": {}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Callback created.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Callback" } } }
+          },
+          "402": {
+            "description": "x402 payment required.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 payment requirements and Bazaar discovery metadata.",
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/callbacks/{id}/events": {
+      "get": {
+        "tags": ["Callbacks"],
+        "summary": "Read stored callback events",
+        "operationId": "getCallbackEvents",
+        "security": [{ "callbackToken": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/CallbackId" }],
+        "responses": {
+          "200": {
+            "description": "All events in deterministic receipt order.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CallbackEvents" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/callbacks/{id}/wait": {
+      "get": {
+        "tags": ["Callbacks"],
+        "summary": "Wait for the next callback event",
+        "operationId": "waitForCallbackEvent",
+        "security": [{ "callbackToken": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/CallbackId" },
+          {
+            "name": "timeout",
+            "in": "query",
+            "required": false,
+            "description": "Floored and clamped to 1–30 seconds; missing or non-finite values default to 30.",
+            "schema": { "oneOf": [{ "type": "number" }, { "type": "string" }], "default": 30 }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Wait only for the event following this event ID.",
+            "schema": { "type": "string", "pattern": "^evt_[a-f0-9]{32}$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event received or timeout elapsed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/WaitEventResponse" },
+                    { "$ref": "#/components/schemas/WaitTimeoutResponse" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/callbacks/{id}": {
+      "delete": {
+        "tags": ["Callbacks"],
+        "summary": "Delete a callback and its stored events",
+        "operationId": "deleteCallback",
+        "security": [{ "callbackToken": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/CallbackId" }],
+        "responses": {
+          "200": {
+            "description": "Callback deleted.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DeleteCallbackResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/hooks/{id}": {
+      "servers": [{ "url": "https://cb.exende.dev", "description": "Public callback receiver" }],
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Store a POST webhook event",
+        "operationId": "storePostWebhookEvent",
+        "parameters": [{ "$ref": "#/components/parameters/CallbackId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/WebhookEvent" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/WebhookAccepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "413": { "$ref": "#/components/responses/PayloadTooLarge" },
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "put": {
+        "tags": ["Webhooks"],
+        "summary": "Store a PUT webhook event",
+        "operationId": "storePutWebhookEvent",
+        "parameters": [{ "$ref": "#/components/parameters/CallbackId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/WebhookEvent" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/WebhookAccepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "413": { "$ref": "#/components/responses/PayloadTooLarge" },
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "patch": {
+        "tags": ["Webhooks"],
+        "summary": "Store a PATCH webhook event",
+        "operationId": "storePatchWebhookEvent",
+        "parameters": [{ "$ref": "#/components/parameters/CallbackId" }],
+        "requestBody": { "$ref": "#/components/requestBodies/WebhookEvent" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/WebhookAccepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "410": { "$ref": "#/components/responses/Gone" },
+          "413": { "$ref": "#/components/responses/PayloadTooLarge" },
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health check",
+        "operationId": "getCallbackHealth",
+        "responses": {
+          "200": {
+            "description": "Service is healthy.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Health" },
+                "example": { "ok": true, "service": "exende", "version": "1.0.0", "environment": "production" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "callbackToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "ex_cb_sk_...",
+        "description": "Private read_token returned by callback creation."
+      }
+    },
+    "parameters": {
+      "CallbackId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "pattern": "^cb_[A-Za-z0-9]{24}$" }
+      }
+    },
+    "requestBodies": {
+      "WebhookEvent": {
+          "required": false,
+          "description": "Maximum 262144 bytes. Missing Content-Type is accepted and stored as text.",
+          "content": {
+            "application/json": { "schema": {} },
+            "text/plain": { "schema": { "type": "string" } },
+            "application/x-www-form-urlencoded": { "schema": { "type": "string" } }
+          }
+      }
+    },
+    "responses": {
+      "WebhookAccepted": { "description": "Event stored.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WebhookAccepted" } } } },
+      "BadRequest": { "description": "INVALID_CALLBACK_ID or INVALID_JSON.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "Unauthorized": { "description": "MISSING_AUTHORIZATION, INVALID_AUTHORIZATION, or INVALID_TOKEN.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "NotFound": { "description": "CALLBACK_NOT_FOUND or EVENT_NOT_FOUND.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "Gone": { "description": "CALLBACK_EXPIRED or CALLBACK_EVENT_LIMIT_REACHED.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "PayloadTooLarge": { "description": "PAYLOAD_TOO_LARGE.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "UnsupportedMediaType": { "description": "UNSUPPORTED_MEDIA_TYPE.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "RateLimited": { "description": "RATE_LIMIT_EXCEEDED. Limit: 30 requests per 60 seconds per callback.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "InternalError": { "description": "INTERNAL_ERROR.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+    },
+    "schemas": {
+      "Callback": {
+        "type": "object",
+        "required": ["id", "callback_url", "events_url", "wait_url", "read_token", "expires_at", "limits"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^cb_[A-Za-z0-9]{24}$", "example": "cb_3t2cC09baD4yOvoeVMDK2vGQ" },
+          "callback_url": { "type": "string", "format": "uri", "example": "https://cb.exende.dev/hooks/cb_3t2cC09baD4yOvoeVMDK2vGQ" },
+          "events_url": { "type": "string", "format": "uri" },
+          "wait_url": { "type": "string", "format": "uri" },
+          "read_token": { "type": "string", "writeOnly": true, "example": "ex_cb_sk_..." },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "limits": {
+            "type": "object",
+            "required": ["events", "payload_bytes"],
+            "properties": {
+              "events": { "type": "integer", "const": 10 },
+              "payload_bytes": { "type": "integer", "const": 262144 }
+            }
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "required": ["id", "received_at", "method", "content_type", "headers", "body", "size_bytes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^evt_[a-f0-9]{32}$" },
+          "received_at": { "type": "string", "format": "date-time" },
+          "method": { "type": "string", "enum": ["POST", "PUT", "PATCH"] },
+          "content_type": { "type": ["string", "null"] },
+          "headers": { "type": "object", "additionalProperties": { "type": "string" } },
+          "body": {},
+          "size_bytes": { "type": "integer", "minimum": 0, "maximum": 262144 }
+        }
+      },
+      "CallbackEvents": {
+        "type": "object",
+        "required": ["callback_id", "status", "expires_at", "event_count", "events"],
+        "properties": {
+          "callback_id": { "type": "string" },
+          "status": { "type": "string", "enum": ["active"] },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "event_count": { "type": "integer", "minimum": 0, "maximum": 10 },
+          "events": { "type": "array", "maxItems": 10, "items": { "$ref": "#/components/schemas/Event" } }
+        }
+      },
+      "WaitEventResponse": {
+        "type": "object",
+        "required": ["received", "timeout", "event", "next_wait_url"],
+        "properties": {
+          "received": { "type": "boolean", "const": true },
+          "timeout": { "type": "boolean", "const": false },
+          "event": { "$ref": "#/components/schemas/Event" },
+          "next_wait_url": { "type": "string" }
+        }
+      },
+      "WaitTimeoutResponse": {
+        "type": "object",
+        "required": ["received", "timeout", "after"],
+        "properties": {
+          "received": { "type": "boolean", "const": false },
+          "timeout": { "type": "boolean", "const": true },
+          "after": { "type": ["string", "null"] }
+        }
+      },
+      "WebhookAccepted": {
+        "type": "object",
+        "required": ["received", "event_id"],
+        "properties": {
+          "received": { "type": "boolean", "const": true },
+          "event_id": { "type": "string", "pattern": "^evt_[a-f0-9]{32}$" }
+        }
+      },
+      "DeleteCallbackResponse": {
+        "type": "object",
+        "required": ["deleted", "callback_id"],
+        "properties": {
+          "deleted": { "type": "boolean", "const": true },
+          "callback_id": { "type": "string" }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": ["ok", "service", "version", "environment"],
+        "properties": {
+          "ok": { "type": "boolean" },
+          "service": { "type": "string" },
+          "version": { "type": "string" },
+          "environment": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string", "example": "CALLBACK_NOT_FOUND" },
+              "message": { "type": "string" },
+              "request_id": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

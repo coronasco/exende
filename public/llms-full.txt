@@ -1,0 +1,51 @@
+# Exende API context
+
+Canonical website: https://exende.dev
+
+Exende provides two separate production infrastructure APIs for AI agents and automated workflows. Both are operated through machine-readable HTTP without a mandatory dashboard. x402-paid creation uses exact USDC settlement on Base Mainnet (`eip155:8453`).
+
+## Callback API
+
+Purpose: create a temporary public webhook endpoint, receive external POST/PUT/PATCH events, then read or long-poll them with a private read token.
+
+- Management base: https://api.exende.dev
+- Public receiver: https://cb.exende.dev
+- Create: POST /v1/callbacks
+- Read events: GET /v1/callbacks/{id}/events
+- Wait: GET /v1/callbacks/{id}/wait?timeout=1..30&after={event_id}
+- Delete: DELETE /v1/callbacks/{id}
+- Price: $0.01 USDC per callback creation through x402 v2
+- Limits: 10-minute lifetime, 10 events, 262144 bytes per event, 30 receiver requests per 60 seconds per callback
+- Authentication: creation uses x402; follow-up reads/waits/deletion use the returned `read_token`
+- Canonical docs: https://exende.dev/docs/callback
+- OpenAPI: https://exende.dev/openapi/callback.json
+
+## Retry API v1
+
+Purpose: execute a public HTTPS request as a durable job with automatic retry scheduling, recovery, status polling, attempt history, and an optional signed terminal callback.
+
+- Base: https://retry.exende.dev
+- Create: POST /v1/retries
+- Status: GET /v1/retries/{id}
+- Attempts: GET /v1/retries/{id}/attempts
+- Callback status: GET /v1/retries/{id}/callback
+- Cancel: POST /v1/retries/{id}/cancel (API-key jobs only)
+- Usage: GET /v1/usage (API key only)
+- Paid price: $0.02 USDC per x402-paid job; internal attempts are included
+- Paid limits: up to 8 attempts and a 24-hour lifetime
+- API-key limit: up to 20 attempts
+- Methods: GET, POST, PUT, PATCH, DELETE
+- Default policy: 8 attempts, exponential strategy, 5-second initial delay, 300-second maximum delay
+- Default retryable HTTP statuses: 408, 425, 429, 500, 502, 503, 504; timeouts and network errors are retryable
+- Outbound security: public HTTPS only, up to 3 same-origin redirects, 20-second timeout across the complete chain
+- Data handling: request secrets are encrypted at rest; upstream response bodies are not persisted or returned
+- Authentication: API key for account jobs; x402-paid creation returns a resource-scoped `read_token`
+- Canonical docs: https://exende.dev/docs/retry
+- OpenAPI: https://exende.dev/openapi/retry.json
+
+## x402
+
+An unpaid creation request returns HTTP 402 with PAYMENT-REQUIRED. Build payment from those current requirements, repeat the same request with PAYMENT-SIGNATURE, and read PAYMENT-RESPONSE after settlement. Retry paid clients must include the x402 v2 payment-identifier extension and reuse one identifier only for retries of the same logical job.
+
+Canonical x402 docs: https://exende.dev/docs/x402
+API catalog: https://exende.dev/api/catalog.json

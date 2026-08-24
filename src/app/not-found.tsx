@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "The requested Exende page could not be found.",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (
@@ -17,6 +24,9 @@ export default function NotFound() {
           </Link>
           <Link href="/docs" className="button-link" data-variant="accent">
             Docs
+          </Link>
+          <Link href="/products" className="button-link">
+            Products
           </Link>
         </div>
       </div>

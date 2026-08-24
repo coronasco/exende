@@ -10,6 +10,18 @@ type CopyButtonProps = {
 export function CopyButton({ value }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
+  const copyWithTextarea = () => {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  };
+
   useEffect(() => {
     if (!copied) {
       return;
@@ -27,20 +39,17 @@ export function CopyButton({ value }: CopyButtonProps) {
           if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(value);
           } else {
-            const textarea = document.createElement("textarea");
-            textarea.value = value;
-            textarea.setAttribute("readonly", "");
-            textarea.style.position = "absolute";
-            textarea.style.left = "-9999px";
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textarea);
+            copyWithTextarea();
           }
 
           setCopied(true);
         } catch {
-          setCopied(false);
+          try {
+            copyWithTextarea();
+            setCopied(true);
+          } catch {
+            setCopied(false);
+          }
         }
       }}
       className="inline-flex items-center gap-2 border border-white/10 px-2.5 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--color-muted)] transition hover:border-[var(--color-border-strong)] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"

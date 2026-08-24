@@ -1,0 +1,401 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Exende Retry API",
+    "version": "1.0.0",
+    "description": "Durable outbound HTTPS jobs with automatic retries, recovery, status polling, attempt history, and optional terminal callbacks. One x402-paid job costs $0.02 USDC and includes up to 8 attempts within 24 hours."
+  },
+  "servers": [
+    { "url": "https://retry.exende.dev", "description": "Exende Retry production API" }
+  ],
+  "security": [],
+  "tags": [
+    { "name": "Retries", "description": "Create and inspect durable outbound Retry jobs." },
+    { "name": "Account", "description": "API-key-only account operations." },
+    { "name": "System", "description": "Service descriptors, health, and identity." }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Read the Retry service descriptor",
+        "operationId": "getRetryDescriptor",
+        "responses": { "200": { "description": "Human- and machine-readable service descriptor.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": true } } } } }
+      }
+    },
+    "/v1/retries": {
+      "get": {
+        "tags": ["Retries"],
+        "summary": "Describe the paid Retry creation resource",
+        "operationId": "describeRetryCreation",
+        "responses": { "200": { "description": "Resource URL, POST method, price, network, and usage instructions.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": true } } } } }
+      },
+      "post": {
+        "tags": ["Retries"],
+        "summary": "Create a durable Retry job",
+        "description": "Use an account API key (up to 20 attempts) or no Authorization header and the x402 flow (up to 8 attempts). Sending any Authorization header selects the API-key path.",
+        "operationId": "createRetry",
+        "security": [{ "retryBearer": [] }, {}],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "API-key path only. 1–255 characters, account-scoped, retained for 24 hours.",
+            "schema": { "type": "string", "minLength": 1, "maxLength": 255 }
+          },
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "required": false,
+            "description": "Base64-encoded x402 v2 payment payload. Paid clients must include the payment-identifier extension.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateRetryRequest" },
+              "example": {
+                "request": { "method": "GET", "url": "https://httpbin.org/status/204" },
+                "retry": { "max_attempts": 8, "strategy": "exponential", "initial_delay_seconds": 5, "max_delay_seconds": 300 }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Retry created. x402 responses additionally include read_token, PAYMENT-RESPONSE, and Cache-Control: private, no-store.",
+            "headers": {
+              "PAYMENT-RESPONSE": { "description": "x402 settlement response on the paid path.", "schema": { "type": "string" } },
+              "Idempotency-Replayed": { "description": "true when an API-key idempotency replay returns the original job.", "schema": { "type": "boolean" } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateRetryResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "402": {
+            "description": "PAYMENT_REQUIRED or PAYMENT_SETTLEMENT_FAILED.",
+            "headers": {
+              "PAYMENT-REQUIRED": { "description": "Base64-encoded x402 v2 requirements for exact 20000 atomic USDC units on eip155:8453, including Bazaar schemas.", "schema": { "type": "string" } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "409": { "$ref": "#/components/responses/Conflict" },
+          "413": { "$ref": "#/components/responses/PayloadTooLarge" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": { "$ref": "#/components/responses/ReconciliationPending" }
+        }
+      }
+    },
+    "/v1/retries/{id}": {
+      "get": {
+        "tags": ["Retries"],
+        "summary": "Read Retry status",
+        "operationId": "getRetry",
+        "security": [{ "retryBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RetryId" }],
+        "responses": {
+          "200": { "description": "Current job status.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RetryStatus" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/RetryNotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/retries/{id}/attempts": {
+      "get": {
+        "tags": ["Retries"],
+        "summary": "Read Retry attempt history",
+        "operationId": "getRetryAttempts",
+        "security": [{ "retryBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RetryId" }],
+        "responses": {
+          "200": { "description": "Ordered attempt history.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AttemptsResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/RetryNotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/retries/{id}/callback": {
+      "get": {
+        "tags": ["Retries"],
+        "summary": "Read terminal callback delivery status",
+        "description": "Returns safe delivery metadata only. Callback URL, secret, raw payload, leases, and internal generation are not exposed.",
+        "operationId": "getRetryCallback",
+        "security": [{ "retryBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RetryId" }],
+        "responses": {
+          "200": { "description": "Callback configuration and safe delivery status.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CallbackStatusResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/RetryNotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/retries/{id}/cancel": {
+      "post": {
+        "tags": ["Account"],
+        "summary": "Cancel a non-terminal Retry",
+        "description": "API-key-owned jobs only. A request already sent upstream cannot be recalled.",
+        "operationId": "cancelRetry",
+        "security": [{ "retryBearer": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RetryId" }],
+        "responses": {
+          "200": { "description": "Job cancelled or already cancelled.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CancelRetryResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/RetryNotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/v1/usage": {
+      "get": {
+        "tags": ["Account"],
+        "summary": "Read account-scoped outbound attempt usage",
+        "description": "API-key only. from is inclusive, to is exclusive, and the maximum span is 90 days. Omitted bounds default to the last 30 days.",
+        "operationId": "getRetryUsage",
+        "security": [{ "retryBearer": [] }],
+        "parameters": [
+          { "name": "from", "in": "query", "required": false, "schema": { "type": "string", "format": "date-time" } },
+          { "name": "to", "in": "query", "required": false, "schema": { "type": "string", "format": "date-time" } }
+        ],
+        "responses": {
+          "200": { "description": "Bounded account usage.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UsageResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health check",
+        "operationId": "getRetryHealth",
+        "responses": {
+          "200": {
+            "description": "Service is healthy.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Health" },
+                "example": { "ok": true, "service": "exende-retry", "version": "1.0.0", "environment": "production" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "retryBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Account API key (ex_test_... or ex_live_...) or matching x402-paid job read token (ex_retry_read_...), depending on operation."
+      }
+    },
+    "parameters": {
+      "RetryId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "pattern": "^retry_[a-f0-9]{32}$" }
+      }
+    },
+    "responses": {
+      "BadRequest": { "description": "INVALID_REQUEST, INVALID_URL, URL_NOT_ALLOWED, INVALID_HEADERS, TOO_MANY_ATTEMPTS, INVALID_IDEMPOTENCY_KEY, INVALID_USAGE_RANGE, or PAYMENT_IDENTIFIER_REQUIRED.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "Unauthorized": { "description": "MISSING_AUTHORIZATION, INVALID_AUTHORIZATION, INVALID_API_KEY, or INVALID_STATUS_TOKEN.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "RetryNotFound": { "description": "RETRY_NOT_FOUND. Missing and cross-account resources are indistinguishable.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "Conflict": { "description": "RETRY_ALREADY_COMPLETED, IDEMPOTENCY_KEY_CONFLICT, PAYMENT_IDENTIFIER_CONFLICT, or PAYMENT_IN_PROGRESS.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "PayloadTooLarge": { "description": "PAYLOAD_TOO_LARGE.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "ReconciliationPending": { "description": "PAYMENT_RECONCILIATION_PENDING. Retry the same logical request with the same payment identifier.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+      "InternalError": { "description": "INTERNAL_ERROR.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+    },
+    "schemas": {
+      "CreateRetryRequest": {
+        "type": "object",
+        "required": ["request"],
+        "additionalProperties": false,
+        "properties": {
+          "request": { "$ref": "#/components/schemas/OutboundRequest" },
+          "retry": { "$ref": "#/components/schemas/RetryPolicy" },
+          "retry_status_codes": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "integer", "minimum": 100, "maximum": 599 } },
+          "success_codes": { "type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": true, "items": { "type": "integer", "minimum": 100, "maximum": 599 } },
+          "callback_url": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "callback_secret": { "type": "string", "minLength": 32, "maxLength": 512, "writeOnly": true }
+        }
+      },
+      "OutboundRequest": {
+        "type": "object",
+        "required": ["method", "url"],
+        "additionalProperties": false,
+        "properties": {
+          "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          "url": { "type": "string", "format": "uri", "maxLength": 2048, "description": "Public HTTPS only. IP literals, private/internal destinations, and Exende-owned hosts are blocked." },
+          "headers": { "type": "object", "maxProperties": 32, "additionalProperties": { "type": "string" }, "description": "16 KiB total; 8 KiB per name/value pair; blocked header names apply." },
+          "body": { "description": "JSON-compatible value or string. Maximum 256 KiB after serialization and forbidden for GET." }
+        }
+      },
+      "RetryPolicy": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "max_attempts": { "type": "integer", "minimum": 1, "maximum": 20, "default": 8, "description": "Maximum 8 for x402-paid creation and 20 for API-key creation." },
+          "strategy": { "type": "string", "enum": ["fixed", "exponential"], "default": "exponential" },
+          "initial_delay_seconds": { "type": "integer", "minimum": 2, "maximum": 3600, "default": 5 },
+          "max_delay_seconds": { "type": "integer", "minimum": 2, "maximum": 3600, "default": 300 }
+        }
+      },
+      "CreateRetryResponse": {
+        "type": "object",
+        "required": ["id", "status", "attempts", "max_attempts", "created_at", "next_attempt_at", "status_url"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^retry_[a-f0-9]{32}$" },
+          "status": { "type": "string", "const": "pending" },
+          "attempts": { "type": "integer", "const": 0 },
+          "max_attempts": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "next_attempt_at": { "type": "string", "format": "date-time" },
+          "status_url": { "type": "string", "format": "uri" },
+          "read_token": { "type": "string", "writeOnly": true, "description": "Present only for x402-paid creation.", "example": "ex_retry_read_..." }
+        }
+      },
+      "RetryStatus": {
+        "type": "object",
+        "required": ["id", "status", "request", "attempts", "max_attempts", "generation", "retry", "created_at", "updated_at", "expires_at", "attempts_url"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "running", "retrying", "succeeded", "failed", "cancelled", "expired"] },
+          "request": {
+            "type": "object",
+            "required": ["method", "destination_host"],
+            "properties": { "method": { "type": "string" }, "destination_host": { "type": "string" } }
+          },
+          "attempts": { "type": "integer", "minimum": 0 },
+          "max_attempts": { "type": "integer" },
+          "generation": { "type": "integer", "minimum": 0 },
+          "retry": { "$ref": "#/components/schemas/RetryPolicy" },
+          "last_status_code": { "type": ["integer", "null"] },
+          "last_error_code": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "next_attempt_at": { "type": ["string", "null"], "format": "date-time" },
+          "completed_at": { "type": ["string", "null"], "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "attempts_url": { "type": "string", "format": "uri" }
+        }
+      },
+      "Attempt": {
+        "type": "object",
+        "required": ["attempt_number", "outcome", "duration_ms", "retry_scheduled", "created_at"],
+        "properties": {
+          "attempt_number": { "type": "integer", "minimum": 1 },
+          "outcome": { "type": "string", "enum": ["success", "http_failure", "timeout", "network_error", "blocked_redirect", "cancelled"] },
+          "status_code": { "type": ["integer", "null"] },
+          "error_code": { "type": ["string", "null"] },
+          "duration_ms": { "type": "integer", "minimum": 0 },
+          "retry_scheduled": { "type": "boolean" },
+          "retry_delay_seconds": { "type": ["integer", "null"] },
+          "retry_after_seconds": { "type": ["integer", "null"] },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AttemptsResponse": {
+        "type": "object",
+        "required": ["retry_id", "count", "attempts"],
+        "properties": {
+          "retry_id": { "type": "string" },
+          "count": { "type": "integer", "minimum": 0 },
+          "attempts": { "type": "array", "items": { "$ref": "#/components/schemas/Attempt" } }
+        }
+      },
+      "CallbackDelivery": {
+        "type": "object",
+        "required": ["event_type", "status", "attempt_count", "max_attempts", "created_at", "updated_at"],
+        "properties": {
+          "event_type": { "type": "string", "enum": ["retry.succeeded", "retry.failed", "retry.cancelled"] },
+          "status": { "type": "string", "enum": ["pending", "delivering", "retrying", "delivered", "failed"] },
+          "attempt_count": { "type": "integer", "minimum": 0 },
+          "max_attempts": { "type": "integer", "const": 8 },
+          "last_status_code": { "type": ["integer", "null"] },
+          "last_error_code": { "type": ["string", "null"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "delivered_at": { "type": ["string", "null"], "format": "date-time" },
+          "next_attempt_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "CallbackStatusResponse": {
+        "type": "object",
+        "required": ["retry_id", "configured", "delivery"],
+        "properties": {
+          "retry_id": { "type": "string" },
+          "configured": { "type": "boolean" },
+          "delivery": { "oneOf": [{ "$ref": "#/components/schemas/CallbackDelivery" }, { "type": "null" }] }
+        }
+      },
+      "CancelRetryResponse": {
+        "type": "object",
+        "required": ["id", "status", "attempts", "generation", "cancelled_at", "already_cancelled", "in_flight_request_may_have_been_sent", "status_url"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "const": "cancelled" },
+          "attempts": { "type": "integer" },
+          "generation": { "type": "integer" },
+          "cancelled_at": { "type": "string", "format": "date-time" },
+          "already_cancelled": { "type": "boolean" },
+          "in_flight_request_may_have_been_sent": { "type": "boolean" },
+          "status_url": { "type": "string", "format": "uri" }
+        }
+      },
+      "UsageResponse": {
+        "type": "object",
+        "required": ["period", "outbound_attempts", "billable_attempts", "total_quantity", "billable_quantity"],
+        "properties": {
+          "period": {
+            "type": "object",
+            "required": ["from", "to", "to_exclusive"],
+            "properties": {
+              "from": { "type": "string", "format": "date-time" },
+              "to": { "type": "string", "format": "date-time" },
+              "to_exclusive": { "type": "boolean", "const": true }
+            }
+          },
+          "outbound_attempts": { "type": "integer", "minimum": 0 },
+          "billable_attempts": { "type": "integer", "minimum": 0 },
+          "total_quantity": { "type": "integer", "minimum": 0 },
+          "billable_quantity": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": ["ok", "service", "version", "environment"],
+        "properties": {
+          "ok": { "type": "boolean" },
+          "service": { "type": "string" },
+          "version": { "type": "string" },
+          "environment": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string", "example": "INVALID_REQUEST" },
+              "message": { "type": "string" },
+              "request_id": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

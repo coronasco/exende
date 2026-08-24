@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 263 28" role="img" aria-labelledby="title desc">
+  <title id="title">EXENDE</title>
+  <desc id="desc">Clean geometric EXENDE wordmark based on the selected reference</desc>
+
+  <!-- Transparent background; clean vector geometry; no font dependency. -->
+  <g fill="#F7F7F5">
+    <!-- E -->
+    <path d="M0 0H28V4H0V0ZM0 12H28V16H5V24H28V28H0V12Z"/>
+
+    <!-- X -->
+    <path d="M45 0H52L61 10.5L70 0H77L64 14L77 28H70L61 17.5L52 28H45L58 14L45 0Z"/>
+
+    <!-- E -->
+    <path d="M94 0H122V4H94V0ZM94 12H122V16H99V24H122V28H94V12Z"/>
+
+    <!-- N -->
+    <path d="M139 28V0H145L166 20.5V0H171V28H166L144 7V28H139Z"/>
+
+    <!-- D -->
+    <path fill-rule="evenodd" d="M188 0H202C213.7 0 220 5.1 220 14C220 22.9 213.7 28 202 28H188V0ZM193 4V24H202C210.4 24 215 20.6 215 14C215 7.4 210.4 4 202 4H193Z"/>
+
+    <!-- E -->
+    <path d="M235 0H263V4H235V0ZM235 12H263V16H240V24H263V28H235V12Z"/>
+  </g>
+</svg>

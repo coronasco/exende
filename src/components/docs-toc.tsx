@@ -8,14 +8,13 @@ export function DocsToc({ sections }: DocsTocProps) {
   }
 
   return (
-    <aside className="sticky top-24 hidden h-fit xl:block">
+    <aside className="docs-toc">
       <p className="annotation text-[var(--color-muted)]">On this page</p>
-      <nav className="mt-4 space-y-3">
+      <nav className="mt-5 space-y-1">
         {sections.map((section) => (
           <a
             key={section.id}
             href={`#${section.id}`}
-            className="block text-sm leading-6 text-[var(--color-muted)] transition hover:text-white"
           >
             {section.label}
           </a>

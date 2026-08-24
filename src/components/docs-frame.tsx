@@ -1,6 +1,10 @@
 import { DocsMobileNav } from "@/components/docs-mobile-nav";
+import { DocsSearch } from "@/components/docs-search";
 import { DocsSidebar } from "@/components/docs-sidebar";
 import { DocsToc } from "@/components/docs-toc";
+import { docsSequence } from "@/content/docs";
+import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 type DocsFrameProps = {
   currentHref: string;
@@ -11,9 +15,15 @@ type DocsFrameProps = {
 };
 
 export function DocsFrame({ currentHref, title, intro, toc = [], children }: DocsFrameProps) {
+  const currentIndex = docsSequence.findIndex((item) => item.href === currentHref);
+  const previous = currentIndex > 0 ? docsSequence[currentIndex - 1] : null;
+  const next = currentIndex >= 0 && currentIndex < docsSequence.length - 1
+    ? docsSequence[currentIndex + 1]
+    : null;
+
   return (
-    <div className="page-shell py-8 sm:py-10">
-      <div className="mb-6 flex items-center justify-between gap-4 border-b border-[var(--color-border)] pb-5 md:hidden">
+    <div className="docs-shell">
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)] px-5 py-4 min-[900px]:hidden">
         <div>
           <p className="annotation text-[var(--color-muted)]">Exende Docs</p>
           <p className="mt-2 text-sm text-[var(--color-foreground)]">{title}</p>
@@ -21,19 +31,45 @@ export function DocsFrame({ currentHref, title, intro, toc = [], children }: Doc
         <DocsMobileNav currentHref={currentHref} />
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-[180px_minmax(0,1fr)] xl:grid-cols-[180px_minmax(0,760px)_180px]">
+      <div className="docs-grid">
         <DocsSidebar currentHref={currentHref} />
 
-        <article className="min-w-0">
+        <article className="docs-article">
+          <DocsSearch />
+          <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
+            <Link href="/" className="hover:text-[var(--color-accent)]">Home</Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link href="/docs" className="hover:text-[var(--color-accent)]">Docs</Link>
+            {currentHref !== "/docs" ? <><ChevronRight className="h-3 w-3" /><span aria-current="page" className="text-white">{title}</span></> : null}
+          </nav>
+          <div className="mb-6 flex flex-wrap gap-2" aria-label="Documentation product switcher">
+            <Link href="/docs/callback" className="docs-product-switch" data-active={currentHref === "/docs/callback"}>Callback</Link>
+            <Link href="/docs/retry" className="docs-product-switch" data-active={currentHref === "/docs/retry"}>Retry</Link>
+          </div>
           <header className="border-b border-[var(--color-border)] pb-8">
-            <p className="annotation text-[var(--color-muted)]">Docs</p>
-            <h1 className="font-display mt-5 text-[2.6rem] leading-[0.96] tracking-[-0.04em] text-white sm:text-[3.3rem]">
+            <h1 className="font-condensed text-[3.2rem] font-semibold uppercase leading-[0.92] tracking-[-0.02em] text-white sm:text-[4rem]">
               {title}
             </h1>
             <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">{intro}</p>
+            <p className="annotation mt-5 text-[var(--color-muted)]">Updated August 24, 2026</p>
           </header>
 
-          <div className="pt-10">{children}</div>
+          <div className="pt-8">{children}</div>
+
+          <nav className="mt-14 grid gap-3 border-t border-[var(--color-border)] pt-7 sm:grid-cols-2" aria-label="Documentation pagination">
+            {previous ? (
+              <Link href={previous.href} className="docs-page-link">
+                <ArrowLeft className="h-4 w-4" />
+                <span><small>Previous</small>{previous.label}</span>
+              </Link>
+            ) : <span />}
+            {next ? (
+              <Link href={next.href} className="docs-page-link justify-end text-right">
+                <span><small>Next</small>{next.label}</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : null}
+          </nav>
         </article>
 
         <DocsToc sections={toc} />

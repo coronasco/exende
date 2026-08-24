@@ -1,9 +1,50 @@
 import { siteConfig } from "@/content/site";
 
-export const docsNavigation = [
-  { label: "Overview", href: "/docs" },
+export const docsGroups = [
+  {
+    label: "Start",
+    items: [
+      { label: "Choose a product", href: "/docs" },
+      { label: "x402 payments", href: "/docs/x402" },
+      { label: "API surface", href: "/api" },
+    ],
+  },
+  {
+    label: "Callback API",
+    items: [
+      { label: "Overview & quickstart", href: "/docs/callback" },
+      { label: "Create a callback", href: "/docs/callback#create-callback" },
+      { label: "Receive events", href: "/docs/callback#send-webhook" },
+      { label: "Read events", href: "/docs/callback#read-events" },
+      { label: "Wait for an event", href: "/docs/callback#wait-event" },
+      { label: "Errors & limits", href: "/docs/callback#errors" },
+    ],
+  },
+  {
+    label: "Retry API v1",
+    items: [
+      { label: "Overview & quickstart", href: "/docs/retry" },
+      { label: "Create a Retry job", href: "/docs/retry#create-job" },
+      { label: "Lifecycle & status", href: "/docs/retry#lifecycle" },
+      { label: "Attempts & history", href: "/docs/retry#attempts" },
+      { label: "Terminal callback", href: "/docs/retry#terminal-callback" },
+      { label: "Policies & idempotency", href: "/docs/retry#policies" },
+      { label: "Errors & limits", href: "/docs/retry#errors" },
+    ],
+  },
+] as const;
+
+export const docsNavigation = docsGroups.reduce<{ label: string; href: string }[]>(
+  (items, group) => [...items, ...group.items],
+  [],
+);
+
+export const docsSequence = [
+  { label: "Documentation", href: "/docs" },
   { label: "Callback API", href: "/docs/callback" },
+  { label: "Retry API v1", href: "/docs/retry" },
   { label: "x402 Payments", href: "/docs/x402" },
+  { label: "API Surface", href: "/api" },
 ] as const;
 
 export const callbackFacts = [
@@ -140,4 +181,55 @@ export const productionSurface = [
   ["Base URL", siteConfig.apiBase],
   ["Callback host", siteConfig.callbackBase],
   ["OpenAPI", siteConfig.openapiUrl],
+] as const;
+
+export const retryFacts = [
+  { label: "API version", value: siteConfig.retryVersion },
+  { label: "Paid job price", value: "$0.02 USDC" },
+  { label: "Paid maximum attempts", value: "8" },
+  { label: "API-key maximum attempts", value: "20" },
+  { label: "Maximum job lifetime", value: "24 hours" },
+  { label: "Default policy", value: "8 attempts, exponential, 5s initial, 300s maximum" },
+  { label: "Retry delay range", value: "2–3600 seconds" },
+  { label: "Outbound timeout", value: "20 seconds across the redirect chain" },
+  { label: "Redirects", value: "Up to 3, same origin only" },
+  { label: "Outbound body", value: "256 KiB maximum" },
+  { label: "Creation JSON", value: "320 KiB maximum" },
+  { label: "Network", value: "Base Mainnet · eip155:8453" },
+] as const;
+
+export const retryErrorRows = [
+  ["400", "INVALID_REQUEST"],
+  ["400", "INVALID_URL"],
+  ["400", "URL_NOT_ALLOWED"],
+  ["400", "INVALID_HEADERS"],
+  ["400", "TOO_MANY_ATTEMPTS"],
+  ["400", "INVALID_IDEMPOTENCY_KEY"],
+  ["400", "INVALID_USAGE_RANGE"],
+  ["400", "PAYMENT_IDENTIFIER_REQUIRED"],
+  ["401", "MISSING_AUTHORIZATION"],
+  ["401", "INVALID_AUTHORIZATION"],
+  ["401", "INVALID_API_KEY"],
+  ["401", "INVALID_STATUS_TOKEN"],
+  ["402", "PAYMENT_REQUIRED"],
+  ["402", "PAYMENT_SETTLEMENT_FAILED"],
+  ["404", "RETRY_NOT_FOUND"],
+  ["404", "NOT_FOUND"],
+  ["409", "RETRY_ALREADY_COMPLETED"],
+  ["409", "IDEMPOTENCY_KEY_CONFLICT"],
+  ["409", "PAYMENT_IDENTIFIER_CONFLICT"],
+  ["409", "PAYMENT_IN_PROGRESS"],
+  ["413", "PAYLOAD_TOO_LARGE"],
+  ["500", "INTERNAL_ERROR"],
+  ["503", "PAYMENT_RECONCILIATION_PENDING"],
+] as const;
+
+export const retryEndpointRows = [
+  ["POST", "/v1/retries", "Create a durable Retry job.", "API key or x402 payment."],
+  ["GET", "/v1/retries/{id}", "Read job status.", "API key or paid-job read token."],
+  ["GET", "/v1/retries/{id}/attempts", "Read attempt history.", "API key or paid-job read token."],
+  ["GET", "/v1/retries/{id}/callback", "Read safe callback delivery status.", "API key or paid-job read token."],
+  ["POST", "/v1/retries/{id}/cancel", "Cancel a non-terminal job.", "API key only."],
+  ["GET", "/v1/usage", "Read account-scoped usage.", "API key only."],
+  ["GET", "/health", "Service health.", "None."],
 ] as const;
