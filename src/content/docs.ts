@@ -4,9 +4,19 @@ export const docsGroups = [
   {
     label: "Start",
     items: [
-      { label: "Choose a product", href: "/docs" },
+      { label: "Documentation", href: "/docs" },
       { label: "x402 payments", href: "/docs/x402" },
       { label: "API surface", href: "/api" },
+    ],
+  },
+  {
+    label: "Jobs & Hiring Data",
+    items: [
+      { label: "Public overview", href: "/docs/jobs" },
+      { label: "Request", href: "/docs/jobs#request" },
+      { label: "Response schema", href: "/docs/jobs#response" },
+      { label: "Caching & freshness", href: "/docs/jobs#caching" },
+      { label: "Access roadmap", href: "/docs/jobs#access" },
     ],
   },
   {
@@ -32,6 +42,17 @@ export const docsGroups = [
       { label: "Errors & limits", href: "/docs/retry#errors" },
     ],
   },
+  {
+    label: "Resolve API v1",
+    items: [
+      { label: "Overview & quickstart", href: "/docs/resolve" },
+      { label: "Resolve a resource", href: "/docs/resolve#create-resolve" },
+      { label: "Read a result", href: "/docs/resolve#read-result" },
+      { label: "Formats & output", href: "/docs/resolve#formats" },
+      { label: "Security & limits", href: "/docs/resolve#security" },
+      { label: "Errors", href: "/docs/resolve#errors" },
+    ],
+  },
 ] as const;
 
 export const docsNavigation = docsGroups.reduce<{ label: string; href: string }[]>(
@@ -41,8 +62,10 @@ export const docsNavigation = docsGroups.reduce<{ label: string; href: string }[
 
 export const docsSequence = [
   { label: "Documentation", href: "/docs" },
+  { label: "Jobs Data public overview", href: "/docs/jobs" },
   { label: "Callback API", href: "/docs/callback" },
   { label: "Retry API v1", href: "/docs/retry" },
+  { label: "Resolve API v1", href: "/docs/resolve" },
   { label: "x402 Payments", href: "/docs/x402" },
   { label: "API Surface", href: "/api" },
 ] as const;
@@ -232,4 +255,47 @@ export const retryEndpointRows = [
   ["POST", "/v1/retries/{id}/cancel", "Cancel a non-terminal job.", "API key only."],
   ["GET", "/v1/usage", "Read account-scoped usage.", "API key only."],
   ["GET", "/health", "Service health.", "None."],
+] as const;
+
+export const resolveFacts = [
+  { label: "API version", value: siteConfig.resolveVersion },
+  { label: "Price", value: "$0.03 USDC per Resolve job" },
+  { label: "Payment", value: "x402 v2 exact on Base Mainnet" },
+  { label: "Input", value: "Public HTTP or HTTPS URL" },
+  { label: "Redirects", value: "3 maximum" },
+  { label: "Download", value: "10 MiB maximum" },
+  { label: "Output", value: "512 KiB maximum" },
+  { label: "Browser runtime", value: "30 seconds maximum" },
+  { label: "PDF pages", value: "500 maximum" },
+  { label: "Retention", value: "72 hours" },
+] as const;
+
+export const resolveEndpointRows = [
+  ["POST", "/v1/resolve", "Resolve one public resource.", "x402 payment required ($0.03 USDC)."],
+  ["GET", "/v1/resolves/{id}", "Read current state or result.", "Job-scoped read token; no additional payment."],
+  ["GET", "/health", "Service health.", "None."],
+  ["GET", "/openapi.json", "OpenAPI specification.", "None."],
+] as const;
+
+export const resolveErrorRows = [
+  ["400", "INVALID_REQUEST"],
+  ["400", "INVALID_URL"],
+  ["400", "UNSUPPORTED_SCHEME"],
+  ["400", "PRIVATE_NETWORK_BLOCKED"],
+  ["400", "URL_NOT_ALLOWED"],
+  ["404", "RESOURCE_NOT_FOUND"],
+  ["502", "RESOURCE_FETCH_FAILED"],
+  ["413", "RESOURCE_TOO_LARGE"],
+  ["415", "UNSUPPORTED_FORMAT"],
+  ["422", "PARSE_FAILED"],
+  ["502", "RENDER_FAILED"],
+  ["504", "TIMEOUT"],
+  ["413 / 502", "LIMIT_EXCEEDED"],
+  ["401", "INVALID_READ_TOKEN"],
+  ["404", "RESOLVE_NOT_FOUND"],
+  ["400", "PAYMENT_IDENTIFIER_REQUIRED"],
+  ["409", "PAYMENT_IDENTIFIER_CONFLICT"],
+  ["409", "PAYMENT_IN_PROGRESS"],
+  ["503", "PAYMENT_RECONCILIATION_PENDING"],
+  ["500", "INTERNAL_ERROR"],
 ] as const;

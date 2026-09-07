@@ -2,7 +2,7 @@
 
 import { BrandMark } from "@/components/brand-mark";
 import { topNav } from "@/content/site";
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +10,14 @@ import { useEffect, useState } from "react";
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const isNavActive = (href: string) => {
+    if (href === "/products/jobs") return pathname.startsWith("/products/jobs");
+    if (href === "/products") {
+      return pathname === "/products" || ["/products/callback", "/products/retry", "/products/resolve"].some((path) => pathname.startsWith(path));
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -24,10 +32,10 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="page-shell flex h-[72px] items-center justify-between gap-6">
+      <div className="page-shell site-header__inner">
         <BrandMark />
 
-        <nav className="hidden h-full items-center gap-12 md:flex" aria-label="Primary navigation">
+        <nav className="site-header__nav" aria-label="Primary navigation">
           {topNav.map((item) =>
             item.external ? (
               <a
@@ -44,13 +52,20 @@ export function SiteHeader() {
                 key={item.label}
                 href={item.href}
                 className="site-nav-link"
-                data-active={pathname.startsWith(item.href)}
+                data-active={isNavActive(item.href)}
               >
                 {item.label}
               </Link>
             ),
           )}
         </nav>
+
+        <div className="site-header__actions">
+          <Link href="/account" className="site-header__signin">Sign in</Link>
+          <Link href="/account?next=/dashboard" className="site-header__cta">
+            Get started <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -86,16 +101,22 @@ export function SiteHeader() {
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
                     className={`flex items-center justify-between border-b border-[var(--color-border)] py-4 text-sm ${
-                      pathname.startsWith(item.href)
+                      isNavActive(item.href)
                         ? "text-[var(--color-accent)]"
                         : "text-[var(--color-foreground)]"
                     }`}
                   >
                     <span>{item.label}</span>
-                    <span className="annotation">{pathname.startsWith(item.href) ? "active" : "open"}</span>
+                    <span className="annotation">{isNavActive(item.href) ? "active" : "open"}</span>
                   </Link>
                 ),
               )}
+              <Link href="/account" onClick={() => setMenuOpen(false)} className="flex items-center justify-between border-b border-[var(--color-border)] py-4 text-sm text-[var(--color-foreground)]">
+                <span>Sign in</span><span className="annotation">secure access</span>
+              </Link>
+              <Link href="/account?next=/dashboard" onClick={() => setMenuOpen(false)} className="button-link mt-4" data-variant="solid">
+                Get started <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>

@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test tests/site-contracts.test.mjs",
     "test:integration": "node --test tests/rendered-site.test.mjs",
-    "openapi:lint": "redocly lint public/openapi/callback.json public/openapi/retry.json",
+    "openapi:lint": "redocly lint public/openapi/callback.json public/openapi/retry.json && redocly lint public/openapi/resolve.json --skip-rule security-defined",
     "verify": "npm run lint && npm run typecheck && npm test && npm run openapi:lint && npm run build"
   },
   "dependencies": {

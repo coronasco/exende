@@ -1,135 +1,133 @@
-import { PricingGraph } from "@/components/exende-visuals";
 import { JsonLd } from "@/components/json-ld";
+import { infrastructurePrices } from "@/content/pricing";
 import { siteConfig } from "@/content/site";
-import { ArrowRight, Bot, Check, CircleDollarSign, ShieldCheck, WalletCards } from "lucide-react";
+import { getPublicPlans } from "@/lib/control-plane";
+import { ArrowRight, Bot, Check, CircleDollarSign, Database, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Pricing — Callback $0.01 and Retry $0.02",
+  title: "Pricing and access",
   description:
-    "Pay-as-you-go x402 pricing: $0.01 USDC per Callback and $0.02 USDC per paid Retry job on Base Mainnet.",
+    "Exende Data API subscriptions, included credits, and exact x402 pricing for infrastructure APIs.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Exende pay-per-request pricing",
-    description: "Callback $0.01 USDC. Retry $0.02 USDC. No subscription or prepaid balance.",
+    title: "Exende pricing and access",
+    description: "Customer Data API plans with included credits and fixed x402 infrastructure pricing.",
     url: "/pricing",
   },
   twitter: {
     card: "summary",
-    title: "Exende pay-per-request pricing",
-    description: "Callback $0.01 USDC. Retry $0.02 USDC. No subscription or prepaid balance.",
+    title: "Exende pricing and access",
+    description: "Customer Data API plans with included credits and fixed x402 infrastructure pricing.",
   },
 };
 
-const plans = [
-  {
-    name: "Callback API",
-    price: "$0.01",
-    unit: "per callback created",
-    tone: "cyan",
-    docs: "/docs/callback",
-    includes: [
-      "One temporary public callback endpoint",
-      "10-minute lifetime",
-      "Up to 10 received events",
-      "Up to 256 KB per event",
-      "Token-protected reads, waits, and deletion",
-    ],
-    note: "Webhook delivery and follow-up operations have no additional Exende payment.",
-  },
-  {
-    name: "Retry API",
-    price: "$0.02",
-    unit: "per x402-paid Retry job",
-    tone: "violet",
-    docs: "/docs/retry",
-    includes: [
-      "One durable outbound HTTPS request job",
-      "Up to 8 outbound attempts",
-      "Up to 24-hour job lifetime",
-      "Automatic retry scheduling and recovery",
-      "Status, attempt history, and optional terminal callback",
-    ],
-    note: "Internal outbound attempts are included. There is no per-attempt surcharge in v1.",
-  },
-] as const;
+export const dynamic = "force-dynamic";
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const plans = await getPublicPlans().catch(() => null);
   return (
-    <div className="technical-grid relative min-h-[calc(100svh-72px)] overflow-hidden">
+    <>
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "Exende API pricing",
-          itemListElement: plans.map((plan, index) => ({
-            "@type": "Offer",
-            position: index + 1,
-            name: plan.name,
-            price: plan.price.replace("$", ""),
-            priceCurrency: "USDC",
-            url: `${siteConfig.url}${plan.docs}`,
-          })),
+          "@type": "WebPage",
+          name: "Exende pricing and access",
+          description: "Current and planned access models for Exende data and infrastructure APIs.",
+          url: `${siteConfig.url}/pricing`,
         }}
       />
-      <div className="pricing-visual absolute inset-y-0 right-[-40%] z-0 w-[145%] opacity-50 sm:right-[-20%] sm:w-[110%] sm:opacity-60 lg:right-[-6%] lg:w-[72%] lg:opacity-80">
-        <PricingGraph />
-      </div>
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-[#02060f] via-[rgba(2,6,15,0.88)] to-[rgba(2,6,15,0.32)]" />
 
-      <div className="page-shell relative z-10 py-14 sm:py-20">
-        <header className="max-w-3xl">
-          <p className="section-kicker">Pay-as-you-go pricing</p>
-          <h1 className="section-title mt-5 text-[clamp(3.6rem,5.2vw,6rem)] leading-[0.84] text-white">
-            Pay for work,
-            <br />not seats.
-          </h1>
-          <p className="mt-6 max-w-[640px] text-[1.05rem] leading-8 text-[var(--color-muted)]">
-            Fixed per-resource prices settled with x402 v2 in USDC on Base Mainnet. No subscription,
-            prepaid balance, or mandatory dashboard.
+      <section className="pricing-data-hero">
+        <div className="pricing-data-hero__motion" aria-hidden="true">
+          <span className="pricing-motion__ring" />
+          <span className="pricing-motion__core" />
+          <span className="pricing-motion__rail pricing-motion__rail--one"><i /></span>
+          <span className="pricing-motion__rail pricing-motion__rail--two"><i /></span>
+          <span className="pricing-motion__rail pricing-motion__rail--three"><i /></span>
+        </div>
+        <div className="page-shell pricing-data-hero__inner">
+          <p className="eyebrow">Pricing & access</p>
+          <h1>Pay for useful access, not a story we cannot support.</h1>
+          <p>
+            Start with a free monthly allowance, then scale through Stripe-backed subscriptions.
+            Credits are enforced by the Data Plane on every customer API request.
           </p>
-        </header>
+          <div className="pricing-principles">
+            <span><Check /> Clear entitlements</span>
+            <span><Check /> Scoped API keys</span>
+            <span><Check /> Stripe-hosted checkout</span>
+          </div>
+        </div>
+      </section>
 
-        <div className="mt-10 grid max-w-[1180px] gap-5 lg:grid-cols-2">
-          {plans.map((plan) => (
-            <article key={plan.name} className="pricing-card" data-tone={plan.tone}>
-              <p className="annotation text-[var(--color-accent)]">{plan.name}</p>
-              <div className="mt-5 flex items-end gap-3">
-                <span className="font-condensed text-[5rem] font-semibold leading-none text-white">{plan.price}</span>
-                <span className="pb-2 text-sm text-[var(--color-muted)]">USDC</span>
-              </div>
-              <p className="mt-2 text-sm text-white">{plan.unit}</p>
-              <ul className="mt-7 space-y-3 border-y border-[var(--color-border)] py-6 text-sm leading-6 text-[var(--color-muted)]">
-                {plan.includes.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[var(--color-accent)]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 min-h-14 text-sm leading-7 text-[var(--color-muted)]">{plan.note}</p>
-              <Link href={plan.docs} className="button-link mt-6" data-variant="accent">
-                Read {plan.name.replace(" API", "")} docs <ArrowRight className="h-4 w-4" />
+      <section className="pricing-data-section">
+        <div className="page-shell">
+          <div className="section-heading section-heading--split">
+            <div>
+              <p className="eyebrow">Data API access</p>
+              <h2>One credit system for a growing API catalogue.</h2>
+            </div>
+            <p>
+              Monthly grants are auditable and expire with their plan period. Usage is metered by
+              operation, with zero-result per-record searches costing zero credits.
+            </p>
+          </div>
+
+          {plans ? <div className="data-plan-grid data-plan-grid--subscriptions">
+            {plans.map((plan, index) => (
+              <article key={plan.key} className="data-plan" data-live={plan.key === "pro"}>
+                <div className="data-plan__top">
+                  {index === 0 ? <Database /> : plan.key === "enterprise" ? <ShieldCheck /> : <CircleDollarSign />}
+                  <span>{plan.key === "enterprise" ? "Custom" : "Monthly"}</span>
+                </div>
+                <h3>{plan.name}</h3>
+                <strong>{plan.priceEurMonthly === null ? "Custom" : `€${plan.priceEurMonthly}${plan.priceEurMonthly ? "/mo" : ""}`}</strong>
+                <p>{plan.description}</p>
+                <ul><li><Check /> {plan.monthlyCredits.toLocaleString("en-US")} monthly credits</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
+                <Link href={{ pathname: "/account", query: { next: `/dashboard/billing?plan=${plan.key}` } }}>{plan.key === "free" ? "Create free account" : plan.key === "enterprise" ? "Start a conversation" : `Select ${plan.name}`} <ArrowRight /></Link>
+              </article>
+            ))}
+          </div> : <div className="pricing-plans-unavailable"><ShieldCheck /><h3>Plan data is temporarily unavailable.</h3><p>We do not display cached or invented billing values. Please retry shortly.</p></div>}
+        </div>
+      </section>
+
+      <section className="metered-section">
+        <div className="page-shell metered-layout">
+          <div>
+            <p className="eyebrow">Agent infrastructure</p>
+            <h2>Exact metered prices for autonomous calls.</h2>
+            <p>
+              Callback, Retry, and Resolve are production APIs paid per resource through x402 v2
+              exact USDC settlement on Base Mainnet. No subscription is required for these paths.
+            </p>
+            <Link href="/docs/x402" className="inline-arrow">Read x402 payment docs <ArrowRight /></Link>
+          </div>
+          <div className="metered-prices">
+            {infrastructurePrices.map((item) => (
+              <Link href={item.href} key={item.name}>
+                <Bot />
+                <span><strong>{item.name}</strong><small>{item.unit}</small></span>
+                <b>{item.price}</b>
+                <ArrowRight />
               </Link>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="feature-strip mt-8 max-w-[1180px]">
-          <span><ShieldCheck className="h-6 w-6 text-[var(--color-accent)]" /> No subscription</span>
-          <span><Bot className="h-6 w-6 text-[var(--color-violet)]" /> x402 path needs no API key</span>
-          <span><WalletCards className="h-6 w-6 text-[var(--color-accent)]" /> Base · eip155:8453</span>
-          <span><CircleDollarSign className="h-6 w-6 text-[var(--color-violet)]" /> USDC settlement</span>
+      <section className="pricing-boundary">
+        <div className="page-shell pricing-boundary__inner">
+          <ShieldCheck />
+          <div><p className="eyebrow">Architecture boundary</p><h2>Keys belong to organizations, never to frontend code.</h2></div>
+          <p>
+            Customer keys are created through a signed server-to-server management boundary,
+            shown once, stored only as hashes, and scoped to documented product APIs. Internal
+            operator credentials are never reused for customers.
+          </p>
         </div>
-
-        <div className="mt-8 max-w-[1180px] rounded border border-[var(--color-border)] bg-[rgba(3,9,18,0.82)] p-5 text-sm leading-7 text-[var(--color-muted)]">
-          <strong className="text-white">Retry authentication note:</strong> the x402 path creates a
-          job without an Exende account or traditional API key and returns a private read token.
-          Exende also supports a separate account-scoped API-key path with up to 20 attempts; usage
-          for that path is not the $0.02 x402 job price shown above.
-        </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

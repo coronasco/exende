@@ -9,24 +9,24 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "x402 payments for Exende APIs",
   description:
-    "How Exende Callback and Retry use x402 v2 exact USDC payments on Base Mainnet, including prices, payment flow, replay safety, and Bazaar discovery.",
+    "How Exende Callback, Retry, and Resolve use x402 v2 exact USDC payments on Base Mainnet.",
   alternates: { canonical: "/docs/x402" },
   openGraph: {
     title: "Exende x402 payment documentation",
-    description: "Pay per Callback or Retry job with exact USDC settlement on Base.",
+    description: "Pay per Callback, Retry, or Resolve job with exact USDC settlement on Base.",
     url: "/docs/x402",
   },
   twitter: {
     card: "summary",
     title: "Exende x402 payment documentation",
-    description: "Pay per Callback or Retry job with exact USDC settlement on Base.",
+    description: "Pay per Callback, Retry, or Resolve job with exact USDC settlement on Base.",
   },
 };
 
 const toc = [
   { id: "flow", label: "HTTP payment flow" },
   { id: "products", label: "Product prices" },
-  { id: "replay", label: "Replay safety" },
+  { id: "replay", label: "Paid replay safety" },
   { id: "discovery", label: "Bazaar discovery" },
 ] as const;
 
@@ -82,6 +82,10 @@ export default function X402DocsPage() {
                 <td>Retry API</td><td className="font-mono">POST /v1/retries</td><td>$0.02 USDC</td>
                 <td>One job, up to 8 attempts and 24 hours; internal attempts have no surcharge.</td>
               </tr>
+              <tr>
+                <td>Resolve API</td><td className="font-mono">POST /v1/resolve</td><td>$0.03 USDC</td>
+                <td>One public resource resolution; token-protected result reads need no additional payment.</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -101,7 +105,7 @@ export default function X402DocsPage() {
       </section>
 
       <section id="replay" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Retry payment replay safety</h2>
+        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Paid replay safety</h2>
         <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
           Paid Retry clients must include the x402 v2 payment-identifier extension. Generate one
           identifier per logical job and reuse it only when repeating that same request after
@@ -113,12 +117,17 @@ export default function X402DocsPage() {
           PAYMENT_RECONCILIATION_PENDING means settlement succeeded but durable job reconciliation
           is still pending. Retry the same logical request and identifier; do not create a second payment.
         </p>
+        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
+          Resolve uses the same payment-identifier recovery model. Reuse an identifier only for the
+          same URL, output, and render request after transport uncertainty; changed input returns
+          PAYMENT_IDENTIFIER_CONFLICT.
+        </p>
       </section>
 
       <section id="discovery" className="surface-rule mt-12 pt-8">
         <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Bazaar discovery</h2>
         <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
-          Both paid POST resources are currently indexed by Coinbase x402 Bazaar with their exact
+          Callback and Retry paid resources are indexed by Coinbase x402 Bazaar with their exact
           production URLs, Base network, USDC asset, and prices. Their unpaid 402 responses also
           include Bazaar input and output schemas for programmatic discovery.
         </p>
@@ -126,6 +135,11 @@ export default function X402DocsPage() {
           <div className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
             <p className="annotation text-[var(--color-accent)]">Callback resource</p>
             <p className="mt-3 break-all font-mono text-xs text-white">{siteConfig.callbackApiBase}/v1/callbacks</p>
+          </div>
+          <div className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:col-span-2">
+            <p className="annotation text-[var(--color-accent)]">Resolve resource</p>
+            <p className="mt-3 break-all font-mono text-xs text-white">{siteConfig.resolveApiBase}/v1/resolve</p>
+            <p className="mt-2 text-xs leading-6 text-[var(--color-muted)]">The live 402 response declares Bazaar discovery metadata. No separate verified listing URL is claimed here.</p>
           </div>
           <div className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
             <p className="annotation text-[var(--color-violet)]">Retry resource</p>

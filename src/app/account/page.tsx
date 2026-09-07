@@ -1,0 +1,31 @@
+import { AuthPanel } from "@/components/account/auth-panel";
+import { ControlPlaneError, controlPlaneBaseUrl, getAccountIdentity } from "@/lib/control-plane";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Sign in or create an account",
+  description: "Create and manage your Exende account, API keys, credits, usage, and billing.",
+  alternates: { canonical: "/account" },
+  openGraph: { title: "Exende customer access", description: "Create and manage your Exende account and Data API access.", url: "/account" },
+  twitter: { card: "summary", title: "Exende customer access", description: "Create and manage your Exende account and Data API access." },
+};
+
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const params = await searchParams;
+  const nextPath = typeof params.next === "string" && params.next.startsWith("/dashboard") ? params.next : "/dashboard";
+  let serviceAvailable = controlPlaneBaseUrl() !== null;
+  let authenticated = false;
+  if (serviceAvailable) {
+    try {
+      await getAccountIdentity();
+      authenticated = true;
+    } catch (error) {
+      if (!(error instanceof ControlPlaneError) || error.status !== 401) serviceAvailable = false;
+    }
+  }
+  if (authenticated) redirect(nextPath);
+  return <AuthPanel serviceAvailable={serviceAvailable} nextPath={nextPath} />;
+}

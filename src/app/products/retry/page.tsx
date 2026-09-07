@@ -1,5 +1,5 @@
 import { CodeBlock } from "@/components/code-block";
-import { OrbitField, RetryDiagram } from "@/components/exende-visuals";
+import { RetryDiagram } from "@/components/exende-visuals";
 import { JsonLd } from "@/components/json-ld";
 import { siteConfig } from "@/content/site";
 import { ArrowRight, BellRing, Clock3, History, RefreshCw } from "lucide-react";
@@ -79,7 +79,6 @@ export default function RetryProductPage() {
           },
         }}
       />
-      <OrbitField variant="products" className="opacity-35" />
       <section className="page-shell relative z-10 grid min-h-[680px] items-center gap-12 py-16 sm:py-20 lg:grid-cols-[0.76fr_1.24fr] lg:py-24">
         <div>
           <p className="section-kicker text-[var(--color-violet)]">Exende Retry API v1</p>
@@ -101,19 +100,13 @@ export default function RetryProductPage() {
           </div>
         </div>
 
-        <div className="retry-console">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-            <p className="annotation text-[var(--color-violet)]">retry.execute</p>
-            <span className="product-status">Available</span>
-          </div>
-          <div className="p-5 sm:p-7">
-            <RetryDiagram />
-            <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="fact-tile"><dt>State</dt><dd>Durable</dd></div>
-              <div className="fact-tile"><dt>Attempts</dt><dd>Up to 8</dd></div>
-              <div className="fact-tile"><dt>Lifetime</dt><dd>Up to 24h</dd></div>
-              <div className="fact-tile"><dt>History</dt><dd>Per attempt</dd></div>
-            </div>
+        <div className="product-hero-art lg:w-full lg:max-w-[960px] lg:justify-self-end">
+          <RetryDiagram />
+          <div className="product-hero-facts mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="fact-tile"><dt>State</dt><dd>Durable</dd></div>
+            <div className="fact-tile"><dt>Attempts</dt><dd>Up to 8</dd></div>
+            <div className="fact-tile"><dt>Lifetime</dt><dd>Up to 24h</dd></div>
+            <div className="fact-tile"><dt>History</dt><dd>Per attempt</dd></div>
           </div>
         </div>
       </section>

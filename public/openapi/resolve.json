@@ -1,0 +1,54 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Exende Resolve API",
+    "version": "1.0.0",
+    "description": "Resolve public resources into stable, machine-readable results for autonomous software."
+  },
+  "servers": [{ "url": "https://resolve.exende.dev" }],
+  "paths": {
+    "/v1/resolve": {
+      "post": {
+        "operationId": "resolveResource",
+        "summary": "Resolve a public URL into machine-readable content.",
+        "description": "Requires one x402 v2 exact USDC payment on Base. Repeat the same payment identifier to safely recover an interrupted paid request.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["url"],
+                "properties": {
+                  "url": { "type": "string", "format": "uri" },
+                  "output": { "type": "string", "enum": ["auto", "markdown", "text", "json"], "default": "auto" },
+                  "render": { "type": "string", "enum": ["auto", "always", "never"], "default": "auto" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "The paid Resolve job completed." },
+          "202": { "description": "The paid Resolve job is still processing." },
+          "400": { "description": "The request or URL is invalid." },
+          "402": { "description": "An x402 payment is required or could not settle." },
+          "409": { "description": "The payment identifier conflicts or is in progress." }
+        }
+      }
+    },
+    "/v1/resolves/{id}": {
+      "get": {
+        "operationId": "getResolve",
+        "summary": "Read a Resolve result with its job-scoped read token.",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^resolve_[a-f0-9]{32}$" } }],
+        "responses": {
+          "200": { "description": "The current Resolve state or result." },
+          "401": { "description": "A valid Resolve read token is required." },
+          "404": { "description": "The Resolve job does not exist." }
+        }
+      }
+    }
+  }
+}

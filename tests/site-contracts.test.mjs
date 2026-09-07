@@ -54,11 +54,50 @@ test("Retry OpenAPI exposes the implemented production contract", async () => {
   assert.match(spec.components.schemas.RetryPolicy.properties.max_attempts.description, /Maximum 8 for x402/);
 });
 
+test("Resolve OpenAPI matches the live v1 contract", async () => {
+  const spec = await readJson("public/openapi/resolve.json");
+
+  assert.equal(spec.openapi, "3.1.0");
+  assert.equal(spec.info.version, "1.0.0");
+  assert.equal(spec.servers[0].url, "https://resolve.exende.dev");
+  assert.ok(spec.paths["/v1/resolve"].post);
+  assert.ok(spec.paths["/v1/resolves/{id}"].get);
+  assert.deepEqual(
+    spec.paths["/v1/resolve"].post.requestBody.content["application/json"].schema.properties.output.enum,
+    ["auto", "markdown", "text", "json"],
+  );
+  assert.equal(
+    spec.paths["/v1/resolves/{id}"].get.parameters[0].schema.pattern,
+    "^resolve_[a-f0-9]{32}$",
+  );
+});
+
 test("machine-readable catalog contains exact confirmed pricing and limits", async () => {
   const catalog = await readJson("public/api/catalog.json");
+  const jobsData = catalog.products.find((product) => product.id === "jobs-data");
   const callback = catalog.products.find((product) => product.id === "callback");
   const retry = catalog.products.find((product) => product.id === "retry");
+  const resolve = catalog.products.find((product) => product.id === "resolve");
 
+  assert.deepEqual(
+    [
+      jobsData.public_overview.method,
+      jobsData.public_overview.url,
+      jobsData.public_overview.authentication,
+      jobsData.public_overview.payload,
+    ],
+    [
+      "GET",
+      "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
+      "none",
+      "aggregate_only",
+    ],
+  );
+  assert.equal(jobsData.customer_access, "coming_soon");
+  assert.equal(
+    jobsData.public_overview.cache_control,
+    "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+  );
   assert.deepEqual(
     [callback.payment.price, callback.payment.amount_atomic, callback.payment.currency, callback.payment.network],
     ["0.01", "10000", "USDC", "eip155:8453"],
@@ -70,6 +109,14 @@ test("machine-readable catalog contains exact confirmed pricing and limits", asy
   assert.equal(retry.payment.per_attempt_surcharge, false);
   assert.deepEqual(retry.paid_limits, { max_attempts: 8, lifetime_seconds: 86400 });
   assert.deepEqual(retry.api_key_limits, { max_attempts: 20 });
+  assert.deepEqual(
+    [resolve.payment.price, resolve.payment.amount_atomic, resolve.payment.currency, resolve.payment.network],
+    ["0.03", "30000", "USDC", "eip155:8453"],
+  );
+  assert.deepEqual(
+    [resolve.limits.download_bytes, resolve.limits.redirects, resolve.limits.output_bytes, resolve.limits.retention_seconds],
+    [10485760, 3, 524288, 259200],
+  );
 });
 
 test("agent discovery files point to canonical documentation and contracts", async () => {
@@ -79,8 +126,10 @@ test("agent discovery files point to canonical documentation and contracts", asy
   for (const text of [llms, full]) {
     assert.match(text, /https:\/\/exende\.dev\/docs\/callback/);
     assert.match(text, /https:\/\/exende\.dev\/docs\/retry/);
+    assert.match(text, /https:\/\/exende\.dev\/docs\/resolve/);
     assert.match(text, /https:\/\/exende\.dev\/openapi\/callback\.json/);
     assert.match(text, /https:\/\/exende\.dev\/openapi\/retry\.json/);
+    assert.match(text, /https:\/\/exende\.dev\/openapi\/resolve\.json/);
   }
 });
 
@@ -91,7 +140,28 @@ test("public content contains no obsolete demo prices or secret-shaped live keys
 
   assert.doesNotMatch(content, /\$0\.001\b|\$0\.005\b/);
   assert.doesNotMatch(content, /\bex_live_[A-Za-z0-9_-]{12,}\b/);
+  assert.doesNotMatch(content, /\bexd_(?:live|test)_[A-Za-z0-9_-]{20,}\b/);
+  assert.doesNotMatch(content, /\b(?:sk|whsec)_(?:test|live)_[A-Za-z0-9_-]{12,}\b/);
   assert.doesNotMatch(content, /\b(?:callback|retry)[_-](?:secret|private_key)\s*[:=]\s*["'][^"']+/i);
+  assert.doesNotMatch(content, /NEXT_PUBLIC_(?:EXENDE_CONTROL_PLANE_URL|EXENDE_DATA_API_URL)/);
+});
+
+test("customer account routes preserve the server-only control-plane boundary", async () => {
+  const controlClient = await readFile(path.join(projectRoot, "src/lib/control-plane.ts"), "utf8");
+  const proxy = await readFile(path.join(projectRoot, "src/lib/control-plane-proxy.ts"), "utf8");
+  const dashboardLayout = await readFile(path.join(projectRoot, "src/app/dashboard/layout.tsx"), "utf8");
+  const sitemap = await readFile(path.join(projectRoot, "src/app/sitemap.ts"), "utf8");
+  const envExample = await readFile(path.join(projectRoot, ".env.example"), "utf8");
+
+  assert.match(controlClient, /^import "server-only";/);
+  assert.match(controlClient, /url\.protocol !== "https:" && !isLocalHost\(url\.hostname\)/);
+  assert.match(proxy, /const CONTROL_ROUTES:/);
+  assert.match(proxy, /api-keys\|billing\\\/checkout\|billing\\\/portal\|account\\\/deletion-request/);
+  assert.doesNotMatch(proxy, /\/internal\/v1/);
+  assert.match(dashboardLayout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
+  assert.doesNotMatch(sitemap, /["']\/dashboard/);
+  assert.doesNotMatch(envExample, /NEXT_PUBLIC_/);
+  assert.doesNotMatch(envExample, /(?:SECRET|TOKEN|PRIVATE|PASSWORD|API_KEY)\s*=/);
 });
 
 test("official wordmark is present with intrinsic proportions", async () => {

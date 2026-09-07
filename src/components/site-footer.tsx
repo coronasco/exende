@@ -1,22 +1,31 @@
 import { BrandMark } from "@/components/brand-mark";
-import { siteConfig } from "@/content/site";
 import Link from "next/link";
 
 const footerGroups = [
   {
-    label: "Products",
+    label: "Data products",
+    links: [
+      { label: "Jobs & Hiring Data", href: "/products/jobs" },
+      { label: "Jobs API docs", href: "/docs/jobs" },
+      { label: "Public overview", href: "/docs/jobs#public-overview" },
+      { label: "Pricing", href: "/pricing" },
+    ],
+  },
+  {
+    label: "Infrastructure",
     links: [
       { label: "Callback API", href: "/products/callback" },
       { label: "Retry API", href: "/products/retry" },
-      { label: "Pricing", href: "/pricing" },
+      { label: "Resolve API", href: "/products/resolve" },
     ],
   },
   {
     label: "Documentation",
     links: [
-      { label: "Callback docs", href: "/docs/callback" },
-      { label: "Retry docs", href: "/docs/retry" },
+      { label: "Documentation", href: "/docs" },
+      { label: "API index", href: "/api" },
       { label: "x402 payments", href: "/docs/x402" },
+      { label: "Account access", href: "/account" },
     ],
   },
 ] as const;
@@ -24,24 +33,19 @@ const footerGroups = [
 export function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div className="page-shell grid gap-10 py-12 md:grid-cols-[minmax(0,1fr)_auto] md:py-16">
+      <div className="page-shell site-footer__content grid gap-10 py-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:py-16">
         <div>
           <BrandMark className="w-fit" />
           <p className="mt-5 max-w-sm text-sm leading-7 text-[var(--color-muted)]">
-            HTTP infrastructure for AI agents and automated workflows. Pay per resource with x402
-            on Base Mainnet.
+            Public hiring data, observed over time. Built for market research, recruiting analytics,
+            data products, and autonomous software.
           </p>
-          <a
-            href={siteConfig.bazaarSearch}
-            target="_blank"
-            rel="noreferrer"
-            className="text-link mt-6 text-sm"
-          >
-            View verified resources in x402 Bazaar
-          </a>
+          <Link href="/products/jobs" className="text-link mt-6 text-sm">
+            Explore the Jobs & Hiring Data product
+          </Link>
         </div>
 
-        <nav className="grid gap-8 sm:grid-cols-2 md:w-[440px] md:justify-self-end md:gap-14 lg:w-[500px] lg:gap-20" aria-label="Footer navigation">
+        <nav className="grid gap-8 sm:grid-cols-3 lg:justify-self-end lg:gap-12" aria-label="Footer navigation">
           {footerGroups.map((group) => (
             <div key={group.label}>
               <p className="annotation text-[var(--color-accent)]">{group.label}</p>
@@ -58,10 +62,10 @@ export function SiteFooter() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-[var(--color-border)]">
+      <div className="site-footer__base border-t border-[var(--color-border)]">
         <div className="page-shell flex flex-col gap-2 py-5 text-xs text-[var(--color-muted)] sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getUTCFullYear()} Exende. Agent-native infrastructure.</p>
-          <p className="font-mono">x402 v2 · Base Mainnet</p>
+          <p>© {new Date().getUTCFullYear()} Exende. Public data infrastructure.</p>
+          <p className="font-mono">Jobs data first · Agent infrastructure included</p>
         </div>
       </div>
     </footer>

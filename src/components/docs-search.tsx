@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const searchItems = [
-  { label: "Choose an API", detail: "Callback or Retry", href: "/docs" },
+  { label: "Choose a product", detail: "Jobs Data and infrastructure APIs", href: "/docs" },
+  { label: "Jobs Data public overview", detail: "GET /v1/public/overview", href: "/docs/jobs" },
+  { label: "Jobs Data response", detail: "Catalogue aggregate schema", href: "/docs/jobs#response" },
+  { label: "Jobs Data caching", detail: "Freshness and fallback", href: "/docs/jobs#caching" },
+  { label: "Jobs Data access roadmap", detail: "Customer APIs coming soon", href: "/docs/jobs#access" },
   { label: "Create callback", detail: "POST /v1/callbacks", href: "/docs/callback#create-callback" },
   { label: "Send a webhook", detail: "cb.exende.dev/hooks/{id}", href: "/docs/callback#send-webhook" },
   { label: "Wait for an event", detail: "Long-polling behavior", href: "/docs/callback#wait-event" },
@@ -18,6 +22,10 @@ const searchItems = [
   { label: "Terminal callback", detail: "Signed final delivery", href: "/docs/retry#terminal-callback" },
   { label: "Retry policies", detail: "Fixed or exponential backoff", href: "/docs/retry#policies" },
   { label: "Retry errors", detail: "Production error codes", href: "/docs/retry#errors" },
+  { label: "Resolve a resource", detail: "POST resolve.exende.dev/v1/resolve", href: "/docs/resolve#create-resolve" },
+  { label: "Resolve formats", detail: "Web, PDF, data, text, and image metadata", href: "/docs/resolve#formats" },
+  { label: "Resolve security", detail: "Public-resource safety controls", href: "/docs/resolve#security" },
+  { label: "Resolve errors", detail: "Stable error codes", href: "/docs/resolve#errors" },
   { label: "x402 payments", detail: "USDC on Base Mainnet", href: "/docs/x402" },
   { label: "API reference", detail: "All production endpoints", href: "/api" },
 ] as const;

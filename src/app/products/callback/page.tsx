@@ -93,7 +93,7 @@ export default function CallbackProductPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-[var(--color-border-strong)] bg-[rgba(3,11,22,0.72)] p-3 shadow-[inset_0_0_60px_rgba(24,101,143,0.05)] sm:p-6 lg:w-full lg:max-w-[920px] lg:justify-self-end">
+        <div className="product-hero-art lg:w-full lg:max-w-[940px] lg:justify-self-end">
           <CallbackDiagram />
         </div>
       </section>

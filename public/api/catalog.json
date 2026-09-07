@@ -2,8 +2,23 @@
   "schema_version": "1.0",
   "name": "Exende API catalog",
   "canonical_url": "https://exende.dev/api/catalog.json",
-  "updated_at": "2026-08-24T00:00:00.000Z",
+  "updated_at": "2026-09-06T00:00:00.000Z",
   "products": [
+    {
+      "id": "jobs-data",
+      "name": "Exende Jobs & Hiring Data",
+      "status": "public_overview_available",
+      "description": "Reviewed public hiring data with current catalogue counts and historical observation.",
+      "public_overview": {
+        "method": "GET",
+        "url": "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
+        "authentication": "none",
+        "payload": "aggregate_only",
+        "cache_control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
+      },
+      "customer_access": "coming_soon",
+      "documentation": "https://exende.dev/docs/jobs"
+    },
     {
       "id": "callback",
       "name": "Exende Callback API",
@@ -29,6 +44,19 @@
       "api_key_limits": { "max_attempts": 20 },
       "documentation": "https://exende.dev/docs/retry",
       "openapi": "https://exende.dev/openapi/retry.json"
+    },
+    {
+      "id": "resolve",
+      "name": "Exende Resolve API v1",
+      "status": "available",
+      "description": "Resolve a public URL into bounded machine-readable web content, document text, structured data, text, or supported image metadata.",
+      "base_url": "https://resolve.exende.dev",
+      "create": { "method": "POST", "url": "https://resolve.exende.dev/v1/resolve" },
+      "read": { "method": "GET", "url_template": "https://resolve.exende.dev/v1/resolves/{id}", "authentication": "job-scoped read token" },
+      "payment": { "protocol": "x402", "version": 2, "scheme": "exact", "price": "0.03", "amount_atomic": "30000", "decimals": 6, "currency": "USDC", "network": "eip155:8453" },
+      "limits": { "download_bytes": 10485760, "redirects": 3, "browser_timeout_seconds": 30, "pdf_pages": 500, "output_bytes": 524288, "retention_seconds": 259200 },
+      "documentation": "https://exende.dev/docs/resolve",
+      "openapi": "https://exende.dev/openapi/resolve.json"
     }
   ],
   "discovery": {

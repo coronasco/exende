@@ -5,14 +5,19 @@ const baseUrl = (process.env.SITE_URL || "http://127.0.0.1:3000").replace(/\/$/,
 const routes = [
   "/",
   "/products",
+  "/products/jobs",
   "/products/callback",
   "/products/retry",
+  "/products/resolve",
   "/pricing",
   "/docs",
+  "/docs/jobs",
   "/docs/callback",
   "/docs/retry",
+  "/docs/resolve",
   "/docs/x402",
   "/api",
+  "/account",
 ];
 
 function occurrences(value, pattern) {
@@ -69,7 +74,7 @@ test("all crawlable internal page links resolve", async () => {
 });
 
 test("machine-readable, crawler, analytics, and 404 surfaces are available", async () => {
-  for (const route of ["/openapi/callback.json", "/openapi/retry.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"]) {
+  for (const route of ["/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert.equal(response.status, 200, `${route} did not return HTTP 200`);
   }
@@ -91,4 +96,14 @@ test("machine-readable, crawler, analytics, and 404 surfaces are available", asy
   assert.equal(missing.status, 404);
   assert.match(missingHtml, /Page not found/);
   assert.equal(occurrences(missingHtml, /<h1(?:\s|>)/gi), 1);
+});
+
+test("customer dashboard is private and omitted from discovery surfaces", async () => {
+  const dashboard = await fetch(`${baseUrl}/dashboard`, { redirect: "manual" });
+  const html = await dashboard.text();
+  const sitemap = await (await fetch(`${baseUrl}/sitemap.xml`)).text();
+
+  assert.ok([200, 307, 308].includes(dashboard.status));
+  if (dashboard.status === 200) assert.match(html, /<meta[^>]+name="robots"[^>]+content="noindex, nofollow"/i);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/exende\.dev\/dashboard/);
 });

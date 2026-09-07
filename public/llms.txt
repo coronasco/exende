@@ -1,12 +1,24 @@
 # Exende
 
-> Agent-native HTTP infrastructure for asynchronous events and durable outbound requests.
+> Public hiring data, observed over time, with focused infrastructure APIs for autonomous software.
 
-## Canonical documentation
+## Jobs & Hiring Data
+
+- [Product](https://exende.dev/products/jobs)
+- [Public overview documentation](https://exende.dev/docs/jobs)
+- Public endpoint: `GET https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview`
+- Authentication: none
+- Payload boundary: aggregate catalogue counts and data freshness only
+- Customer job search, company data, accounts, subscriptions, and scoped API keys: coming soon
+
+The public overview contains `active_jobs`, `active_companies`, `active_sources`, and nullable `last_updated_at`. It does not expose listings, company profiles, source health, raw payloads, protected history, customer records, or operator tooling.
+
+## Infrastructure documentation
 
 - [Documentation index](https://exende.dev/docs)
 - [Callback API documentation](https://exende.dev/docs/callback)
 - [Retry API v1 documentation](https://exende.dev/docs/retry)
+- [Resolve API v1 documentation](https://exende.dev/docs/resolve)
 - [x402 payment documentation](https://exende.dev/docs/x402)
 - [Production API surface](https://exende.dev/api)
 
@@ -14,12 +26,8 @@
 
 - [Callback OpenAPI 3.1](https://exende.dev/openapi/callback.json)
 - [Retry OpenAPI 3.1](https://exende.dev/openapi/retry.json)
+- [Resolve OpenAPI 3.1](https://exende.dev/openapi/resolve.json)
 - [API catalog](https://exende.dev/api/catalog.json)
 - [Extended agent context](https://exende.dev/llms-full.txt)
 
-## Products
-
-- Callback API: create with `POST https://api.exende.dev/v1/callbacks`; $0.01 USDC through x402 v2 on Base Mainnet; 10-minute lifetime; up to 10 events; 256 KB per event.
-- Retry API v1: create with `POST https://retry.exende.dev/v1/retries`; $0.02 USDC through x402 v2 on Base Mainnet; up to 8 attempts and 24 hours; no per-attempt surcharge.
-
-Use the current PAYMENT-REQUIRED response for live x402 settlement requirements. Do not hardcode the recipient address.
+Callback costs $0.01 USDC, Retry costs $0.02 USDC, and Resolve costs $0.03 USDC on their x402-paid paths. They use x402 v2 exact settlement on Base Mainnet (`eip155:8453`). Use each current PAYMENT-REQUIRED response for authoritative settlement requirements and never hardcode the recipient address.

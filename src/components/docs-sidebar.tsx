@@ -1,5 +1,5 @@
 import { docsGroups } from "@/content/docs";
-import { BookOpen, Braces, CreditCard, RefreshCw, Rocket, Webhook } from "lucide-react";
+import { BookOpen, Braces, BriefcaseBusiness, CreditCard, FileSearch, RefreshCw, Rocket, Webhook } from "lucide-react";
 import Link from "next/link";
 
 type DocsSidebarProps = {
@@ -9,8 +9,10 @@ type DocsSidebarProps = {
 export function DocsSidebar({ currentHref }: DocsSidebarProps) {
   const icons = {
     "/docs": Rocket,
+    "/docs/jobs": BriefcaseBusiness,
     "/docs/callback": Webhook,
     "/docs/retry": RefreshCw,
+    "/docs/resolve": FileSearch,
     "/docs/x402": CreditCard,
     "/api": Braces,
   } as const;

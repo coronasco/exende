@@ -1,16 +1,21 @@
 export const siteConfig = {
   name: "Exende",
-  title: "Exende — Infrastructure APIs for Autonomous Software",
+  title: "Exende — Public Hiring Data, Observed Over Time",
   description:
-    "Agent-native Callback and Retry APIs accessed directly over HTTP and paid per request using x402.",
+    "Reviewed public hiring data for market research, recruiting analytics, and data products, with infrastructure APIs for autonomous software.",
   url: "https://exende.dev",
+  dataApiOverview:
+    "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
   callbackVersion: "1.0.0",
   callbackApiBase: "https://api.exende.dev",
   callbackBase: "https://cb.exende.dev",
   retryVersion: "1.0.0",
   retryApiBase: "https://retry.exende.dev",
+  resolveVersion: "1.0.0",
+  resolveApiBase: "https://resolve.exende.dev",
   callbackOpenApi: "/openapi/callback.json",
   retryOpenApi: "/openapi/retry.json",
+  resolveOpenApi: "/openapi/resolve.json",
   bazaarSearch:
     "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=exende.dev&network=eip155%3A8453&scheme=exact&limit=20",
   x402Docs: "https://docs.x402.org/",
@@ -25,6 +30,7 @@ export const siteConfig = {
 export const callbackApiBase = siteConfig.callbackApiBase;
 
 export const topNav: { label: string; href: string; external?: boolean }[] = [
+  { label: "Data API", href: "/products/jobs" },
   { label: "Products", href: "/products" },
   { label: "Docs", href: "/docs" },
   { label: "Pricing", href: "/pricing" },

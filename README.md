@@ -1,100 +1,50 @@
-# Exende
+# Exende website
 
-Infrastructure APIs for autonomous software.
+Production marketing site and developer documentation for Exende.
 
-Exende provides agent-native infrastructure APIs accessed directly over HTTP and paid per request using x402.
+Exende is positioned around Jobs & Hiring Data: reviewed public career sources, normalized records, current catalogue counts, and historical observation. The site also documents the existing Callback, Retry, and Resolve infrastructure APIs.
 
-## Live
+## Public DataAPI integration
 
-Website:
-https://www.exende.dev
+The only DataAPI route consumed by the public website is:
 
-Documentation:
-https://www.exende.dev/docs
+```text
+GET https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview
+```
 
-API:
-https://api.exende.dev
+It requires no key and returns aggregate catalogue counts plus a nullable freshness timestamp. The site fetches it through one server data client, validates the payload, caches it for five minutes, and renders a stable fallback if the request is unavailable.
 
-OpenAPI:
-https://api.exende.dev/openapi.json
+No operator dashboard, protected DataAPI route, internal credential, job listing, company profile, or source-health data is exposed by this repository.
 
-## Callback API
+## Product status
 
-The first live Exende service is Callback API.
+- Jobs Data public aggregate overview: available.
+- Customer authentication, subscriptions, entitlements, and scoped API-key delivery: coming soon.
+- Product-safe customer job search, company data, and historical analysis APIs: coming soon.
+- Callback, Retry, and Resolve infrastructure APIs: available and documented.
 
-It creates a temporary public webhook endpoint for asynchronous workflows.
-
-Typical flow:
-
-1. Client creates callback
-2. x402 payment is settled
-3. Exende returns callback_url + read_token
-4. External service sends webhook to callback_url
-5. Client waits or reads events
-6. Callback expires automatically
-
-## Production
-
-- API version: 1.0.0
-- Price: $0.01 USDC per callback creation
-- Network: Base Mainnet (`eip155:8453`)
-- Protocol: x402 v2
-- Lifetime: 10 minutes
-- Maximum events: 10
-- Maximum payload: 262144 bytes (256 KB) per event
-- Webhook methods: POST, PUT, PATCH
-- Callback ID format: `^cb_[A-Za-z0-9]{24}$`
-- Event ID format: `^evt_[a-f0-9]{32}$`
-- Wait timeout: missing or non-finite values default to 30 seconds; finite values are floored and clamped to 1–30 seconds
-
-## Endpoints
-
-POST /v1/callbacks
-
-Create callback. x402 payment required.
-
-GET /v1/callbacks/{id}/events
-
-Read received events.
-
-GET /v1/callbacks/{id}/wait
-
-Wait for next event.
-
-DELETE /v1/callbacks/{id}
-
-Delete callback.
-
-POST / PUT / PATCH
-
-https://cb.exende.dev/hooks/{id}
-
-Receive webhook event.
-
-## x402
-
-Exende uses x402 for pay-per-request access.
-
-There are no Exende accounts, subscriptions, prepaid balances or API keys required to create a callback.
-
-Only callback creation requires payment. Reading events, waiting, webhook delivery and deletion do not trigger another Exende payment.
-
-## Bazaar
-
-Exende Callback is discoverable through Coinbase x402 Bazaar.
+Infrastructure paid paths use x402 v2 exact USDC settlement on Base Mainnet. Their canonical contracts are under `public/openapi/`, and the combined machine-readable catalogue is `public/api/catalog.json`.
 
 ## Development
 
-Install dependencies and start the local development server:
-
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Run validation and create a production build:
+`EXENDE_CONTROL_PLANE_URL` is the server-only origin used for authentication,
+account management, API keys, credits, usage, and billing. `EXENDE_DATA_API_URL`
+is used only to render customer request examples. Never expose either as a
+`NEXT_PUBLIC_` variable and never place service credentials in this repository.
+
+For the local end-to-end stack, run the Exende Control Plane on port `8787` and
+the Jobs Data Plane on port `8788` before starting Next.js on port `3000`.
+
+Run the full validation suite with:
 
 ```bash
-npm run lint
-npm run build
+npm run verify
 ```
+
+This repository is the website only. DataAPI and infrastructure backend repositories are separate and must not be modified from this project.

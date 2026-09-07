@@ -2,6 +2,7 @@ import { DocsMobileNav } from "@/components/docs-mobile-nav";
 import { DocsSearch } from "@/components/docs-search";
 import { DocsSidebar } from "@/components/docs-sidebar";
 import { DocsToc } from "@/components/docs-toc";
+import { DocsContractScene } from "@/components/exende-visuals";
 import { docsSequence } from "@/content/docs";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -23,6 +24,7 @@ export function DocsFrame({ currentHref, title, intro, toc = [], children }: Doc
 
   return (
     <div className="docs-shell">
+      <DocsContractScene />
       <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)] px-5 py-4 min-[900px]:hidden">
         <div>
           <p className="annotation text-[var(--color-muted)]">Exende Docs</p>
@@ -43,15 +45,17 @@ export function DocsFrame({ currentHref, title, intro, toc = [], children }: Doc
             {currentHref !== "/docs" ? <><ChevronRight className="h-3 w-3" /><span aria-current="page" className="text-white">{title}</span></> : null}
           </nav>
           <div className="mb-6 flex flex-wrap gap-2" aria-label="Documentation product switcher">
+            <Link href="/docs/jobs" className="docs-product-switch" data-active={currentHref === "/docs/jobs"}>Jobs Data</Link>
             <Link href="/docs/callback" className="docs-product-switch" data-active={currentHref === "/docs/callback"}>Callback</Link>
             <Link href="/docs/retry" className="docs-product-switch" data-active={currentHref === "/docs/retry"}>Retry</Link>
+            <Link href="/docs/resolve" className="docs-product-switch" data-active={currentHref === "/docs/resolve"}>Resolve</Link>
           </div>
           <header className="border-b border-[var(--color-border)] pb-8">
             <h1 className="font-condensed text-[3.2rem] font-semibold uppercase leading-[0.92] tracking-[-0.02em] text-white sm:text-[4rem]">
               {title}
             </h1>
             <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">{intro}</p>
-            <p className="annotation mt-5 text-[var(--color-muted)]">Updated August 24, 2026</p>
+            <p className="annotation mt-5 text-[var(--color-muted)]">Updated September 6, 2026</p>
           </header>
 
           <div className="pt-8">{children}</div>

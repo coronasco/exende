@@ -1,7 +1,7 @@
 "use client";
 
 import { docsGroups } from "@/content/docs";
-import { Braces, CreditCard, Menu, RefreshCw, Rocket, Webhook, X } from "lucide-react";
+import { Braces, BriefcaseBusiness, CreditCard, FileSearch, Menu, RefreshCw, Rocket, Webhook, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -16,8 +16,10 @@ export function DocsMobileNav({ currentHref }: DocsMobileNavProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const icons = {
     "/docs": Rocket,
+    "/docs/jobs": BriefcaseBusiness,
     "/docs/callback": Webhook,
     "/docs/retry": RefreshCw,
+    "/docs/resolve": FileSearch,
     "/docs/x402": CreditCard,
     "/api": Braces,
   } as const;

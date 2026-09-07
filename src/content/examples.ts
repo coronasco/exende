@@ -124,3 +124,75 @@ export const responseExamples = {
   }
 }`,
 } as const;
+
+export const resolveExamples = {
+  createCurl: `curl -i -X POST \\
+  ${siteConfig.resolveApiBase}/v1/resolve \\
+  -H "Content-Type: application/json" \\
+  --data '{
+    "url": "https://example.com/report.pdf",
+    "output": "auto",
+    "render": "auto"
+  }'`,
+  createJavaScript: `const endpoint = "${siteConfig.resolveApiBase}/v1/resolve";
+const input = {
+  url: "https://example.com/article",
+  output: "auto",
+  render: "auto",
+};
+
+const response = await fetch(endpoint, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(input),
+});
+
+if (response.status === 402) {
+  const challenge = response.headers.get("PAYMENT-REQUIRED");
+  // Give the live challenge to your x402 v2 client, then repeat
+  // this request with its PAYMENT-SIGNATURE header.
+  console.log(challenge);
+}`,
+  readCurl: `curl \\
+  ${siteConfig.resolveApiBase}/v1/resolves/resolve_0123456789abcdef0123456789abcdef \\
+  -H "Authorization: Bearer ex_resolve_read_..."`,
+  completedResponse: `{
+  "id": "resolve_0123456789abcdef0123456789abcdef",
+  "status": "completed",
+  "resource": {
+    "requested_url": "https://example.com/report.pdf",
+    "final_url": "https://example.com/report.pdf",
+    "content_type": "application/pdf",
+    "content_disposition": null,
+    "size_bytes": 123456,
+    "redirect_count": 0
+  },
+  "resolved": {
+    "type": "document",
+    "format": "pdf",
+    "text": "Example report text.",
+    "markdown": null,
+    "data": null,
+    "links": null
+  },
+  "metadata": {
+    "title": "Example report",
+    "pages": 12,
+    "text_available": true
+  },
+  "processing": {
+    "strategy": "pdf_text",
+    "browser_used": false,
+    "browser_ms_used": null,
+    "ocr_used": false,
+    "duration_ms": 840,
+    "cost_estimate_usd": "0.001100"
+  },
+  "limits": {
+    "truncated": false,
+    "output_bytes": 12345
+  },
+  "status_url": "${siteConfig.resolveApiBase}/v1/resolves/resolve_0123456789abcdef0123456789abcdef",
+  "read_token": "ex_resolve_read_..."
+}`,
+} as const;
