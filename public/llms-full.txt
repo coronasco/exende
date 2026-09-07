@@ -10,12 +10,14 @@ Purpose: provide reviewed public hiring data, current catalogue counts, and hist
 
 - Product: https://exende.dev/products/jobs
 - Documentation: https://exende.dev/docs/jobs
-- Current public endpoint: GET https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview
+- Current public endpoint: GET https://data.exende.dev/v1/public/overview
 - Authentication: none
 - Fields: `active_jobs`, `active_companies`, `active_sources`, and nullable ISO 8601 UTC `last_updated_at`
 - Cache-Control: `public, max-age=60, s-maxage=300, stale-while-revalidate=600`
 - Public boundary: aggregate values only
-- Customer job search, company data, authentication, subscriptions, entitlements, and scoped API keys: coming soon
+- Customer API base: https://data.exende.dev
+- Customer authentication, onboarding credits, and scoped API keys: available
+- Paid subscriptions and plan upgrades: in development
 
 The public overview does not return job listings, company profiles, descriptions, source health, failed runs, raw payloads, protected history, customer records, API-key data, or operational incidents. It must not be presented as complete global or guaranteed real-time coverage.
 

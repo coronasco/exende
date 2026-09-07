@@ -9,7 +9,7 @@ const searchItems = [
   { label: "Jobs Data public overview", detail: "GET /v1/public/overview", href: "/docs/jobs" },
   { label: "Jobs Data response", detail: "Catalogue aggregate schema", href: "/docs/jobs#response" },
   { label: "Jobs Data caching", detail: "Freshness and fallback", href: "/docs/jobs#caching" },
-  { label: "Jobs Data access roadmap", detail: "Customer APIs coming soon", href: "/docs/jobs#access" },
+  { label: "Jobs Data customer access", detail: "Scoped API keys and routes", href: "/docs/jobs#access" },
   { label: "Create callback", detail: "POST /v1/callbacks", href: "/docs/callback#create-callback" },
   { label: "Send a webhook", detail: "cb.exende.dev/hooks/{id}", href: "/docs/callback#send-webhook" },
   { label: "Wait for an event", detail: "Long-polling behavior", href: "/docs/callback#wait-event" },

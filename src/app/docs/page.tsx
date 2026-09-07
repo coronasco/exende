@@ -61,15 +61,15 @@ export default function DocsOverviewPage() {
           <h2>Jobs & Hiring Data</h2>
           <p>
             Use the public aggregate endpoint for current catalogue counts and freshness. Job search,
-            company data, customer authentication, and scoped keys are clearly marked as coming soon.
+            company data, customer authentication, and scoped API keys are available now.
           </p>
-          <Link href="/docs/jobs" className="button-link mt-6" data-variant="accent">Public overview docs <ArrowRight className="h-4 w-4" /></Link>
+          <Link href="/docs/jobs" className="button-link mt-6" data-variant="accent">Jobs Data API docs <ArrowRight className="h-4 w-4" /></Link>
         </div>
         <dl>
           <div><dt>Public endpoint</dt><dd className="font-mono">GET /v1/public/overview</dd></div>
           <div><dt>Authentication</dt><dd>None</dd></div>
           <div><dt>Payload</dt><dd>Aggregate counts only</dd></div>
-          <div><dt>Customer APIs</dt><dd>Coming soon</dd></div>
+          <div><dt>Customer APIs</dt><dd>Scoped key required</dd></div>
         </dl>
       </section>
 

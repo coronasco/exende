@@ -88,12 +88,14 @@ test("machine-readable catalog contains exact confirmed pricing and limits", asy
     ],
     [
       "GET",
-      "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
+      "https://data.exende.dev/v1/public/overview",
       "none",
       "aggregate_only",
     ],
   );
-  assert.equal(jobsData.customer_access, "coming_soon");
+  assert.equal(jobsData.customer_api_base_url, "https://data.exende.dev");
+  assert.equal(jobsData.customer_access, "available_with_scoped_key");
+  assert.equal(jobsData.billing, "in_development");
   assert.equal(
     jobsData.public_overview.cache_control,
     "public, max-age=60, s-maxage=300, stale-while-revalidate=600",

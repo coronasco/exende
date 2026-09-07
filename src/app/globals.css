@@ -3820,6 +3820,7 @@ body:has(.dashboard-shell) #main-content { min-height: 100svh; }
 .data-plan li svg { width: 0.9rem; height: 0.9rem; color: #6b9eff; }
 .data-plan > a { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 2.5rem; color: #70bdff; font-size: 0.78rem; font-weight: 600; }
 .data-plan > a svg { width: 0.9rem; height: 0.9rem; }
+.data-plan__disabled { display: inline-flex; margin-top: 2.5rem; border: 1px solid rgba(119, 151, 206, 0.2); border-radius: 5px; padding: 0.65rem 0.85rem; color: #64758d; font-family: var(--font-ibm-plex-mono), monospace; font-size: 0.67rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
 .metered-section { border-block: 1px solid rgba(119,151,206,0.15); background: radial-gradient(circle at 72% 50%, rgba(53, 42, 154, 0.17), transparent 27rem), #030a19; padding-block: clamp(6rem, 9vw, 9rem); }
 .metered-layout { display: grid; grid-template-columns: minmax(320px, 0.72fr) minmax(480px, 1.28fr); align-items: center; gap: clamp(4rem, 10vw, 10rem); }

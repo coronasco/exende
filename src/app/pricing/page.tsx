@@ -27,6 +27,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
   const plans = await getPublicPlans().catch(() => null);
+  const paidPlans = plans?.filter((plan) => plan.key !== "free") ?? null;
   return (
     <>
       <JsonLd
@@ -51,13 +52,13 @@ export default async function PricingPage() {
           <p className="eyebrow">Pricing & access</p>
           <h1>Pay for useful access, not a story we cannot support.</h1>
           <p>
-            Start with a free monthly allowance, then scale through Stripe-backed subscriptions.
-            Credits are enforced by the Data Plane on every customer API request.
+            Start with complimentary onboarding credits while paid Data API subscriptions remain
+            in development. Credits are enforced on every customer API request.
           </p>
           <div className="pricing-principles">
-            <span><Check /> Clear entitlements</span>
+            <span><Check /> Free onboarding access</span>
             <span><Check /> Scoped API keys</span>
-            <span><Check /> Stripe-hosted checkout</span>
+            <span><Check /> Paid plans in development</span>
           </div>
         </div>
       </section>
@@ -75,18 +76,26 @@ export default async function PricingPage() {
             </p>
           </div>
 
-          {plans ? <div className="data-plan-grid data-plan-grid--subscriptions">
-            {plans.map((plan, index) => (
-              <article key={plan.key} className="data-plan" data-live={plan.key === "pro"}>
+          {paidPlans ? <div className="data-plan-grid data-plan-grid--subscriptions">
+            <article className="data-plan" data-live="true">
+              <div className="data-plan__top"><Database /><span>Available</span></div>
+              <h3>Onboarding</h3>
+              <strong>Free</strong>
+              <p>A complimentary launch allowance for new verified organizations.</p>
+              <ul><li><Check /> 2,500 initial credits</li><li><Check /> 14-day access period</li><li><Check /> Scoped API credentials</li></ul>
+              <Link href={{ pathname: "/account", query: { next: "/dashboard" } }}>Create free account <ArrowRight /></Link>
+            </article>
+            {paidPlans.map((plan) => (
+              <article key={plan.key} className="data-plan">
                 <div className="data-plan__top">
-                  {index === 0 ? <Database /> : plan.key === "enterprise" ? <ShieldCheck /> : <CircleDollarSign />}
-                  <span>{plan.key === "enterprise" ? "Custom" : "Monthly"}</span>
+                  {plan.key === "enterprise" ? <ShieldCheck /> : <CircleDollarSign />}
+                  <span>In development</span>
                 </div>
                 <h3>{plan.name}</h3>
                 <strong>{plan.priceEurMonthly === null ? "Custom" : `€${plan.priceEurMonthly}${plan.priceEurMonthly ? "/mo" : ""}`}</strong>
                 <p>{plan.description}</p>
                 <ul><li><Check /> {plan.monthlyCredits.toLocaleString("en-US")} monthly credits</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
-                <Link href={{ pathname: "/account", query: { next: `/dashboard/billing?plan=${plan.key}` } }}>{plan.key === "free" ? "Create free account" : plan.key === "enterprise" ? "Start a conversation" : `Select ${plan.name}`} <ArrowRight /></Link>
+                <span className="data-plan__disabled">Coming soon</span>
               </article>
             ))}
           </div> : <div className="pricing-plans-unavailable"><ShieldCheck /><h3>Plan data is temporarily unavailable.</h3><p>We do not display cached or invented billing values. Please retry shortly.</p></div>}

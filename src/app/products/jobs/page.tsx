@@ -99,7 +99,7 @@ export default function JobsProductPage() {
             <article><span>01</span><Radar /><h3>Review</h3><p>Sources are enabled deliberately rather than accepted as an unbounded crawl target.</p></article>
             <article><span>02</span><Database /><h3>Normalize</h3><p>Public observations are transformed into a consistent canonical structure.</p></article>
             <article><span>03</span><Clock3 /><h3>Observe</h3><p>Changes are retained over time so research can move beyond a single snapshot.</p></article>
-            <article><span>04</span><Search /><h3>Deliver</h3><p>Product-safe customer access will be introduced through explicitly scoped APIs.</p></article>
+            <article><span>04</span><Search /><h3>Deliver</h3><p>Product-safe customer access is delivered through explicitly scoped API keys.</p></article>
           </div>
         </div>
       </section>
@@ -121,17 +121,17 @@ export default function JobsProductPage() {
       <section className="data-section" id="access">
         <div className="page-shell access-roadmap">
           <div className="access-roadmap__copy">
-            <p className="eyebrow">Access roadmap</p>
-            <h2>Public proof today. Scoped customer access next.</h2>
+            <p className="eyebrow">Customer access</p>
+            <h2>Public proof and scoped API access, live now.</h2>
             <p>
-              The aggregate public overview is live now. Search, company data, customer accounts,
-              subscriptions, and API-key delivery are not yet available and are not simulated on this site.
+              The aggregate overview remains public. Verified accounts receive complimentary
+              onboarding credits and can create scoped keys for search, company, and historical data.
             </p>
           </div>
           <div className="access-roadmap__steps">
             <div data-state="live"><span>Live</span><strong>Aggregate overview</strong><small>No key required</small></div>
-            <div><span>Next</span><strong>Customer accounts</strong><small>Authentication and entitlements</small></div>
-            <div><span>Planned</span><strong>Product-safe APIs</strong><small>Scoped keys and documented contracts</small></div>
+            <div data-state="live"><span>Live</span><strong>Customer accounts</strong><small>Authentication and onboarding credits</small></div>
+            <div data-state="live"><span>Live</span><strong>Product-safe APIs</strong><small>Scoped keys and documented routes</small></div>
           </div>
           <div className="access-security">
             <ShieldCheck />

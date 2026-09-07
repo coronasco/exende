@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Jobs Data public overview API",
+  title: "Jobs Data API",
   description:
     "Use Exende's public aggregate Jobs Data overview with its exact response fields, caching contract, and access boundary.",
   alternates: { canonical: "/docs/jobs" },
@@ -28,7 +28,7 @@ const toc = [
   { id: "request", label: "Request" },
   { id: "response", label: "Response schema" },
   { id: "caching", label: "Caching & freshness" },
-  { id: "access", label: "Access roadmap" },
+  { id: "access", label: "Customer access" },
 ] as const;
 
 export default function JobsDocsPage() {
@@ -103,14 +103,21 @@ export default function JobsDocsPage() {
       </section>
 
       <section id="access" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Access roadmap</h2>
+        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Customer access</h2>
         <div className="docs-callout mt-5">
           <ShieldCheck className="h-5 w-5" />
-          <div><strong>Protected by design</strong><p>Job listings, company profiles, source health, history, raw payloads, operational endpoints, customer records, and the DataAPI operator dashboard are not public through this contract.</p></div>
+          <div><strong>Scoped access is available</strong><p>Verified accounts can create customer API keys in the dashboard. Keys are shown once, stored only as hashes, and must be kept in server-side environments.</p></div>
         </div>
         <p className="mt-5 text-sm leading-7 text-[var(--color-muted)]">
-          Customer search and company APIs, authentication, subscriptions, entitlements, and scoped API-key delivery are coming soon. No internal operator key will be reused as a customer credential, and no management credential will be placed in browser code.
+          Customer keys can access documented search, job, company, history, skills, and hiring-metrics routes at <code>{siteConfig.dataApiBase}</code>. Internal source health, raw payloads, operational routes, customer records, and the DataAPI operator dashboard remain private.
         </p>
+        <div className="code-surface">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
+            <span className="annotation text-[var(--color-accent)]">FIRST REQUEST</span>
+            <span className="font-mono text-[0.65rem] text-[var(--color-muted)]">Scoped key</span>
+          </div>
+          <pre className="overflow-x-auto p-5 font-mono text-xs leading-7 text-[#a9c9ff]"><code>{`curl --get "${siteConfig.dataApiBase}/v1/jobs/search" \\\n+  --data-urlencode "q=software engineer" \\\n+  --data-urlencode "limit=5" \\\n+  -H "Authorization: Bearer $EXENDE_API_KEY"`}</code></pre>
+        </div>
       </section>
     </DocsFrame>
   );

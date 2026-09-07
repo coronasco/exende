@@ -4,8 +4,8 @@ export const siteConfig = {
   description:
     "Reviewed public hiring data for market research, recruiting analytics, and data products, with infrastructure APIs for autonomous software.",
   url: "https://exende.dev",
-  dataApiOverview:
-    "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
+  dataApiBase: "https://data.exende.dev",
+  dataApiOverview: "https://data.exende.dev/v1/public/overview",
   callbackVersion: "1.0.0",
   callbackApiBase: "https://api.exende.dev",
   callbackBase: "https://cb.exende.dev",

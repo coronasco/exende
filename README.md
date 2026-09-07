@@ -9,7 +9,7 @@ Exende is positioned around Jobs & Hiring Data: reviewed public career sources, 
 The only DataAPI route consumed by the public website is:
 
 ```text
-GET https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview
+GET https://data.exende.dev/v1/public/overview
 ```
 
 It requires no key and returns aggregate catalogue counts plus a nullable freshness timestamp. The site fetches it through one server data client, validates the payload, caches it for five minutes, and renders a stable fallback if the request is unavailable.
@@ -19,8 +19,9 @@ No operator dashboard, protected DataAPI route, internal credential, job listing
 ## Product status
 
 - Jobs Data public aggregate overview: available.
-- Customer authentication, subscriptions, entitlements, and scoped API-key delivery: coming soon.
-- Product-safe customer job search, company data, and historical analysis APIs: coming soon.
+- Customer authentication, onboarding credits, and scoped API-key delivery: available.
+- Product-safe customer job search, company data, and historical analysis APIs: available with a scoped key.
+- Paid Data API subscriptions and plan upgrades: in development.
 - Callback, Retry, and Resolve infrastructure APIs: available and documented.
 
 Infrastructure paid paths use x402 v2 exact USDC settlement on Base Mainnet. Their canonical contracts are under `public/openapi/`, and the combined machine-readable catalogue is `public/api/catalog.json`.

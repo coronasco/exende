@@ -11,12 +11,14 @@
       "description": "Reviewed public hiring data with current catalogue counts and historical observation.",
       "public_overview": {
         "method": "GET",
-        "url": "https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview",
+        "url": "https://data.exende.dev/v1/public/overview",
         "authentication": "none",
         "payload": "aggregate_only",
         "cache_control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
       },
-      "customer_access": "coming_soon",
+      "customer_api_base_url": "https://data.exende.dev",
+      "customer_access": "available_with_scoped_key",
+      "billing": "in_development",
       "documentation": "https://exende.dev/docs/jobs"
     },
     {

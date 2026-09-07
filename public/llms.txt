@@ -6,10 +6,11 @@
 
 - [Product](https://exende.dev/products/jobs)
 - [Public overview documentation](https://exende.dev/docs/jobs)
-- Public endpoint: `GET https://dataapi-api-production.daniel-zaharia-dev.workers.dev/v1/public/overview`
+- Public endpoint: `GET https://data.exende.dev/v1/public/overview`
 - Authentication: none
 - Payload boundary: aggregate catalogue counts and data freshness only
-- Customer job search, company data, accounts, subscriptions, and scoped API keys: coming soon
+- Customer job search, company data, accounts, onboarding credits, and scoped API keys: available
+- Paid subscriptions and plan upgrades: in development
 
 The public overview contains `active_jobs`, `active_companies`, `active_sources`, and nullable `last_updated_at`. It does not expose listings, company profiles, source health, raw payloads, protected history, customer records, or operator tooling.
 

@@ -242,17 +242,17 @@ export default function HomePage() {
         <div className="page-shell developer-layout">
           <div className="developer-copy">
             <p className="eyebrow">Developer access</p>
-            <h2>Start with the public catalogue overview.</h2>
+            <h2>Start with a scoped Data API key.</h2>
             <p>
-              The aggregate overview is available today without an Exende key. Product-safe job
-              search, company data, customer accounts, and subscription access are coming soon.
+              The aggregate overview remains available without a key. Verified accounts can now
+              create scoped credentials for job search, company data, history, and hiring metrics.
             </p>
             <div className="availability-note">
               <ShieldCheck />
               <span><strong>No internal access exposed.</strong> Protected DataAPI operations and operator tooling remain private.</span>
             </div>
             <Link href="/docs/jobs" className="primary-cta">
-              Read the public API docs <ArrowRight className="h-4 w-4" />
+              Read the Data API docs <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="terminal-card">
