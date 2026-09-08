@@ -80,6 +80,23 @@ export interface PlanDefinition {
   description: string;
 }
 
+export interface PlanChange {
+  id: string;
+  direction: "upgrade" | "downgrade";
+  fromPlan: PlanDefinition;
+  toPlan: PlanDefinition;
+  status: "previewed" | "processing" | "payment_pending" | "scheduled" | "applied" | "canceled" | "failed";
+  amountDue: number;
+  currency: string;
+  effectiveAt: string;
+  expiresAt: string;
+}
+
+export interface PlanChangeResult extends PlanChange {
+  paymentUrl?: string | null;
+  canceled?: boolean;
+}
+
 export interface BillingSummary {
   configured: boolean;
   mode: "disabled" | "test" | "live";
@@ -93,6 +110,8 @@ export interface BillingSummary {
     cancelAtPeriodEnd: boolean;
   } | null;
   customerPortalAvailable: boolean;
+  planChangesAvailable: boolean;
+  pendingPlanChange: PlanChange | null;
   plans: PlanDefinition[];
 }
 

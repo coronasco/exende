@@ -158,7 +158,8 @@ test("customer account routes preserve the server-only control-plane boundary", 
   assert.match(controlClient, /^import "server-only";/);
   assert.match(controlClient, /url\.protocol !== "https:" && !isLocalHost\(url\.hostname\)/);
   assert.match(proxy, /const CONTROL_ROUTES:/);
-  assert.match(proxy, /api-keys\|billing\\\/checkout\|billing\\\/portal\|account\\\/deletion-request/);
+  assert.match(proxy, /api-keys\|billing\\\/checkout\|billing\\\/portal\|billing\\\/plan-change/);
+  assert.match(proxy, /plan-change\(\?:\\\/preview\|\\\/cancel\)\?\|account\\\/deletion-request/);
   assert.doesNotMatch(proxy, /\/internal\/v1/);
   assert.match(dashboardLayout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
   assert.doesNotMatch(sitemap, /["']\/dashboard/);

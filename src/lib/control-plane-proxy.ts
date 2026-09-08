@@ -4,7 +4,7 @@ import { ControlPlaneError, controlPlaneFetch } from "@/lib/control-plane";
 
 const CONTROL_ROUTES: ReadonlyArray<{ method: string; pattern: RegExp }> = [
   { method: "GET", pattern: /^(?:me|overview|api-keys|credits|usage|billing)$/ },
-  { method: "POST", pattern: /^(?:api-keys|billing\/checkout|billing\/portal|account\/deletion-request)$/ },
+  { method: "POST", pattern: /^(?:api-keys|billing\/checkout|billing\/portal|billing\/plan-change(?:\/preview|\/cancel)?|account\/deletion-request)$/ },
   { method: "DELETE", pattern: /^api-keys\/[0-9a-f-]{36}$/i }
 ];
 
