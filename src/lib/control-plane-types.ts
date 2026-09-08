@@ -82,6 +82,8 @@ export interface PlanDefinition {
 
 export interface BillingSummary {
   configured: boolean;
+  mode: "disabled" | "test" | "live";
+  checkoutAvailable: boolean;
   currentPlan: PlanDefinition;
   subscription: {
     planKey: string;

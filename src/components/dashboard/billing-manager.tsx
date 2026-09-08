@@ -10,7 +10,10 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const checkoutState = searchParams.get("checkout");
-  const billingInDevelopment = !billing.configured;
+  const checkoutAvailable = billing.checkoutAvailable;
+  const sandboxBilling = billing.mode === "test" && checkoutAvailable;
+  const billingInDevelopment = !checkoutAvailable;
+  const hasSubscription = billing.subscription !== null;
 
   async function openCheckout(planKey: string) {
     setPending(planKey);
@@ -39,12 +42,13 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
   return (
     <>
       <header className="dashboard-heading">
-        <div><p className="eyebrow">Subscription & entitlement</p><h1>Billing</h1><p>{billingInDevelopment ? "Your complimentary onboarding credits are active. Paid subscriptions and plan upgrades are currently in development." : "Manage checkout, payment methods, invoices, and subscription changes. Exende grants credits only after confirmed payment."}</p></div>
+        <div><p className="eyebrow">Subscription & entitlement</p><h1>Billing</h1><p>{billingInDevelopment ? "Your complimentary onboarding credits are active. Paid subscriptions and plan upgrades are currently in development." : sandboxBilling ? "Test the complete subscription flow with Stripe sandbox checkout. No real payment will be collected." : "Manage checkout, payment methods, invoices, and your subscription. Exende grants credits only after confirmed payment."}</p></div>
         {billing.customerPortalAvailable ? <button className="dashboard-action dashboard-action--secondary" type="button" onClick={openPortal} disabled={pending !== null}><CreditCard /> {pending === "portal" ? "Opening..." : "Manage billing"}</button> : null}
       </header>
 
       {checkoutState === "success" ? <p className="billing-notice" data-tone="success"><Check /> Checkout completed. Stripe is synchronizing your subscription and credits.</p> : null}
       {checkoutState === "canceled" ? <p className="billing-notice">Checkout was canceled. Your current entitlement has not changed.</p> : null}
+      {sandboxBilling ? <p className="billing-notice" data-tone="success"><ShieldCheck /> Sandbox billing is enabled for this workspace. Use Stripe test cards only; no real charge will be made.</p> : null}
       {billingInDevelopment ? <p className="billing-notice">Billing is in development. No payment method is required, and paid plan selection is temporarily unavailable.</p> : null}
       {error ? <p className="billing-notice" data-tone="error">{error}</p> : null}
 
@@ -63,7 +67,7 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
             <div><span className="annotation">{billingInDevelopment ? "IN DEVELOPMENT" : plan.key === "pro" ? "PRODUCTION" : plan.key.toUpperCase()}</span>{current ? <span className="billing-plan__current"><Check /> Current</span> : null}</div>
             <h2>{plan.name}</h2><strong>{price(plan.priceEurMonthly)}<small> / month</small></strong><p>{plan.description}</p>
             <ul><li><Check /> {formatNumber(plan.monthlyCredits)} monthly credits</li><li><Check /> Scoped customer API keys</li><li><Check /> Usage and request metadata</li><li><Check /> {billingInDevelopment ? "Paid access coming later" : "Secure billing portal"}</li></ul>
-            <button type="button" disabled={current || billingInDevelopment || pending !== null} onClick={() => billing.customerPortalAvailable ? openPortal() : openCheckout(plan.key)}>{current ? "Current plan" : billingInDevelopment ? "Coming soon" : pending === plan.key || pending === "portal" ? "Opening billing..." : billing.customerPortalAvailable ? `Change to ${plan.name}` : `Select ${plan.name}`} {!current ? <ArrowRight /> : null}</button>
+            <button type="button" disabled={current || billingInDevelopment || hasSubscription || pending !== null} onClick={() => openCheckout(plan.key)}>{current ? "Current plan" : billingInDevelopment ? "Coming soon" : hasSubscription ? "Plan changes coming soon" : pending === plan.key ? "Opening checkout..." : `Select ${plan.name}`} {!current && !hasSubscription ? <ArrowRight /> : null}</button>
           </article>;
         })}
       </section>
