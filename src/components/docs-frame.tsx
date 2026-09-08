@@ -55,7 +55,7 @@ export function DocsFrame({ currentHref, title, intro, toc = [], children }: Doc
               {title}
             </h1>
             <p className="mt-5 max-w-3xl text-[1rem] leading-8 text-[var(--color-muted)]">{intro}</p>
-            <p className="annotation mt-5 text-[var(--color-muted)]">Updated September 6, 2026</p>
+            <p className="annotation mt-5 text-[var(--color-muted)]">Updated September 8, 2026</p>
           </header>
 
           <div className="pt-8">{children}</div>

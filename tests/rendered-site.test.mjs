@@ -21,6 +21,7 @@ const routes = [
   "/terms",
   "/privacy",
 ];
+const indexableRoutes = routes.filter((route) => route !== "/account");
 
 function occurrences(value, pattern) {
   return [...value.matchAll(pattern)].length;
@@ -38,11 +39,13 @@ test("all public pages render complete crawlable metadata and structured data", 
     assert.match(html, /<meta[^>]+name="description"[^>]+content="[^"]+"/i, `${route} is missing a description`);
     assert.match(
       html,
-      new RegExp(`<link[^>]+rel="canonical"[^>]+href="https://exende\\.dev${route === "/" ? "" : route}"`, "i"),
+      new RegExp(`<link[^>]+rel="canonical"[^>]+href="https://www\\.exende\\.dev${route === "/" ? "" : route}"`, "i"),
       `${route} has the wrong canonical URL`,
     );
     assert.match(html, /<meta[^>]+property="og:title"[^>]+content="[^"]+"/i, `${route} is missing og:title`);
-    assert.match(html, /<meta[^>]+name="twitter:card"[^>]+content="summary"/i, `${route} is missing its Twitter card`);
+    assert.match(html, /<meta[^>]+property="og:image"[^>]+content="[^"]+"/i, `${route} is missing og:image`);
+    assert.match(html, /<meta[^>]+name="twitter:card"[^>]+content="summary_large_image"/i, `${route} is missing its Twitter card`);
+    assert.match(html, /<meta[^>]+name="twitter:image"[^>]+content="[^"]+"/i, `${route} is missing twitter:image`);
 
     const jsonLdBlocks = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
     assert.ok(jsonLdBlocks.length > 0, `${route} has no JSON-LD`);
@@ -65,7 +68,7 @@ test("all crawlable internal page links resolve", async () => {
     for (const match of html.matchAll(/<a[^>]+href="([^"]+)"/gi)) {
       const href = match[1].replaceAll("&amp;", "&");
       if (href.startsWith("/") && !href.startsWith("//")) links.add(href.split("#")[0]);
-      if (href.startsWith("https://exende.dev/")) links.add(new URL(href).pathname);
+      if (href.startsWith("https://www.exende.dev/")) links.add(new URL(href).pathname);
     }
   }
 
@@ -76,19 +79,21 @@ test("all crawlable internal page links resolve", async () => {
 });
 
 test("machine-readable, crawler, analytics, and 404 surfaces are available", async () => {
-  for (const route of ["/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt"]) {
+  for (const route of ["/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert.equal(response.status, 200, `${route} did not return HTTP 200`);
   }
 
   const sitemap = await (await fetch(`${baseUrl}/sitemap.xml`)).text();
-  for (const route of routes) {
-    assert.match(sitemap, new RegExp(`<loc>https://exende\\.dev${route === "/" ? "" : route}</loc>`));
+  for (const route of indexableRoutes) {
+    assert.match(sitemap, new RegExp(`<loc>https://www\\.exende\\.dev${route === "/" ? "" : route}</loc>`));
   }
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/www\.exende\.dev\/account<\/loc>/);
 
   const robots = await (await fetch(`${baseUrl}/robots.txt`)).text();
   assert.match(robots, /Allow: \//);
-  assert.match(robots, /Sitemap: https:\/\/exende\.dev\/sitemap\.xml/);
+  assert.match(robots, /Disallow: \/dashboard\//);
+  assert.match(robots, /Sitemap: https:\/\/www\.exende\.dev\/sitemap\.xml/);
 
   const home = await (await fetch(baseUrl)).text();
   assert.doesNotMatch(home, /googletagmanager\.com|google-analytics|G-51HMFG32YE/);
@@ -107,5 +112,8 @@ test("customer dashboard is private and omitted from discovery surfaces", async 
 
   assert.ok([200, 307, 308].includes(dashboard.status));
   if (dashboard.status === 200) assert.match(html, /<meta[^>]+name="robots"[^>]+content="noindex, nofollow"/i);
-  assert.doesNotMatch(sitemap, /<loc>https:\/\/exende\.dev\/dashboard/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/www\.exende\.dev\/dashboard/);
+  const account = await (await fetch(`${baseUrl}/account`)).text();
+  assert.match(account, /<meta[^>]+name="robots"[^>]+content="noindex, nofollow"/i);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/www\.exende\.dev\/account/);
 });

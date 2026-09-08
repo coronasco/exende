@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     url: "/",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende — The data layer for hiring intelligence",
     description: "Public hiring data, normalized and observed over time.",
   },
@@ -281,8 +281,8 @@ export default function HomePage() {
           </div>
           <p>
             Exende&apos;s established infrastructure APIs can be discovered and paid per resource
-            through x402 v2 on Base. Customer Jobs Data plans and entitlements are a separate,
-            upcoming access model.
+            through x402 v2 on Base. Customer Jobs Data subscriptions and scoped API keys use a
+            separate authenticated access model.
           </p>
           <Link href="/docs/x402" className="inline-arrow">How x402 works <ArrowRight /></Link>
         </div>

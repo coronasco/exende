@@ -14,11 +14,13 @@ export const metadata: Metadata = {
     title: "Exende API documentation",
     description: "Jobs Data and infrastructure API documentation with explicit product boundaries.",
     url: "/docs",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende API documentation",
     description: "Jobs Data and infrastructure API documentation with explicit product boundaries.",
+    images: ["/twitter-image"],
   },
 };
 

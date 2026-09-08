@@ -10,11 +10,13 @@ export const metadata: Metadata = {
     title: "Exende Privacy Policy",
     description: "How Exende handles account, API, billing, support, security, and analytics data.",
     url: "/privacy",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Privacy Policy",
     description: "How Exende handles account, API, billing, support, security, and analytics data.",
+    images: ["/twitter-image"],
   },
 };
 

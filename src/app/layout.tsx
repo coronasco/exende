@@ -33,11 +33,25 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
   title: {
     default: siteConfig.title,
     template: `%s — ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "technology",
+  keywords: [
+    "jobs data API",
+    "hiring data",
+    "recruiting analytics",
+    "company hiring intelligence",
+    "public jobs data",
+    "AI agent APIs",
+  ],
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.svg",
   },
@@ -49,10 +63,11 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
+    locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
   },
@@ -78,6 +93,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               name: siteConfig.name,
               url: siteConfig.url,
               logo: `${siteConfig.url}/exende-logo.svg`,
+              email: siteConfig.supportEmail,
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: siteConfig.supportEmail,
+                contactType: "customer support",
+              },
             },
             {
               "@context": "https://schema.org",
@@ -85,6 +106,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               name: siteConfig.name,
               url: siteConfig.url,
               description: siteConfig.description,
+              inLanguage: "en",
+              publisher: { "@type": "Organization", name: siteConfig.name },
             },
           ]}
         />

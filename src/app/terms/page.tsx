@@ -10,11 +10,13 @@ export const metadata: Metadata = {
     title: "Exende Terms of Service",
     description: "Terms governing Exende accounts, data access, API usage, credits, and subscriptions.",
     url: "/terms",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Terms of Service",
     description: "Terms governing Exende accounts, data access, API usage, credits, and subscriptions.",
+    images: ["/twitter-image"],
   },
 };
 

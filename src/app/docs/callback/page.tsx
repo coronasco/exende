@@ -23,11 +23,13 @@ export const metadata: Metadata = {
     title: "Exende Callback API documentation",
     description: "Canonical reference for temporary callback endpoints and captured webhook events.",
     url: "/docs/callback",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Callback API documentation",
     description: "Canonical reference for temporary callback endpoints and captured webhook events.",
+    images: ["/twitter-image"],
   },
 };
 

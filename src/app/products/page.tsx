@@ -19,11 +19,13 @@ export const metadata: Metadata = {
     title: "Exende products",
     description: "Public hiring data and focused infrastructure APIs for autonomous software.",
     url: "/products",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende products",
     description: "Public hiring data and focused infrastructure APIs for autonomous software.",
+    images: ["/twitter-image"],
   },
 };
 

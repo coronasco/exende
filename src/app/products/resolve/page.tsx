@@ -15,11 +15,13 @@ export const metadata: Metadata = {
     title: "Exende Resolve API v1",
     description: "Safe public-resource detection and normalized machine-readable extraction.",
     url: "/products/resolve",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Resolve API v1",
     description: "Resolve public resources into bounded machine-readable output.",
+    images: ["/twitter-image"],
   },
 };
 

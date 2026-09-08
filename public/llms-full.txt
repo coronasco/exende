@@ -1,6 +1,6 @@
 # Exende API context
 
-Canonical website: https://exende.dev
+Canonical website: https://www.exende.dev
 
 Exende is a public-facing data product centered on Jobs & Hiring Data. It also provides three separate production infrastructure APIs for AI agents and automated workflows. The Exende website and future customer application are separate from the protected DataAPI operator dashboard.
 
@@ -8,8 +8,8 @@ Exende is a public-facing data product centered on Jobs & Hiring Data. It also p
 
 Purpose: provide reviewed public hiring data, current catalogue counts, and historical observation for legitimate market research, recruiting analytics, and data products.
 
-- Product: https://exende.dev/products/jobs
-- Documentation: https://exende.dev/docs/jobs
+- Product: https://www.exende.dev/products/jobs
+- Documentation: https://www.exende.dev/docs/jobs
 - Current public endpoint: GET https://data.exende.dev/v1/public/overview
 - Authentication: none
 - Fields: `active_jobs`, `active_companies`, `active_sources`, and nullable ISO 8601 UTC `last_updated_at`
@@ -17,13 +17,21 @@ Purpose: provide reviewed public hiring data, current catalogue counts, and hist
 - Public boundary: aggregate values only
 - Customer API base: https://data.exende.dev
 - Customer authentication, onboarding credits, and scoped API keys: available
-- Paid subscriptions and plan upgrades: in development
+- Paid subscriptions and plan upgrades: available through the authenticated dashboard
+
+Customer credit metering:
+
+- Failed requests consume 0 credits.
+- Per-record routes that return no records consume 0 credits.
+- Jobs search, jobs list, job history, company jobs, skills, and history-feed routes cost 1 credit per returned record.
+- A single job detail costs 1 credit; company detail and metrics overview cost 2 credits; company hiring and hiring metrics cost 5 credits.
+- List and search routes accept up to 100 records per request.
 
 The public overview does not return job listings, company profiles, descriptions, source health, failed runs, raw payloads, protected history, customer records, API-key data, or operational incidents. It must not be presented as complete global or guaranteed real-time coverage.
 
 ## Infrastructure APIs
 
-Callback, Retry, and Resolve are operated through machine-readable HTTP without a mandatory dashboard. x402-paid creation uses exact USDC settlement on Base Mainnet (`eip155:8453`). These products are separate from the upcoming Jobs Data subscription and customer-key model.
+Callback, Retry, and Resolve are operated through machine-readable HTTP without a mandatory dashboard. x402-paid creation uses exact USDC settlement on Base Mainnet (`eip155:8453`). These products are separate from the Jobs Data subscription and scoped customer-key model.
 
 ## Callback API
 
@@ -38,8 +46,8 @@ Purpose: create a temporary public webhook endpoint, receive external POST/PUT/P
 - Price: $0.01 USDC per callback creation through x402 v2
 - Limits: 10-minute lifetime, 10 events, 262144 bytes per event
 - Authentication: creation uses x402; follow-up reads/waits/deletion use the returned `read_token`
-- Canonical docs: https://exende.dev/docs/callback
-- OpenAPI: https://exende.dev/openapi/callback.json
+- Canonical docs: https://www.exende.dev/docs/callback
+- OpenAPI: https://www.exende.dev/openapi/callback.json
 
 ## Retry API v1
 
@@ -57,8 +65,8 @@ Purpose: execute a public HTTPS request as a durable job with automatic retry sc
 - API-key limit: up to 20 attempts
 - Outbound security: public HTTPS only, up to 3 same-origin redirects, 20-second timeout across the complete chain
 - Authentication: API key for account jobs; x402-paid creation returns a resource-scoped `read_token`
-- Canonical docs: https://exende.dev/docs/retry
-- OpenAPI: https://exende.dev/openapi/retry.json
+- Canonical docs: https://www.exende.dev/docs/retry
+- OpenAPI: https://www.exende.dev/openapi/retry.json
 
 ## Resolve API v1
 
@@ -75,12 +83,12 @@ Purpose: resolve one public HTTP or HTTPS URL into bounded machine-readable web 
 - Retention: encrypted results are retained for 72 hours
 - No OCR, archive extraction, screenshots, DOCX/XLSX extraction, internal retries, or LLM parsing in v1
 - Authentication: x402-paid creation returns a job-scoped `read_token`; result reads require that token and no additional payment
-- Canonical docs: https://exende.dev/docs/resolve
-- OpenAPI: https://exende.dev/openapi/resolve.json
+- Canonical docs: https://www.exende.dev/docs/resolve
+- OpenAPI: https://www.exende.dev/openapi/resolve.json
 
 ## x402
 
 An unpaid creation request returns HTTP 402 with PAYMENT-REQUIRED. Build payment from those current requirements, repeat the same request with PAYMENT-SIGNATURE, and read PAYMENT-RESPONSE after settlement. Retry and Resolve paid clients use the x402 v2 payment-identifier extension and reuse one identifier only for retries of the same logical paid request.
 
-Canonical x402 docs: https://exende.dev/docs/x402
-API catalog: https://exende.dev/api/catalog.json
+Canonical x402 docs: https://www.exende.dev/docs/x402
+API catalog: https://www.exende.dev/api/catalog.json

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/content/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-09-06T00:00:00.000Z");
+  const lastModified = new Date("2026-09-08T00:00:00.000Z");
 
   return [
     { url: siteConfig.url, lastModified, changeFrequency: "weekly" as const, priority: 1 },
@@ -19,7 +19,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteConfig.url}/docs/resolve`, lastModified, changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${siteConfig.url}/docs/x402`, lastModified, changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${siteConfig.url}/api`, lastModified, changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${siteConfig.url}/account`, lastModified, changeFrequency: "monthly" as const, priority: 0.4 },
     { url: `${siteConfig.url}/terms`, lastModified, changeFrequency: "yearly" as const, priority: 0.3 },
     { url: `${siteConfig.url}/privacy`, lastModified, changeFrequency: "yearly" as const, priority: 0.3 },
   ];

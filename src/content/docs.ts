@@ -16,7 +16,7 @@ export const docsGroups = [
       { label: "Request", href: "/docs/jobs#request" },
       { label: "Response schema", href: "/docs/jobs#response" },
       { label: "Caching & freshness", href: "/docs/jobs#caching" },
-      { label: "Access roadmap", href: "/docs/jobs#access" },
+      { label: "Customer access", href: "/docs/jobs#access" },
     ],
   },
   {

@@ -13,11 +13,13 @@ export const metadata: Metadata = {
     title: "Exende API surface",
     description: "A concise endpoint index with availability, authentication, and payment boundaries.",
     url: "/api",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende API surface",
     description: "A concise endpoint index with availability, authentication, and payment boundaries.",
+    images: ["/twitter-image"],
   },
 };
 

@@ -16,11 +16,13 @@ export const metadata: Metadata = {
     title: "Exende Callback API",
     description: "Temporary public webhook endpoints with token-protected reads and long polling.",
     url: "/products/callback",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Callback API",
     description: "Temporary public webhook endpoints with token-protected reads and long polling.",
+    images: ["/twitter-image"],
   },
 };
 

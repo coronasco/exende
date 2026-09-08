@@ -15,11 +15,13 @@ export const metadata: Metadata = {
     title: "Exende pricing and access",
     description: "Customer Data API plans with included credits and fixed x402 infrastructure pricing.",
     url: "/pricing",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende pricing and access",
     description: "Customer Data API plans with included credits and fixed x402 infrastructure pricing.",
+    images: ["/twitter-image"],
   },
 };
 
@@ -35,7 +37,7 @@ export default async function PricingPage() {
           "@context": "https://schema.org",
           "@type": "WebPage",
           name: "Exende pricing and access",
-          description: "Current and planned access models for Exende data and infrastructure APIs.",
+          description: "Current subscription and metered access models for Exende data and infrastructure APIs.",
           url: `${siteConfig.url}/pricing`,
         }}
       />
@@ -52,13 +54,13 @@ export default async function PricingPage() {
           <p className="eyebrow">Pricing & access</p>
           <h1>Pay for useful access, not a story we cannot support.</h1>
           <p>
-            Start with complimentary onboarding credits while paid Data API subscriptions remain
-            in development. Credits are enforced on every customer API request.
+            Start with complimentary onboarding credits, then choose a paid Data API subscription
+            when you need more capacity. Credits are enforced on successful customer API requests.
           </p>
           <div className="pricing-principles">
             <span><Check /> Free onboarding access</span>
             <span><Check /> Scoped API keys</span>
-            <span><Check /> Paid plans in development</span>
+            <span><Check /> Live monthly subscriptions</span>
           </div>
         </div>
       </section>
@@ -86,16 +88,20 @@ export default async function PricingPage() {
               <Link href={{ pathname: "/account", query: { next: "/dashboard" } }}>Create free account <ArrowRight /></Link>
             </article>
             {paidPlans.map((plan) => (
-              <article key={plan.key} className="data-plan">
+              <article key={plan.key} className="data-plan" data-live="true">
                 <div className="data-plan__top">
                   {plan.key === "enterprise" ? <ShieldCheck /> : <CircleDollarSign />}
-                  <span>In development</span>
+                  <span>{plan.key === "enterprise" ? "Contact us" : "Available"}</span>
                 </div>
                 <h3>{plan.name}</h3>
                 <strong>{plan.priceEurMonthly === null ? "Custom" : `€${plan.priceEurMonthly}${plan.priceEurMonthly ? "/mo" : ""}`}</strong>
                 <p>{plan.description}</p>
-                <ul><li><Check /> Taxes included in listed price</li><li><Check /> {plan.monthlyCredits.toLocaleString("en-US")} monthly credits</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
-                <span className="data-plan__disabled">Coming soon</span>
+                <ul><li><Check /> Taxes included in listed price</li><li><Check /> {plan.key === "enterprise" ? "Contracted credit capacity" : `${plan.monthlyCredits.toLocaleString("en-US")} monthly credits`}</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
+                {plan.key === "enterprise" ? (
+                  <a href={`mailto:${siteConfig.supportEmail}`}>Contact support <ArrowRight /></a>
+                ) : (
+                  <Link href={{ pathname: "/account", query: { next: "/dashboard/billing" } }}>Choose {plan.name} <ArrowRight /></Link>
+                )}
               </article>
             ))}
           </div> : <div className="pricing-plans-unavailable"><ShieldCheck /><h3>Plan data is temporarily unavailable.</h3><p>We do not display cached or invented billing values. Please retry shortly.</p></div>}

@@ -95,7 +95,18 @@ test("machine-readable catalog contains exact confirmed pricing and limits", asy
   );
   assert.equal(jobsData.customer_api_base_url, "https://data.exende.dev");
   assert.equal(jobsData.customer_access, "available_with_scoped_key");
-  assert.equal(jobsData.billing, "in_development");
+  assert.equal(jobsData.billing, "live_subscriptions");
+  assert.deepEqual(
+    jobsData.credit_metering.fixed.map(({ operation, credits }) => [operation, credits]),
+    [
+      ["jobs.detail", 1],
+      ["companies.detail", 2],
+      ["companies.hiring", 5],
+      ["metrics.overview", 2],
+      ["metrics.hiring", 5],
+    ],
+  );
+  assert.ok(jobsData.credit_metering.per_returned_record.every(({ credits }) => credits === 1));
   assert.equal(
     jobsData.public_overview.cache_control,
     "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
@@ -126,12 +137,12 @@ test("agent discovery files point to canonical documentation and contracts", asy
   const full = await readFile(path.join(projectRoot, "public/llms-full.txt"), "utf8");
 
   for (const text of [llms, full]) {
-    assert.match(text, /https:\/\/exende\.dev\/docs\/callback/);
-    assert.match(text, /https:\/\/exende\.dev\/docs\/retry/);
-    assert.match(text, /https:\/\/exende\.dev\/docs\/resolve/);
-    assert.match(text, /https:\/\/exende\.dev\/openapi\/callback\.json/);
-    assert.match(text, /https:\/\/exende\.dev\/openapi\/retry\.json/);
-    assert.match(text, /https:\/\/exende\.dev\/openapi\/resolve\.json/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/docs\/callback/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/docs\/retry/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/docs\/resolve/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/openapi\/callback\.json/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/openapi\/retry\.json/);
+    assert.match(text, /https:\/\/www\.exende\.dev\/openapi\/resolve\.json/);
   }
 });
 
@@ -153,6 +164,7 @@ test("customer account routes preserve the server-only control-plane boundary", 
   const proxy = await readFile(path.join(projectRoot, "src/lib/control-plane-proxy.ts"), "utf8");
   const dashboardLayout = await readFile(path.join(projectRoot, "src/app/dashboard/layout.tsx"), "utf8");
   const sitemap = await readFile(path.join(projectRoot, "src/app/sitemap.ts"), "utf8");
+  const accountPage = await readFile(path.join(projectRoot, "src/app/account/page.tsx"), "utf8");
   const envExample = await readFile(path.join(projectRoot, ".env.example"), "utf8");
 
   assert.match(controlClient, /^import "server-only";/);
@@ -163,6 +175,8 @@ test("customer account routes preserve the server-only control-plane boundary", 
   assert.doesNotMatch(proxy, /\/internal\/v1/);
   assert.match(dashboardLayout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
   assert.doesNotMatch(sitemap, /["']\/dashboard/);
+  assert.doesNotMatch(sitemap, /["']\/account/);
+  assert.match(accountPage, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
   assert.doesNotMatch(envExample, /NEXT_PUBLIC_/);
   assert.doesNotMatch(envExample, /(?:SECRET|TOKEN|PRIVATE|PASSWORD|API_KEY)\s*=/);
 });

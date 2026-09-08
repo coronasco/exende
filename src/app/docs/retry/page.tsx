@@ -15,11 +15,13 @@ export const metadata: Metadata = {
     title: "Exende Retry API v1 documentation",
     description: "Canonical reference for durable outbound HTTP Retry jobs.",
     url: "/docs/retry",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Retry API v1 documentation",
     description: "Canonical reference for durable outbound HTTP Retry jobs.",
+    images: ["/twitter-image"],
   },
 };
 

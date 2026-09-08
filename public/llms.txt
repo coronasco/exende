@@ -4,31 +4,32 @@
 
 ## Jobs & Hiring Data
 
-- [Product](https://exende.dev/products/jobs)
-- [Public overview documentation](https://exende.dev/docs/jobs)
+- [Product](https://www.exende.dev/products/jobs)
+- [Public overview and customer API documentation](https://www.exende.dev/docs/jobs)
 - Public endpoint: `GET https://data.exende.dev/v1/public/overview`
 - Authentication: none
 - Payload boundary: aggregate catalogue counts and data freshness only
 - Customer job search, company data, accounts, onboarding credits, and scoped API keys: available
-- Paid subscriptions and plan upgrades: in development
+- Paid subscriptions and plan upgrades: available through the authenticated dashboard
+- Credit metering: successful list/search routes cost 1 credit per returned record; fixed detail and metrics routes cost 1, 2, or 5 credits
 
 The public overview contains `active_jobs`, `active_companies`, `active_sources`, and nullable `last_updated_at`. It does not expose listings, company profiles, source health, raw payloads, protected history, customer records, or operator tooling.
 
 ## Infrastructure documentation
 
-- [Documentation index](https://exende.dev/docs)
-- [Callback API documentation](https://exende.dev/docs/callback)
-- [Retry API v1 documentation](https://exende.dev/docs/retry)
-- [Resolve API v1 documentation](https://exende.dev/docs/resolve)
-- [x402 payment documentation](https://exende.dev/docs/x402)
-- [Production API surface](https://exende.dev/api)
+- [Documentation index](https://www.exende.dev/docs)
+- [Callback API documentation](https://www.exende.dev/docs/callback)
+- [Retry API v1 documentation](https://www.exende.dev/docs/retry)
+- [Resolve API v1 documentation](https://www.exende.dev/docs/resolve)
+- [x402 payment documentation](https://www.exende.dev/docs/x402)
+- [Production API surface](https://www.exende.dev/api)
 
 ## Machine-readable contracts
 
-- [Callback OpenAPI 3.1](https://exende.dev/openapi/callback.json)
-- [Retry OpenAPI 3.1](https://exende.dev/openapi/retry.json)
-- [Resolve OpenAPI 3.1](https://exende.dev/openapi/resolve.json)
-- [API catalog](https://exende.dev/api/catalog.json)
-- [Extended agent context](https://exende.dev/llms-full.txt)
+- [Callback OpenAPI 3.1](https://www.exende.dev/openapi/callback.json)
+- [Retry OpenAPI 3.1](https://www.exende.dev/openapi/retry.json)
+- [Resolve OpenAPI 3.1](https://www.exende.dev/openapi/resolve.json)
+- [API catalog](https://www.exende.dev/api/catalog.json)
+- [Extended agent context](https://www.exende.dev/llms-full.txt)
 
 Callback costs $0.01 USDC, Retry costs $0.02 USDC, and Resolve costs $0.03 USDC on their x402-paid paths. They use x402 v2 exact settlement on Base Mainnet (`eip155:8453`). Use each current PAYMENT-REQUIRED response for authoritative settlement requirements and never hardcode the recipient address.

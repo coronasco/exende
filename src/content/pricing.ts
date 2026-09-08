@@ -11,20 +11,20 @@ export const dataAccessPlans = [
   {
     name: "Build",
     audience: "For product teams integrating normalized hiring data.",
-    status: "Coming soon",
-    price: "Plans in preparation",
+    status: "Available now",
+    price: "From €19/month",
     features: ["Product-safe search APIs", "Scoped customer API keys", "Usage and entitlement controls"],
-    href: "/products/jobs#access",
-    cta: "View roadmap",
+    href: "/pricing",
+    cta: "View plans",
   },
   {
     name: "Research",
     audience: "For teams working with historical hiring observations.",
-    status: "Coming soon",
-    price: "Plans in preparation",
+    status: "Available now",
+    price: "From €59/month",
     features: ["Historical movement", "Company hiring context", "Documented coverage boundaries"],
-    href: "/products/jobs#access",
-    cta: "View roadmap",
+    href: "/pricing",
+    cta: "View plans",
   },
 ] as const;
 

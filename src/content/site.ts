@@ -3,7 +3,7 @@ export const siteConfig = {
   title: "Exende — Public Hiring Data, Observed Over Time",
   description:
     "Reviewed public hiring data for market research, recruiting analytics, and data products, with infrastructure APIs for autonomous software.",
-  url: "https://exende.dev",
+  url: "https://www.exende.dev",
   dataApiBase: "https://data.exende.dev",
   dataApiOverview: "https://data.exende.dev/v1/public/overview",
   callbackVersion: "1.0.0",

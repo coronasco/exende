@@ -25,11 +25,13 @@ export const metadata: Metadata = {
     title: "Exende Jobs & Hiring Data",
     description: "Public hiring data, observed over time.",
     url: "/products/jobs",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Jobs & Hiring Data",
     description: "Public hiring data, observed over time.",
+    images: ["/twitter-image"],
   },
 };
 
@@ -68,7 +70,7 @@ export default function JobsProductPage() {
             </p>
             <div className="data-hero__actions">
               <Link href="/docs/jobs" className="primary-cta">Read the public API <ArrowRight className="h-4 w-4" /></Link>
-              <Link href="#access" className="secondary-cta">Access roadmap</Link>
+              <Link href="#access" className="secondary-cta">Customer access</Link>
             </div>
           </div>
         </div>

@@ -9,17 +9,19 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Jobs Data API",
   description:
-    "Use Exende's public aggregate Jobs Data overview with its exact response fields, caching contract, and access boundary.",
+    "Use Exende Jobs Data APIs with exact public overview, customer authentication, route scopes, and credit metering.",
   alternates: { canonical: "/docs/jobs" },
   openGraph: {
     title: "Exende Jobs Data public overview API",
     description: "Current catalogue counts and data freshness from one no-key endpoint.",
     url: "/docs/jobs",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Jobs Data public overview API",
     description: "Current catalogue counts and data freshness from one no-key endpoint.",
+    images: ["/twitter-image"],
   },
 };
 
@@ -29,14 +31,15 @@ const toc = [
   { id: "response", label: "Response schema" },
   { id: "caching", label: "Caching & freshness" },
   { id: "access", label: "Customer access" },
+  { id: "credits", label: "Credit metering" },
 ] as const;
 
 export default function JobsDocsPage() {
   return (
     <DocsFrame
       currentHref="/docs/jobs"
-      title="Jobs Data public overview"
-      intro="The current public Jobs Data contract is intentionally narrow: one aggregate endpoint for catalogue counts and data freshness. It does not expose job listings or protected operational data."
+      title="Jobs Data API"
+      intro="Use the no-key aggregate overview for catalogue proof, or a scoped customer key for normalized jobs, companies, history, skills, and hiring metrics. Protected operational data remains private."
       toc={toc}
     >
       <JsonLd
@@ -46,7 +49,7 @@ export default function JobsDocsPage() {
           headline: "Exende Jobs Data public overview API",
           description: "Exact public aggregate contract for Exende Jobs & Hiring Data.",
           url: `${siteConfig.url}/docs/jobs`,
-          dateModified: "2026-09-06",
+          dateModified: "2026-09-08",
           author: { "@type": "Organization", name: "Exende" },
         }}
       />
@@ -116,8 +119,36 @@ export default function JobsDocsPage() {
             <span className="annotation text-[var(--color-accent)]">FIRST REQUEST</span>
             <span className="font-mono text-[0.65rem] text-[var(--color-muted)]">Scoped key</span>
           </div>
-          <pre className="overflow-x-auto p-5 font-mono text-xs leading-7 text-[#a9c9ff]"><code>{`curl --get "${siteConfig.dataApiBase}/v1/jobs/search" \\\n+  --data-urlencode "q=software engineer" \\\n+  --data-urlencode "limit=5" \\\n+  -H "Authorization: Bearer $EXENDE_API_KEY"`}</code></pre>
+          <pre className="overflow-x-auto p-5 font-mono text-xs leading-7 text-[#a9c9ff]"><code>{`curl --get "${siteConfig.dataApiBase}/v1/jobs/search" \\\n  --data-urlencode "q=software engineer" \\\n  --data-urlencode "limit=5" \\\n  -H "Authorization: Bearer $EXENDE_API_KEY"`}</code></pre>
         </div>
+      </section>
+
+      <section id="credits" className="surface-rule mt-12 pt-8">
+        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Credit metering</h2>
+        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
+          Only successful customer requests that return data consume credits. Failed requests and
+          per-record routes that return zero records cost zero credits.
+        </p>
+        <table className="spec-table mt-5">
+          <thead><tr><th>Method and route</th><th>Required scope</th><th>Credits</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET /v1/jobs/search</code></td><td><code>jobs:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/jobs</code></td><td><code>jobs:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/jobs/{"{id}"}/history</code></td><td><code>jobs:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/skills</code></td><td><code>jobs:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/history</code></td><td><code>jobs:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/jobs/{"{id}"}</code></td><td><code>jobs:read</code></td><td>1</td></tr>
+            <tr><td><code>GET /v1/companies/{"{domain}"}/jobs</code></td><td><code>companies:read</code></td><td>1 per returned record</td></tr>
+            <tr><td><code>GET /v1/companies/{"{domain}"}</code></td><td><code>companies:read</code></td><td>2</td></tr>
+            <tr><td><code>GET /v1/companies/{"{domain}"}/hiring</code></td><td><code>companies:read</code></td><td>5</td></tr>
+            <tr><td><code>GET /v1/metrics/overview</code></td><td><code>signals:read</code></td><td>2</td></tr>
+            <tr><td><code>GET /v1/metrics/hiring</code></td><td><code>signals:read</code></td><td>5</td></tr>
+          </tbody>
+        </table>
+        <p className="mt-5 text-sm leading-7 text-[var(--color-muted)]">
+          List and search routes accept up to 100 records per request. For example, a successful
+          search returning five jobs costs five credits; returning 50 jobs costs 50 credits.
+        </p>
       </section>
     </DocsFrame>
   );

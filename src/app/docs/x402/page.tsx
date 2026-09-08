@@ -15,11 +15,13 @@ export const metadata: Metadata = {
     title: "Exende x402 payment documentation",
     description: "Pay per Callback, Retry, or Resolve job with exact USDC settlement on Base.",
     url: "/docs/x402",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende x402 payment documentation",
     description: "Pay per Callback, Retry, or Resolve job with exact USDC settlement on Base.",
+    images: ["/twitter-image"],
   },
 };
 

@@ -15,11 +15,13 @@ export const metadata: Metadata = {
     title: "Exende Resolve API v1 documentation",
     description: "Endpoints, examples, formats, limits, security, errors, and x402 payment behavior for Resolve.",
     url: "/docs/resolve",
+    images: ["/opengraph-image"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Exende Resolve API v1 documentation",
     description: "Canonical developer documentation for Exende Resolve.",
+    images: ["/twitter-image"],
   },
 };
 

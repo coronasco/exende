@@ -9,8 +9,9 @@ export const metadata: Metadata = {
   title: "Sign in or create an account",
   description: "Create and manage your Exende account, API keys, credits, usage, and billing.",
   alternates: { canonical: "/account" },
-  openGraph: { title: "Exende customer access", description: "Create and manage your Exende account and Data API access.", url: "/account" },
-  twitter: { card: "summary", title: "Exende customer access", description: "Create and manage your Exende account and Data API access." },
+  robots: { index: false, follow: false },
+  openGraph: { title: "Exende customer access", description: "Create and manage your Exende account and Data API access.", url: "/account", images: ["/opengraph-image"] },
+  twitter: { card: "summary_large_image", title: "Exende customer access", description: "Create and manage your Exende account and Data API access.", images: ["/twitter-image"] },
 };
 
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
