@@ -63,8 +63,13 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="site-footer__base border-t border-[var(--color-border)]">
-        <div className="page-shell flex flex-col gap-2 py-5 text-xs text-[var(--color-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="page-shell site-footer__base-inner py-5 text-xs text-[var(--color-muted)]">
           <p>© {new Date().getUTCFullYear()} Exende. Public data infrastructure.</p>
+          <nav className="site-footer__legal" aria-label="Legal and support">
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <a href="mailto:support@exende.dev">Support</a>
+          </nav>
           <p className="font-mono">Jobs data first · Agent infrastructure included</p>
         </div>
       </div>

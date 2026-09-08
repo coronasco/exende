@@ -18,6 +18,8 @@ const routes = [
   "/docs/x402",
   "/api",
   "/account",
+  "/terms",
+  "/privacy",
 ];
 
 function occurrences(value, pattern) {
@@ -89,7 +91,7 @@ test("machine-readable, crawler, analytics, and 404 surfaces are available", asy
   assert.match(robots, /Sitemap: https:\/\/exende\.dev\/sitemap\.xml/);
 
   const home = await (await fetch(baseUrl)).text();
-  assert.match(home, /G-51HMFG32YE/);
+  assert.doesNotMatch(home, /googletagmanager\.com|google-analytics|G-51HMFG32YE/);
 
   const missing = await fetch(`${baseUrl}/this-route-must-not-exist`);
   const missingHtml = await missing.text();

@@ -5,7 +5,6 @@ import { siteConfig } from "@/content/site";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -93,16 +92,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main id="main-content" tabIndex={-1}>{children}</main>
         <SiteFooter />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.analyticsId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${siteConfig.analyticsId}');`}
-        </Script>
         <Analytics />
       </body>
     </html>

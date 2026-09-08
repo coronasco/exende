@@ -173,3 +173,17 @@ test("official wordmark is present with intrinsic proportions", async () => {
   assert.match(logo, /role="img"/);
   assert.match(logo, /<title[^>]*>EXENDE<\/title>/);
 });
+
+test("legal pages identify the operator and public support channel without Google Analytics", async () => {
+  const terms = await readFile(path.join(projectRoot, "src/app/terms/page.tsx"), "utf8");
+  const privacy = await readFile(path.join(projectRoot, "src/app/privacy/page.tsx"), "utf8");
+  const layout = await readFile(path.join(projectRoot, "src/app/layout.tsx"), "utf8");
+  const site = await readFile(path.join(projectRoot, "src/content/site.ts"), "utf8");
+
+  for (const page of [terms, privacy]) {
+    assert.match(page, /siteConfig\.legalOperator/);
+    assert.match(page, /siteConfig\.supportEmail/);
+  }
+  assert.match(site, /supportEmail:\s*"support@exende\.dev"/);
+  assert.doesNotMatch(layout, /googletagmanager|google-analytics|analyticsId/);
+});

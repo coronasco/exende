@@ -73,6 +73,11 @@ export function AuthPanel({ serviceAvailable, nextPath }: { serviceAvailable: bo
             {message ? <p className="auth-message" data-tone={message.tone} role="status">{message.tone === "success" ? <Check /> : null}{message.text}</p> : null}
             {!serviceAvailable ? <p className="auth-message" data-tone="error">Customer services are not configured for this deployment yet.</p> : null}
             <button type="submit" className="auth-submit" disabled={pending || !serviceAvailable}>{pending ? "Working..." : mode === "register" ? "Create secure account" : mode === "forgot" ? "Send reset link" : "Sign in"}{!pending ? <ArrowRight /> : null}</button>
+            {mode === "register" ? (
+              <p className="auth-legal">
+                By creating an account, you agree to the <Link href="/terms">Terms of Service</Link> and acknowledge the <Link href="/privacy">Privacy Policy</Link>.
+              </p>
+            ) : null}
           </form>
 
           <div className="auth-card__footer">

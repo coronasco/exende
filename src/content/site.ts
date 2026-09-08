@@ -19,7 +19,9 @@ export const siteConfig = {
   bazaarSearch:
     "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=exende.dev&network=eip155%3A8453&scheme=exact&limit=20",
   x402Docs: "https://docs.x402.org/",
-  analyticsId: "G-51HMFG32YE",
+  supportEmail: "support@exende.dev",
+  legalOperator: "Daniel Zaharia",
+  legalAddress: "Largo Valgioie 22, Italy",
   // Legacy Callback aliases retained while the documentation is split by product.
   apiVersion: "1.0.0",
   apiBase: "https://api.exende.dev",

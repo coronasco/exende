@@ -20,5 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteConfig.url}/docs/x402`, lastModified, changeFrequency: "weekly" as const, priority: 0.8 },
     { url: `${siteConfig.url}/api`, lastModified, changeFrequency: "weekly" as const, priority: 0.7 },
     { url: `${siteConfig.url}/account`, lastModified, changeFrequency: "monthly" as const, priority: 0.4 },
+    { url: `${siteConfig.url}/terms`, lastModified, changeFrequency: "yearly" as const, priority: 0.3 },
+    { url: `${siteConfig.url}/privacy`, lastModified, changeFrequency: "yearly" as const, priority: 0.3 },
   ];
 }
