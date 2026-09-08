@@ -2,9 +2,26 @@ import { DashboardError } from "@/components/dashboard/dashboard-error";
 import { getCredits, getUsage } from "@/lib/control-plane";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BarChart3, CircleDollarSign, Database, Radio } from "lucide-react";
+import { ArrowRight, BarChart3, CircleDollarSign, Database, Radio } from "lucide-react";
 
 export const metadata: Metadata = { title: "Usage" };
+
+const perRecordCreditRoutes = [
+  ["Job search", "/v1/jobs/search"],
+  ["Job catalogue", "/v1/jobs"],
+  ["Job history", "/v1/jobs/{id}/history"],
+  ["Company jobs", "/v1/companies/{domain}/jobs"],
+  ["Skills", "/v1/skills"],
+  ["History feed", "/v1/history"],
+] as const;
+
+const fixedCreditRoutes = [
+  ["Job detail", "/v1/jobs/{id}", 1],
+  ["Company detail", "/v1/companies/{domain}", 2],
+  ["Company hiring", "/v1/companies/{domain}/hiring", 5],
+  ["Overview metrics", "/v1/metrics/overview", 2],
+  ["Hiring metrics", "/v1/metrics/hiring", 5],
+] as const;
 
 export default async function UsagePage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   const selected = Number((await searchParams).days);
@@ -25,6 +42,33 @@ export default async function UsagePage({ searchParams }: { searchParams: Promis
           <UsageMetric icon={CircleDollarSign} label="Credits consumed" value={formatNumber(usage.totals.creditsConsumed)} />
           <UsageMetric icon={Radio} label="Requests" value={formatNumber(usage.totals.requests)} />
           <UsageMetric icon={Database} label="Records returned" value={formatNumber(usage.totals.recordsReturned)} />
+        </section>
+
+        <section className="dashboard-panel usage-costs">
+          <div className="dashboard-panel__heading">
+            <div><span className="annotation">CREDIT COSTS</span><h2>Know the cost before you request</h2></div>
+            <Link href="/docs/jobs#credits">Metering guide <ArrowRight /></Link>
+          </div>
+          <div className="usage-costs__notice">
+            <span><CircleDollarSign /></span>
+            <p><strong>Only successful requests that return data consume credits.</strong> Failed requests and per-record endpoints returning zero records cost 0 credits. <code>GET /v1/public/overview</code> is free and keyless.</p>
+          </div>
+          <div className="usage-costs__grid">
+            <article className="usage-cost-group usage-cost-group--variable">
+              <header><div><span>PER RETURNED RECORD</span><h3>1 credit <small>/ record</small></h3></div><i>VARIABLE</i></header>
+              <p>Your cost follows the number of records in the response. For example, 5 returned records cost 5 credits.</p>
+              <div className="usage-cost-routes">
+                {perRecordCreditRoutes.map(([label, route]) => <div key={route}><span>{label}</span><code>GET {route}</code><strong>1 / result</strong></div>)}
+              </div>
+            </article>
+            <article className="usage-cost-group usage-cost-group--fixed">
+              <header><div><span>FIXED COST</span><h3>Per successful response</h3></div><i>FIXED</i></header>
+              <p>Detail and aggregate endpoints use a predictable fixed debit when the request returns data.</p>
+              <div className="usage-cost-routes">
+                {fixedCreditRoutes.map(([label, route, cost]) => <div key={route}><span>{label}</span><code>GET {route}</code><strong>{cost} {cost === 1 ? "credit" : "credits"}</strong></div>)}
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="dashboard-panel usage-timeline">

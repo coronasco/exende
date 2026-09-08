@@ -132,6 +132,35 @@ test("machine-readable catalog contains exact confirmed pricing and limits", asy
   );
 });
 
+test("usage dashboard explains every customer credit cost before requests", async () => {
+  const page = await readFile(path.join(projectRoot, "src/app/dashboard/usage/page.tsx"), "utf8");
+
+  assert.match(page, /Only successful requests that return data consume credits/);
+  assert.match(page, /returning zero records cost 0 credits/);
+  assert.match(page, /GET \/v1\/public\/overview<\/code> is free and keyless/);
+  assert.match(page, /1 credit <small>\/ record<\/small>/);
+  for (const route of [
+    "/v1/jobs/search",
+    "/v1/jobs",
+    "/v1/jobs/{id}/history",
+    "/v1/companies/{domain}/jobs",
+    "/v1/skills",
+    "/v1/history",
+    "/v1/jobs/{id}",
+    "/v1/companies/{domain}",
+    "/v1/companies/{domain}/hiring",
+    "/v1/metrics/overview",
+    "/v1/metrics/hiring",
+  ]) {
+    assert.ok(page.includes(route), `usage dashboard is missing ${route}`);
+  }
+  assert.match(page, /\["Job detail", "\/v1\/jobs\/\{id\}", 1\]/);
+  assert.match(page, /\["Company detail", "\/v1\/companies\/\{domain\}", 2\]/);
+  assert.match(page, /\["Company hiring", "\/v1\/companies\/\{domain\}\/hiring", 5\]/);
+  assert.match(page, /\["Overview metrics", "\/v1\/metrics\/overview", 2\]/);
+  assert.match(page, /\["Hiring metrics", "\/v1\/metrics\/hiring", 5\]/);
+});
+
 test("agent discovery files point to canonical documentation and contracts", async () => {
   const llms = await readFile(path.join(projectRoot, "public/llms.txt"), "utf8");
   const full = await readFile(path.join(projectRoot, "public/llms-full.txt"), "utf8");
