@@ -94,7 +94,7 @@ export default async function PricingPage() {
                 <h3>{plan.name}</h3>
                 <strong>{plan.priceEurMonthly === null ? "Custom" : `€${plan.priceEurMonthly}${plan.priceEurMonthly ? "/mo" : ""}`}</strong>
                 <p>{plan.description}</p>
-                <ul><li><Check /> {plan.monthlyCredits.toLocaleString("en-US")} monthly credits</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
+                <ul><li><Check /> Taxes included in listed price</li><li><Check /> {plan.monthlyCredits.toLocaleString("en-US")} monthly credits</li><li><Check /> Scoped API credentials</li><li><Check /> Metered usage dashboard</li></ul>
                 <span className="data-plan__disabled">Coming soon</span>
               </article>
             ))}

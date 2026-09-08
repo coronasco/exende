@@ -66,7 +66,7 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
           return <article key={plan.key} className="billing-plan" data-featured={plan.key === "pro"} data-current={current}>
             <div><span className="annotation">{billingInDevelopment ? "IN DEVELOPMENT" : plan.key === "pro" ? "PRODUCTION" : plan.key.toUpperCase()}</span>{current ? <span className="billing-plan__current"><Check /> Current</span> : null}</div>
             <h2>{plan.name}</h2><strong>{price(plan.priceEurMonthly)}<small> / month</small></strong><p>{plan.description}</p>
-            <ul><li><Check /> {formatNumber(plan.monthlyCredits)} monthly credits</li><li><Check /> Scoped customer API keys</li><li><Check /> Usage and request metadata</li><li><Check /> {billingInDevelopment ? "Paid access coming later" : "Secure billing portal"}</li></ul>
+            <ul><li><Check /> Taxes included in listed price</li><li><Check /> {formatNumber(plan.monthlyCredits)} monthly credits</li><li><Check /> Scoped customer API keys</li><li><Check /> Usage and request metadata</li><li><Check /> {billingInDevelopment ? "Paid access coming later" : "Secure billing portal"}</li></ul>
             <button type="button" disabled={current || billingInDevelopment || hasSubscription || pending !== null} onClick={() => openCheckout(plan.key)}>{current ? "Current plan" : billingInDevelopment ? "Coming soon" : hasSubscription ? "Plan changes coming soon" : pending === plan.key ? "Opening checkout..." : `Select ${plan.name}`} {!current && !hasSubscription ? <ArrowRight /> : null}</button>
           </article>;
         })}
