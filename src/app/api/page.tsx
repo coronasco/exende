@@ -1,13 +1,13 @@
-import { DocsFrame } from "@/components/docs-frame";
-import { JsonLd } from "@/components/json-ld";
+import { ProductHero, ProductActions, ProductSection, productStyles as s } from "@/components/product/product-ui";
 import { apiEndpointRows, resolveEndpointRows, retryEndpointRows } from "@/content/docs";
+import { jobsOperations } from "@/content/jobs";
 import { siteConfig } from "@/content/site";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "API surface — Data and infrastructure",
-  description: "Current public Jobs Data overview and production Callback, Retry, and Resolve endpoint index.",
+  description: "Jobs Data customer APIs, public catalogue proof, and separate x402 infrastructure contracts.",
   alternates: { canonical: "/api" },
   openGraph: {
     title: "Exende API surface",
@@ -22,120 +22,24 @@ export const metadata: Metadata = {
     images: ["/twitter-image"],
   },
 };
-
-const toc = [
-  { id: "jobs-data", label: "Jobs Data overview" },
-  { id: "production-surface", label: "Infrastructure surface" },
-  { id: "callback", label: "Callback endpoints" },
-  { id: "retry", label: "Retry endpoints" },
-  { id: "resolve", label: "Resolve endpoints" },
-] as const;
-
-const methodColors: Record<string, string> = {
-  POST: "text-emerald-300",
-  PUT: "text-amber-300",
-  PATCH: "text-fuchsia-300",
-  GET: "text-sky-300",
-  DELETE: "text-rose-300",
-};
-
-function EndpointTable({ rows }: { rows: readonly (readonly string[])[] }) {
-  return (
-    <div className="mt-4 overflow-x-auto">
-      <table className="spec-table min-w-[760px]">
-        <thead><tr><th>Method</th><th>Path</th><th>Purpose</th><th>Auth / payment</th></tr></thead>
-        <tbody>
-          {rows.map(([method, path, purpose, requirement]) => (
-            <tr key={`${method}-${path}`}>
-              <td><span className={`method-chip ${methodColors[method] ?? "text-white"}`}>{method}</span></td>
-              <td className="font-mono text-xs text-white">{path}</td>
-              <td>{purpose}</td>
-              <td>{requirement}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export default function ApiPage() {
-  return (
-    <DocsFrame
-      currentHref="/api"
-      title="API surface"
-      intro="Jobs Data currently exposes one public aggregate overview. Callback, Retry, and Resolve are separate production infrastructure products with their own base URLs, contracts, and access models."
-      toc={toc}
-    >
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "TechArticle",
-          headline: "Exende API surface",
-          url: `${siteConfig.url}/api`,
-          dateModified: "2026-09-06",
-          author: { "@type": "Organization", name: "Exende" },
-        }}
-      />
-      <section id="jobs-data">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Jobs Data public overview</h2>
-        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-          This is the only current no-key DataAPI route intended for the public Exende website.
-          It returns aggregate catalogue counts and freshness, not job listings.
-        </p>
-        <div className="mt-5 overflow-x-auto">
-          <table className="spec-table min-w-[760px]">
-            <thead><tr><th>Method</th><th>URL</th><th>Purpose</th><th>Auth</th></tr></thead>
-            <tbody><tr><td><span className="method-chip text-sky-300">GET</span></td><td className="font-mono text-xs text-white">{siteConfig.dataApiOverview}</td><td>Current catalogue aggregates and data freshness.</td><td>Public; no key required.</td></tr></tbody>
-          </table>
-        </div>
-        <Link href="/docs/jobs" className="button-link mt-7" data-variant="accent">Jobs Data documentation</Link>
-      </section>
-
-      <section id="production-surface" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Infrastructure production surface</h2>
-        <table className="spec-table mt-5">
-          <tbody>
-            <tr><th>Callback API</th><td className="font-mono">{siteConfig.callbackApiBase}</td></tr>
-            <tr><th>Callback receiver</th><td className="font-mono">{siteConfig.callbackBase}</td></tr>
-            <tr><th>Retry API</th><td className="font-mono">{siteConfig.retryApiBase}</td></tr>
-            <tr><th>Resolve API</th><td className="font-mono">{siteConfig.resolveApiBase}</td></tr>
-            <tr><th>Callback OpenAPI</th><td><Link href={siteConfig.callbackOpenApi} className="text-link">{siteConfig.callbackOpenApi}</Link></td></tr>
-            <tr><th>Retry OpenAPI</th><td><Link href={siteConfig.retryOpenApi} className="text-link">{siteConfig.retryOpenApi}</Link></td></tr>
-            <tr><th>Resolve OpenAPI</th><td><Link href={siteConfig.resolveOpenApi} className="text-link">{siteConfig.resolveOpenApi}</Link></td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section id="callback" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Callback API endpoints</h2>
-        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-          Only callback creation requires x402 payment. Public webhook delivery and token-protected
-          reads, waits, and deletion do not trigger another Exende payment.
-        </p>
-        <EndpointTable rows={apiEndpointRows} />
-        <Link href="/docs/callback" className="button-link mt-7" data-variant="accent">Callback documentation</Link>
-      </section>
-
-      <section id="retry" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Retry API v1 endpoints</h2>
-        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-          Creation accepts either an account API key or x402. Paid follow-up reads use a private
-          job-scoped read token. Cancellation and aggregate usage are API-key-only.
-        </p>
-        <EndpointTable rows={retryEndpointRows} />
-        <Link href="/docs/retry" className="button-link mt-7" data-variant="accent">Retry documentation</Link>
-      </section>
-
-      <section id="resolve" className="surface-rule mt-12 pt-8">
-        <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Resolve API v1 endpoints</h2>
-        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-          Resolve creation requires x402. The response returns a job-scoped read token for the
-          status/result endpoint; follow-up reads do not require another Exende payment.
-        </p>
-        <EndpointTable rows={resolveEndpointRows} />
-        <Link href="/docs/resolve" className="button-link mt-7" data-variant="accent">Resolve documentation</Link>
-      </section>
-    </DocsFrame>
-  );
+  return <>
+    <ProductHero eyebrow="Exende API index" title={<>One catalogue.<br /><span>Explicit contracts.</span></>} description="Jobs Data is the primary data API. Explore its customer operations, public proof, and machine-readable contract, alongside independent tools for agent workflows.">
+      <ProductActions primary="Jobs API quickstart" href="/docs/jobs#quickstart" secondary="Jobs OpenAPI 3.1" secondaryHref="/openapi/jobs.json" />
+    </ProductHero>
+    <ProductSection id="jobs-data" eyebrow="Jobs & Hiring Data" title="Customer Jobs Data API." description="Base URL: https://data.exende.dev. Authenticate with a scoped organization API key. Successful operations consume subscription or onboarding credits.">
+      <div className={s.tableWrap} data-reveal><table className={s.table}><thead><tr><th>Operation</th><th>GET route</th><th>Scope</th><th>Credits</th></tr></thead><tbody>{jobsOperations.map(op => <tr key={op.id}><td><Link href={`/docs/jobs#${op.id}`}>{op.title}</Link></td><td><code>{op.path}</code></td><td><code>{op.scope}</code></td><td>{op.credits}</td></tr>)}</tbody></table></div>
+      <p className={s.note}>Per-record operations returning an empty list cost 0 credits. <Link href="/docs/jobs#pagination">Read the exact pagination and response contracts.</Link></p>
+    </ProductSection>
+    <ProductSection id="public-proof" eyebrow="No-key access" title="Public catalogue proof." description="The overview publishes aggregate counts and the latest canonical job observation. The explorer adds strictly limited public samples and matching aggregates. Full customer records, keys, billing, and operator information are private.">
+      <div className={s.protocol} data-reveal><code>GET {siteConfig.dataApiOverview}</code><p className={s.note}><code>GET https://data.exende.dev/v1/public/search?q=engineer</code><br />q only; maximum 5 samples from a fixed pool of 12. No pagination or full descriptions. <Link href="/docs/jobs#public-search">Preview contract</Link>.</p><p className={s.note}>No authorization. Cache-Control: max-age=60, s-maxage=300, stale-while-revalidate=600.</p><ProductActions primary="Coverage & methodology" href="/coverage" secondary="Public overview contract" secondaryHref="/docs/jobs#public-overview" /></div>
+    </ProductSection>
+    {[
+      { id: "callback", title: "Callback API", base: siteConfig.callbackApiBase, rows: apiEndpointRows },
+      { id: "retry", title: "Retry API", base: siteConfig.retryApiBase, rows: retryEndpointRows },
+      { id: "resolve", title: "Resolve API", base: siteConfig.resolveApiBase, rows: resolveEndpointRows },
+    ].map(product => <ProductSection key={product.id} id={product.id} eyebrow="Agent infrastructure" title={product.title} description={`Base URL: ${product.base}. Uses its own authentication and x402 payment contract, separate from Jobs Data credits.`}>
+      <div className={s.tableWrap} data-reveal><table className={s.table}><thead><tr><th>Method</th><th>Route</th><th>Purpose</th><th>Access</th></tr></thead><tbody>{product.rows.map(([method,path,purpose,auth]) => <tr key={`${method}:${path}`}><td><code>{method}</code></td><td><code>{path}</code></td><td>{purpose}</td><td>{auth}</td></tr>)}</tbody></table></div><ProductActions primary={`${product.title} docs`} href={`/docs/${product.id}`} secondary="OpenAPI 3.1" secondaryHref={`/openapi/${product.id}.json`} />
+    </ProductSection>)}
+  </>;
 }

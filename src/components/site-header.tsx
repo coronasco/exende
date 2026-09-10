@@ -6,6 +6,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import landingStyles from "@/components/landing/landing.module.css";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   return (
-    <header className="site-header">
+    <header data-dashboard-active={pathname === "/dashboard" || pathname.startsWith("/dashboard/")} className={pathname === "/docs" || pathname.startsWith("/docs/") ? "site-header" : `site-header ${landingStyles.landingHeader}`}>
       <div className="page-shell site-header__inner">
         <BrandMark />
 
@@ -62,7 +63,7 @@ export function SiteHeader() {
 
         <div className="site-header__actions">
           <Link href="/account" className="site-header__signin">Sign in</Link>
-          <Link href="/account?next=/dashboard" className="site-header__cta">
+          <Link href="/account?mode=signup&next=/dashboard" className="site-header__cta">
             Get started <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -114,7 +115,7 @@ export function SiteHeader() {
               <Link href="/account" onClick={() => setMenuOpen(false)} className="flex items-center justify-between border-b border-[var(--color-border)] py-4 text-sm text-[var(--color-foreground)]">
                 <span>Sign in</span><span className="annotation">secure access</span>
               </Link>
-              <Link href="/account?next=/dashboard" onClick={() => setMenuOpen(false)} className="button-link mt-4" data-variant="solid">
+              <Link href="/account?mode=signup&next=/dashboard" onClick={() => setMenuOpen(false)} className="button-link mt-4" data-variant="solid">
                 Get started <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

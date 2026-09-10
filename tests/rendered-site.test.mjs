@@ -10,6 +10,7 @@ const routes = [
   "/products/retry",
   "/products/resolve",
   "/pricing",
+  "/coverage",
   "/docs",
   "/docs/jobs",
   "/docs/callback",
@@ -79,7 +80,7 @@ test("all crawlable internal page links resolve", async () => {
 });
 
 test("machine-readable, crawler, analytics, and 404 surfaces are available", async () => {
-  for (const route of ["/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"]) {
+  for (const route of ["/openapi/jobs.json", "/favicon.svg", "/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert.equal(response.status, 200, `${route} did not return HTTP 200`);
   }

@@ -1,15 +1,10 @@
 import { JsonLd } from "@/components/json-ld";
+import { ProductHero, ProductActions, ProductSection, ProductClosing, productStyles as s } from "@/components/product/product-ui";
+import { DataExplorer } from "@/components/landing/data-explorer";
+import { ArrowUpRight, Webhook, RotateCw, ScanSearch } from "lucide-react";
 import { siteConfig } from "@/content/site";
-import {
-  ArrowRight,
-  FileSearch,
-  History,
-  Webhook,
-} from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-
 export const metadata: Metadata = {
   title: "Products — Data APIs and agent infrastructure",
   description:
@@ -29,158 +24,27 @@ export const metadata: Metadata = {
   },
 };
 
-const infraProducts = [
-  {
-    icon: Webhook,
-    name: "Callback",
-    href: "/products/callback",
-    docs: "/docs/callback",
-    description: "Receive asynchronous events through temporary public webhook endpoints.",
-    endpoint: "POST api.exende.dev/v1/callbacks",
-    price: "$0.01 USDC",
-    tone: "cyan",
-  },
-  {
-    icon: History,
-    name: "Retry",
-    href: "/products/retry",
-    docs: "/docs/retry",
-    description: "Execute outbound HTTPS requests as durable jobs with controlled retries.",
-    endpoint: "POST retry.exende.dev/v1/retries",
-    price: "$0.02 USDC",
-    tone: "violet",
-  },
-  {
-    icon: FileSearch,
-    name: "Resolve",
-    href: "/products/resolve",
-    docs: "/docs/resolve",
-    description: "Turn bounded public resources into machine-readable output.",
-    endpoint: "POST resolve.exende.dev/v1/resolve",
-    price: "$0.03 USDC",
-    tone: "blue",
-  },
-] as const;
-
+const infrastructure = [
+  { name: "Callback", description: "Receive asynchronous events through temporary webhook endpoints.", price: "$0.01 USDC", href: "/products/callback", icon: Webhook },
+  { name: "Retry", description: "Run outbound HTTPS requests with durable retries and attempt history.", price: "$0.02 USDC", href: "/products/retry", icon: RotateCw },
+  { name: "Resolve", description: "Turn a public resource into a bounded, machine-readable result.", price: "$0.03 USDC", href: "/products/resolve", icon: ScanSearch },
+];
 export default function ProductsPage() {
-  return (
-    <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "Exende products",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Jobs & Hiring Data", url: `${siteConfig.url}/products/jobs` },
-            ...infraProducts.map((product, index) => ({
-              "@type": "ListItem",
-              position: index + 2,
-              name: product.name,
-              url: `${siteConfig.url}${product.href}`,
-            })),
-          ],
-        }}
-      />
-
-      <section className="products-platform-hero">
-        <div className="products-platform-hero__art" aria-hidden="true">
-          <Image
-            src="/media/exende-product-constellation-v1.png"
-            alt=""
-            fill
-            preload
-            quality={90}
-            sizes="100vw"
-          />
-        </div>
-        <div className="page-shell products-platform-hero__inner">
-          <div>
-            <p className="eyebrow">Exende platform</p>
-            <h1>Data products built to expand with the questions.</h1>
-          </div>
-          <p>
-            Jobs & Hiring Data is the first commercial data product. Callback, Retry, and Resolve
-            remain focused infrastructure primitives for systems that act on the data.
-          </p>
-        </div>
-      </section>
-
-      <section className="featured-data-product">
-        <div className="page-shell featured-data-product__layout">
-          <div className="featured-data-product__copy">
-            <span className="product-status"><i /> First data product</span>
-            <p className="eyebrow">Jobs & Hiring Data</p>
-            <h2>Understand the hiring market beyond a single snapshot.</h2>
-            <p>
-              Reviewed public career sources, normalized records, current catalogue counts, and
-              historical observation for legitimate hiring research and analytics.
-            </p>
-            <div className="featured-data-product__actions">
-              <Link href="/products/jobs" className="primary-cta">Explore Jobs Data <ArrowRight className="h-4 w-4" /></Link>
-              <Link href="/docs/jobs" className="secondary-cta">Public API docs</Link>
-            </div>
-          </div>
-
-          <div className="featured-data-product__visual" aria-hidden="true">
-            <Image
-              src="/media/exende-jobs-pipeline-v2.png"
-              alt=""
-              fill
-              quality={90}
-              sizes="(max-width: 1080px) 100vw, 58vw"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="infrastructure-products" id="infrastructure">
-        <div className="page-shell">
-          <div className="section-heading section-heading--split">
-            <div>
-              <p className="eyebrow">Agent infrastructure</p>
-              <h2>Use one primitive. Compose the system you need.</h2>
-            </div>
-            <p>
-              These production APIs retain independent base URLs, contracts, limits, and x402
-              prices. They are not the Jobs Data customer access model.
-            </p>
-          </div>
-
-          <div className="infra-product-rows">
-            {infraProducts.map(({ icon: Icon, ...product }, index) => (
-              <article className="infra-product-row" data-tone={product.tone} key={product.name}>
-                <div className="infra-product-row__identity">
-                  <span>0{index + 1}</span>
-                  <Icon />
-                  <div><h3>{product.name}</h3><p>{product.description}</p></div>
-                </div>
-                <div className="infra-product-row__flow" aria-hidden="true">
-                  <i /><i /><i /><i /><i />
-                </div>
-                <div className="infra-product-row__meta">
-                  <code>{product.endpoint}</code>
-                  <span>{product.price} · x402</span>
-                </div>
-                <div className="infra-product-row__links">
-                  <Link href={product.href}>Product <ArrowRight /></Link>
-                  <Link href={product.docs}>Docs</Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="product-expansion">
-        <div className="page-shell product-expansion__inner">
-          <p className="eyebrow">Designed for a growing catalogue</p>
-          <h2>Jobs is the beginning, not the boundary.</h2>
-          <p>
-            New data products will be added only when they have a documented source boundary,
-            stable contract, defensible methodology, and product-safe access model.
-          </p>
-        </div>
-      </section>
-    </>
-  );
+  return <>
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Exende products", itemListElement: [{ "@type": "ListItem", position: 1, name: "Jobs & Hiring Data", url: `${siteConfig.url}/products/jobs` }, ...infrastructure.map((p,i) => ({ "@type": "ListItem", position: i+2, name: p.name, url: `${siteConfig.url}${p.href}` }))] }} />
+    <ProductHero eyebrow="Exende products" title={<>Hiring data.<br /><span>Ready to build with.</span></>} description="Search public job listings, understand company hiring activity, and follow observed changes through one consistent API.">
+      <ProductActions primary="Explore Jobs Data" href="/products/jobs" secondary="View plans" secondaryHref="/pricing" />
+    </ProductHero>
+    <ProductSection id="jobs">
+      <div className={s.featured}>
+        <div data-reveal><p className={s.eyebrow}>Jobs & Hiring Data API</p><h2>A changing market.<br />A consistent record.</h2><p>Normalized jobs, company context, skills, and timestamped history from reviewed public career sources. Query the current catalogue or compare what changed over time.</p><ProductActions secondary="Coverage & methodology" secondaryHref="/coverage" /><p className={s.note}>Account access · Scoped API keys · Credit-based usage</p></div>
+        <div data-reveal><DataExplorer /></div>
+      </div>
+    </ProductSection>
+    <ProductSection id="infrastructure" eyebrow="For autonomous agents" title={<>Small tools.<br />Useful possibilities.</>} description="Callback, Retry, and Resolve are discoverable in Bazaar. Agents pay per created resource through x402 v2 with USDC on Base.">
+      <div className={s.rows}>{infrastructure.map(({ icon: Icon, ...p }) => <Link className={s.row} href={p.href} key={p.name} data-reveal><Icon /><div><h3>{p.name}</h3><p>{p.description}</p></div><span>{p.price}</span><ArrowUpRight /></Link>)}</div>
+      <p className={s.note}>Infrastructure x402 payments are separate from Jobs Data subscription credits. <Link href="/docs/x402">Read the payment guide.</Link></p>
+    </ProductSection>
+    <ProductClosing />
+  </>;
 }

@@ -27,7 +27,7 @@ export async function controlPlaneFetch(path: string, init: RequestInit = {}): P
   if (!baseUrl) throw new ControlPlaneError(503, "control_plane_unavailable", "Customer access is not configured");
   const url = new URL(path, baseUrl);
   if (url.origin !== baseUrl.origin) throw new Error("Control Plane request left the configured origin");
-  return fetch(url, { ...init, cache: "no-store" });
+  return fetch(url, { ...init, signal: init.signal ?? AbortSignal.timeout(10_000), cache: "no-store" });
 }
 
 async function authenticatedData<T>(path: string): Promise<T> {

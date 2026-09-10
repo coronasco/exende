@@ -5,9 +5,9 @@ export function DashboardError({ title = "Customer services are unavailable." }:
   return (
     <section className="dashboard-error">
       <AlertTriangle />
-      <p className="annotation">CONTROL PLANE</p>
+      <p className="annotation">ACCOUNT SERVICES</p>
       <h1>{title}</h1>
-      <p>No placeholder data is shown. Retry when the secure account services are available.</p>
+      <p>Please try again shortly. Your account data will appear when the service reconnects.</p>
       <Link href="/dashboard">Retry <ArrowRight /></Link>
     </section>
   );

@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   },
 };
 
+// INTERNAL TODO — source/licensing counsel must approve explicit rules for customer caching/storage,
+// in-app use and display, derived analytics, attribution, retention after expiry, and bulk redistribution.
+// Public source availability and an operator admission are not a grant of these rights.
+// INTERNAL TODO — accountant to confirm VAT position and inclusive price wording against current Stripe
+// Price tax_behavior, invoices, countries served and legal operator identity. Do not infer a tax regime.
 const effectiveDate = "September 8, 2026";
 
 export default function TermsPage() {

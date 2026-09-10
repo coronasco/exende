@@ -12,11 +12,13 @@ export const docsGroups = [
   {
     label: "Jobs & Hiring Data",
     items: [
-      { label: "Public overview", href: "/docs/jobs" },
-      { label: "Request", href: "/docs/jobs#request" },
-      { label: "Response schema", href: "/docs/jobs#response" },
-      { label: "Caching & freshness", href: "/docs/jobs#caching" },
-      { label: "Customer access", href: "/docs/jobs#access" },
+      { label: "Quickstart", href: "/docs/jobs#quickstart" },
+      { label: "Search & jobs", href: "/docs/jobs#search" },
+      { label: "Company data", href: "/docs/jobs#companies" },
+      { label: "History", href: "/docs/jobs#history" },
+      { label: "Metrics", href: "/docs/jobs#hiring-metrics" },
+      { label: "Credits & errors", href: "/docs/jobs#credits" },
+      { label: "Public overview", href: "/docs/jobs#public-overview" },
     ],
   },
   {
@@ -62,7 +64,7 @@ export const docsNavigation = docsGroups.reduce<{ label: string; href: string }[
 
 export const docsSequence = [
   { label: "Documentation", href: "/docs" },
-  { label: "Jobs Data public overview", href: "/docs/jobs" },
+  { label: "Jobs Data API", href: "/docs/jobs" },
   { label: "Callback API", href: "/docs/callback" },
   { label: "Retry API v1", href: "/docs/retry" },
   { label: "Resolve API v1", href: "/docs/resolve" },

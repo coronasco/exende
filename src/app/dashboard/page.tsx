@@ -14,14 +14,14 @@ export default async function DashboardPage() {
   const usage = overview.usage;
   const onboarding = [
     { label: "Create a scoped API key", done: usage.activeApiKeys > 0, href: "/dashboard/api-keys" },
-    { label: "Make your first Data API request", done: usage.totals.requests > 0, href: "/docs/jobs" },
+    { label: "Make your first Data API request", done: usage.totals.requests > 0, href: "/docs/jobs#quickstart" },
     { label: "Inspect metered usage", done: usage.totals.requests > 0, href: "/dashboard/usage" },
   ];
 
   return (
     <>
       <header className="dashboard-heading">
-        <div><p className="eyebrow">Overview / last 30 days</p><h1>Welcome back, {firstName(overview.user.name)}.</h1><p>Your account state is synchronized across the Exende Control Plane and Data Plane.</p></div>
+        <div><p className="eyebrow">Overview / last 30 days</p><h1>Welcome back, {firstName(overview.user.name)}.</h1><p>Manage your API keys, credits, and observed request usage.</p></div>
         <Link href="/dashboard/api-keys" className="dashboard-action">Create API key <ArrowRight /></Link>
       </header>
 
@@ -50,11 +50,11 @@ export default async function DashboardPage() {
 
       <section className="dashboard-lower-grid">
         <article className="dashboard-panel dashboard-activity">
-          <div className="dashboard-panel__heading"><div><span className="annotation">DATA PLANE EVENTS</span><h2>Recent activity</h2></div></div>
+          <div className="dashboard-panel__heading"><div><span className="annotation">RECENT REQUESTS</span><h2>Recent activity</h2></div></div>
           {usage.recent.length ? <div className="dashboard-activity__list">{usage.recent.slice(0, 6).map((item) => <ActivityRow key={item.request_id} item={item} />)}</div> : <div className="dashboard-empty"><Terminal /><strong>No API activity yet</strong><p>Create a key and make a request. Real usage will appear here.</p></div>}
         </article>
         <article className="dashboard-panel dashboard-onboarding">
-          <span className="annotation">FIRST REQUEST</span><h2>From account to data.</h2><p>Complete the real integration path. No synthetic request is generated for you.</p>
+          <span className="annotation">FIRST REQUEST</span><h2>From account to data.</h2><p>Create a key, follow the quickstart, and see your request usage here.</p>
           <ol>{onboarding.map((step, index) => <li key={step.label} data-done={step.done}><span>{step.done ? <Check /> : index + 1}</span><Link href={step.href}>{step.label}<ArrowRight /></Link></li>)}</ol>
         </article>
       </section>

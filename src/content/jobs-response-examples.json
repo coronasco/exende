@@ -1,0 +1,283 @@
+{
+  "/v1/jobs/search": {
+    "data": [
+      {
+        "id": "00000000-0000-4000-8000-000000000000",
+        "company_id": "00000000-0000-4000-8000-000000000000",
+        "company": "Company name",
+        "canonical_domain": null,
+        "title": "Job title from the source",
+        "location": null,
+        "country_code": null,
+        "department": null,
+        "employment_type": "full_time",
+        "workplace_type": "remote",
+        "status": "active",
+        "source_url": "https://company.example/careers/job",
+        "first_seen_at": "2000-01-01T00:00:00.000Z",
+        "last_seen_at": "2000-01-01T00:00:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+  "/v1/jobs": {
+    "data": [
+      {
+        "id": "00000000-0000-4000-8000-000000000000",
+        "company_id": "00000000-0000-4000-8000-000000000000",
+        "company": "Company name",
+        "canonical_domain": null,
+        "title": "Job title from the source",
+        "location": null,
+        "country_code": null,
+        "department": null,
+        "employment_type": "full_time",
+        "workplace_type": "remote",
+        "status": "active",
+        "source_url": "https://company.example/careers/job",
+        "first_seen_at": "2000-01-01T00:00:00.000Z",
+        "last_seen_at": "2000-01-01T00:00:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+  "/v1/jobs/{id}": {
+    "data": {
+      "id": "00000000-0000-4000-8000-000000000000",
+      "company_id": "00000000-0000-4000-8000-000000000000",
+      "company": "Company name",
+      "canonical_domain": null,
+      "title": "Job title from the source",
+      "location": null,
+      "country_code": null,
+      "department": null,
+      "employment_type": "full_time",
+      "workplace_type": "remote",
+      "status": "active",
+      "source_url": "https://company.example/careers/job",
+      "first_seen_at": "2000-01-01T00:00:00.000Z",
+      "last_seen_at": "2000-01-01T00:00:00.000Z",
+      "website_url": null,
+      "description_text": null,
+      "posted_at": null,
+      "closed_at": null,
+      "skills": [
+        {
+          "slug": "skill-slug",
+          "canonical_name": "Canonical name",
+          "category": "category"
+        }
+      ],
+      "description_enrichment_status": null
+    }
+  },
+  "/v1/jobs/{id}/history": {
+    "data": [
+      {
+        "id": "00000000000000000000000000000000",
+        "observedAt": "2000-01-01T00:00:00.000Z",
+        "changeType": "created",
+        "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "snapshot": null
+      }
+    ]
+  },
+  "/v1/history": {
+    "data": [
+      {
+        "id": "00000000000000000000000000000000",
+        "observed_at": "2000-01-01T00:00:00.000Z",
+        "change_type": "created",
+        "job_id": "00000000-0000-4000-8000-000000000000",
+        "title": "Job title from the source",
+        "company": "Company name"
+      }
+    ]
+  },
+  "/v1/companies/{domain}": {
+    "data": {
+      "id": "00000000-0000-4000-8000-000000000000",
+      "canonical_name": "Canonical name",
+      "canonical_domain": null,
+      "website_url": null,
+      "active_jobs": 0,
+      "first_seen_at": null,
+      "last_seen_at": null
+    }
+  },
+  "/v1/companies/{domain}/jobs": {
+    "data": [
+      {
+        "id": "00000000-0000-4000-8000-000000000000",
+        "company_id": "00000000-0000-4000-8000-000000000000",
+        "company": "Company name",
+        "canonical_domain": null,
+        "title": "Job title from the source",
+        "location": null,
+        "country_code": null,
+        "department": null,
+        "employment_type": "full_time",
+        "workplace_type": "remote",
+        "status": "active",
+        "source_url": "https://company.example/careers/job",
+        "first_seen_at": "2000-01-01T00:00:00.000Z",
+        "last_seen_at": "2000-01-01T00:00:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+  "/v1/companies/{domain}/hiring": {
+    "data": {
+      "company": {
+        "id": "00000000-0000-4000-8000-000000000000",
+        "canonical_name": "Canonical name",
+        "canonical_domain": null,
+        "website_url": null
+      },
+      "period_days": 7,
+      "summary": {
+        "active_jobs": 0,
+        "created_jobs": 0,
+        "updated_jobs": 0,
+        "closed_jobs": 0,
+        "remote_jobs": 0,
+        "engineering_jobs": 0,
+        "sales_jobs": 0,
+        "ai_jobs": 0,
+        "countries_hiring": 0,
+        "country_classified_jobs": 0,
+        "country_unclassified_jobs": 0,
+        "hiring_velocity": 0,
+        "hiring_acceleration": null,
+        "history_complete": false
+      },
+      "timeline": [
+        {
+          "day": "2000-01-01",
+          "created_jobs": 0,
+          "updated_jobs": 0,
+          "closed_jobs": 0,
+          "active_jobs": 0
+        }
+      ]
+    }
+  },
+  "/v1/skills": {
+    "data": [
+      {
+        "slug": "skill-slug",
+        "canonical_name": "Canonical name",
+        "category": "category",
+        "active_jobs": 0
+      }
+    ]
+  },
+  "/v1/metrics/overview": {
+    "data": {
+      "active_jobs": 0,
+      "active_sources": 0,
+      "failed_runs": 0,
+      "daily": [
+        {
+          "day": "2000-01-01",
+          "observations": 0
+        }
+      ]
+    }
+  },
+  "/v1/metrics/hiring": {
+    "data": {
+      "period_days": 7,
+      "summary": {
+        "active_jobs": 0,
+        "new_jobs": 0,
+        "updated_jobs": 0,
+        "closed_jobs": 0,
+        "remote_jobs": 0,
+        "engineering_jobs": 0,
+        "sales_jobs": 0,
+        "ai_jobs": 0,
+        "countries_hiring": 0,
+        "country_classified_jobs": 0,
+        "country_unclassified_jobs": 0,
+        "hiring_velocity": 0,
+        "hiring_acceleration": null,
+        "history_complete": false
+      },
+      "timeline": [
+        {
+          "day": "2000-01-01",
+          "created_jobs": 0,
+          "updated_jobs": 0,
+          "closed_jobs": 0
+        }
+      ],
+      "companies": [
+        {
+          "company_id": "00000000-0000-4000-8000-000000000000",
+          "company": "Company name",
+          "canonical_domain": null,
+          "active_jobs": 0,
+          "new_jobs": 0,
+          "updated_jobs": 0,
+          "closed_jobs": 0,
+          "remote_jobs": 0,
+          "engineering_jobs": 0,
+          "sales_jobs": 0,
+          "ai_jobs": 0,
+          "countries_hiring": 0,
+          "hiring_velocity": 0,
+          "hiring_acceleration": null,
+          "history_complete": false,
+          "new_jobs_per_day": 0
+        }
+      ],
+      "locations": [
+        {
+          "location": "Source location text",
+          "active_jobs": 0
+        }
+      ],
+      "countries": [
+        {
+          "country_code": "GB",
+          "active_jobs": 0
+        }
+      ]
+    }
+  },
+  "/v1/public/overview": {
+    "data": {
+      "active_jobs": 0,
+      "active_companies": 0,
+      "active_sources": 0,
+      "last_updated_at": null
+    }
+  },
+  "/v1/public/search": {
+    "data": {
+      "query": "",
+      "summary": {
+        "active_jobs": 0,
+        "companies": 0,
+        "countries": 0,
+        "locations": 0,
+        "country_unclassified_jobs": 0,
+        "first_observed_at": null,
+        "last_observed_at": null
+      },
+      "top_locations": [],
+      "top_countries": [],
+      "top_roles": [],
+      "top_companies": [],
+      "sample_jobs": [],
+      "preview": {
+        "sample_limit": 5,
+        "pool_limit": 12,
+        "enrolled_samples": 0,
+        "pagination": false,
+        "projection": "limited_public_fields"
+      }
+    }
+  }
+}

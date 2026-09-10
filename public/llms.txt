@@ -7,8 +7,8 @@
 - [Product](https://www.exende.dev/products/jobs)
 - [Public overview and customer API documentation](https://www.exende.dev/docs/jobs)
 - Public endpoint: `GET https://data.exende.dev/v1/public/overview`
-- Authentication: none
-- Payload boundary: aggregate catalogue counts and data freshness only
+- Public overview authentication: none
+- Public overview boundary: aggregate catalogue counts and latest canonical observation only
 - Customer job search, company data, accounts, onboarding credits, and scoped API keys: available
 - Paid subscriptions and plan upgrades: available through the authenticated dashboard
 - Credit metering: successful list/search routes cost 1 credit per returned record; fixed detail and metrics routes cost 1, 2, or 5 credits
@@ -26,6 +26,7 @@ The public overview contains `active_jobs`, `active_companies`, `active_sources`
 
 ## Machine-readable contracts
 
+- [Jobs Data OpenAPI 3.1](https://www.exende.dev/openapi/jobs.json)
 - [Callback OpenAPI 3.1](https://www.exende.dev/openapi/callback.json)
 - [Retry OpenAPI 3.1](https://www.exende.dev/openapi/retry.json)
 - [Resolve OpenAPI 3.1](https://www.exende.dev/openapi/resolve.json)
@@ -33,3 +34,24 @@ The public overview contains `active_jobs`, `active_companies`, `active_sources`
 - [Extended agent context](https://www.exende.dev/llms-full.txt)
 
 Callback costs $0.01 USDC, Retry costs $0.02 USDC, and Resolve costs $0.03 USDC on their x402-paid paths. They use x402 v2 exact settlement on Base Mainnet (`eip155:8453`). Use each current PAYMENT-REQUIRED response for authoritative settlement requirements and never hardcode the recipient address.
+
+## Jobs Data customer contract
+
+- Jobs OpenAPI 3.1: https://www.exende.dev/openapi/jobs.json
+- Developer quickstart: https://www.exende.dev/docs/jobs#quickstart
+- Coverage and methodology: https://www.exende.dev/coverage
+- Customer base URL: https://data.exende.dev
+- Authentication: organization bearer API key; scoped jobs:read, companies:read, or signals:read.
+- GET /v1/jobs/search requires q; GET /v1/jobs accepts optional q and normalized filters.
+- GET /v1/jobs/{id}; GET /v1/jobs/{id}/history; GET /v1/history; GET /v1/skills.
+- GET /v1/companies/{domain}; GET /v1/companies/{domain}/jobs; GET /v1/companies/{domain}/hiring.
+- GET /v1/metrics/overview; GET /v1/metrics/hiring.
+- Jobs list, search, and company jobs: default limit 50, maximum 100; pass nextCursor as cursor while retaining filters. Order: last_seen_at DESC, id DESC. Pages are not a frozen snapshot.
+- Job history: up to 100 versions with limit, no cursor. Skills and history feed: latest/top 100, no pagination parameters.
+- Hiring window: days 7–90, default 30. Hiring acceleration is null until historical readiness is met; it is not a prediction.
+- Errors use error.code and error.message. Codes include unauthorized, insufficient_scope, invalid_request, rate_limited, insufficient_credits, not_found, service_unavailable.
+- A Jobs Data 402 insufficient_credits response is not an x402 payment challenge. Callback, Retry, and Resolve have separate x402 contracts.
+- The free allowance is 2,500 credits for 14 days for new verified organizations. Paid plan selection requires explicit checkout confirmation.
+- Location text is not a normalized city. Country codes are nullable and require explicit supported evidence.
+
+Public catalogue preview: GET https://data.exende.dev/v1/public/search?q=engineer (no key). q only, at most 80 characters and 6 terms. Returns actual active-job aggregates plus at most 5 restricted sample jobs from a fixed pool of at most 12 across all searches. No pagination, full descriptions, bulk export, customer data, or operator metadata. Country/location counts describe explicit country evidence and source location labels, not normalized cities. Full customer access requires a scoped Jobs Data API key. See https://www.exende.dev/docs/jobs#public-search.

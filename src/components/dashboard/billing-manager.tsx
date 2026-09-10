@@ -1,5 +1,7 @@
 "use client";
 
+import { selectedPlan } from "@/lib/account-intent";
+import { productEvent } from "@/lib/product-events";
 import type { BillingSummary, PlanChange, PlanChangeResult } from "@/lib/control-plane-types";
 import { ArrowRight, CalendarClock, Check, CircleDollarSign, CreditCard, ShieldCheck, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,6 +17,8 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
   const [success, setSuccess] = useState<string | null>(null);
   const [preview, setPreview] = useState<PlanChange | null>(null);
   const [, startRefresh] = useTransition();
+  const intendedPlan = selectedPlan(searchParams.get("plan"));
+  const intended = billing.plans.find(plan => plan.key === intendedPlan);
   const checkoutState = searchParams.get("checkout");
   const checkoutAvailable = billing.checkoutAvailable;
   const sandboxBilling = billing.mode === "test" && checkoutAvailable;
@@ -26,6 +30,7 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
     setError(null);
     try {
       const { url } = await billingRequest<{ url: string }>("/api/control/billing/checkout", { planKey });
+      productEvent("checkout_initiated", { plan: planKey, billingMode: billing.mode });
       window.location.assign(url);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Checkout could not be opened.");
@@ -113,6 +118,7 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
         {billing.customerPortalAvailable ? <button className="dashboard-action dashboard-action--secondary" type="button" onClick={openPortal} disabled={pending !== null}><CreditCard /> {pending === "portal" ? "Opening..." : "Manage billing"}</button> : null}
       </header>
 
+      {intended ? <div className="billing-notice" role="status"><Check /><span>You selected <strong>{intended.name}</strong>. Review the plan below and explicitly continue to checkout when ready.</span><a href={`#plan-${intended.key}`}>Review plan</a></div> : null}
       {checkoutState === "success" ? <p className="billing-notice" data-tone="success"><Check /> Checkout completed. Stripe is synchronizing your subscription and credits.</p> : null}
       {checkoutState === "canceled" ? <p className="billing-notice">Checkout was canceled. Your current entitlement has not changed.</p> : null}
       {sandboxBilling ? <p className="billing-notice" data-tone="success"><ShieldCheck /> Sandbox billing is enabled for this workspace. Use Stripe test cards only; no real charge will be made.</p> : null}
@@ -180,7 +186,7 @@ export function BillingManager({ billing }: { billing: BillingSummary }) {
                   : hasSubscription
                     ? direction === "upgrade" ? `Upgrade to ${plan.name}` : `Schedule ${plan.name}`
                     : `Select ${plan.name}`;
-          return <article key={plan.key} className="billing-plan" data-featured={plan.key === "pro"} data-current={current}>
+          return <article key={plan.key} id={`plan-${plan.key}`} className="billing-plan" data-selected={plan.key === intendedPlan} data-featured={plan.key === "pro"} data-current={current}>
             <div><span className="annotation">{billingInDevelopment ? "IN DEVELOPMENT" : plan.key === "pro" ? "PRODUCTION" : plan.key.toUpperCase()}</span>{current ? <span className="billing-plan__current"><Check /> Current</span> : null}</div>
             <h2>{plan.name}</h2><strong>{price(plan.priceEurMonthly)}<small> / month</small></strong><p>{plan.description}</p>
             <ul><li><Check /> Taxes included in listed price</li><li><Check /> {formatNumber(plan.monthlyCredits)} monthly credits</li><li><Check /> Scoped customer API keys</li><li><Check /> Usage and request metadata</li><li><Check /> {billingInDevelopment ? "Paid access coming later" : "Secure billing portal"}</li></ul>
