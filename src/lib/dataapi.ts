@@ -1,4 +1,4 @@
-import { siteConfig } from "@/content/site";
+import { publicDataOrigin } from "./public-data";
 
 export type PublicOverview = {
   activeJobs: number;
@@ -28,7 +28,7 @@ function parseTimestamp(value: unknown): string | null {
 
 export async function getPublicOverview(): Promise<PublicOverview | null> {
   try {
-    const response = await fetch(siteConfig.dataApiOverview, {
+    const response = await fetch(`${publicDataOrigin()}/v1/public/overview`, {
       headers: { Accept: "application/json" },
       next: { revalidate: 300 },
       signal: AbortSignal.timeout(5_000),

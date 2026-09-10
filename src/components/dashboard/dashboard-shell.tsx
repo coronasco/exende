@@ -53,10 +53,10 @@ export function DashboardShell({ identity, children }: { identity: AccountIdenti
       <div className="dashboard-workspace">
         <header className="dashboard-topbar">
           <button type="button" className="dashboard-menu" onClick={() => setMenuOpen(true)} aria-label="Open dashboard menu"><Menu /></button>
-          <div><span className="dashboard-pulse"><i /> DATA PLANE CONNECTED</span></div>
+          <div><span className="dashboard-pulse"><i /> EXENDE / YOUR WORKSPACE</span></div>
           <div className="dashboard-profile"><span>{identity.user.name.slice(0, 1).toUpperCase()}</span><div><strong>{identity.user.name}</strong><small>{identity.user.email}</small></div></div>
         </header>
-        <main className="dashboard-content" id="dashboard-content">{children}</main>
+        <div className="dashboard-content" id="dashboard-content">{children}</div>
       </div>
     </div>
   );

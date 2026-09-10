@@ -1,8 +1,9 @@
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { RouteExperience } from "@/components/product/route-experience";
 import { siteConfig } from "@/content/site";
-import { Analytics } from "@vercel/analytics/next";
+import { ProductAnalytics } from "@/components/product/product-analytics";
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -54,10 +55,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
+      { url: "/favicon.png?v=orbital", sizes: "32x32", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
-    shortcut: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+    shortcut: [{ url: "/favicon.png?v=orbital", sizes: "32x32", type: "image/png" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   alternates: {
@@ -118,9 +120,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <a href="#main-content" className="skip-link">Skip to content</a>
         <SiteHeader />
-        <main id="main-content" tabIndex={-1}>{children}</main>
+        <main id="main-content" tabIndex={-1}><RouteExperience>{children}</RouteExperience></main>
         <SiteFooter />
-        <Analytics />
+        <ProductAnalytics />
       </body>
     </html>
   );

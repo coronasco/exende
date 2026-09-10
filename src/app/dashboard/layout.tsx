@@ -4,6 +4,8 @@ import { ControlPlaneError, getAccountIdentity } from "@/lib/control-plane";
 import type { AccountIdentity } from "@/lib/control-plane-types";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { accountHref } from "@/lib/account-intent";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const identity = await loadIdentity();
-  if (identity === "unauthorized") redirect("/account?next=/dashboard");
+  if (identity === "unauthorized") redirect(accountHref("signin", (await headers()).get("x-exende-dashboard-destination") ?? "/dashboard"));
   if (!identity) return <div className="dashboard-shell dashboard-shell--unavailable"><DashboardError /></div>;
   return <DashboardShell identity={identity}>{children}</DashboardShell>;
 }

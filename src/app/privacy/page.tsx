@@ -96,7 +96,7 @@ export default function PrivacyPage() {
             <p>
               Exende uses essential storage required for secure sign-in and session operation. These mechanisms are not
               used for advertising. Vercel Web Analytics reports aggregate traffic without third-party cookies or
-              persistent cross-site identifiers. Exende does not currently load Google Analytics or advertising tags.
+              persistent cross-site identifiers. Exende does not currently load Google Analytics or advertising tags. Product events help us understand catalogue use, account creation, API-key setup, and checkout. These events exclude search text, API keys, emails, and record contents; analytics URLs omit query strings and fragments.
             </p>
           </LegalSection>
 

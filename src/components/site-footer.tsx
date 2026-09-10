@@ -7,7 +7,7 @@ const footerGroups = [
     links: [
       { label: "Jobs & Hiring Data", href: "/products/jobs" },
       { label: "Jobs API docs", href: "/docs/jobs" },
-      { label: "Public overview", href: "/docs/jobs#public-overview" },
+      { label: "Coverage & methodology", href: "/coverage" },
       { label: "Pricing", href: "/pricing" },
     ],
   },

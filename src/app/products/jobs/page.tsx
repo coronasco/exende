@@ -1,23 +1,18 @@
+import { PublicCatalogue } from "@/components/catalogue/public-catalogue";
 import { JsonLd } from "@/components/json-ld";
-import { LiveOverview, LiveOverviewFallback } from "@/components/live-overview";
+import { ProductHero, ProductActions, ProductSection, ProductClosing, FeatureCard, productStyles as s } from "@/components/product/product-ui";
+import { CatalogueMetrics, CatalogueLoading } from "@/components/landing/catalogue";
+import { DataExplorer } from "@/components/landing/data-explorer";
+import { jobsQuickstart } from "@/content/jobs";
+import { CodeBlock } from "@/components/code-block";
+import { getPublicOverview } from "@/lib/dataapi";
 import { siteConfig } from "@/content/site";
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  Building2,
-  Clock3,
-  Database,
-  Radar,
-  Search,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, Building2, Search, History, Code2, ChartNoAxesCombined, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-
 export const metadata: Metadata = {
-  title: "Jobs & Hiring Data",
+  title: "Jobs Data API & Hiring Intelligence",
   description:
     "Reviewed public career sources, normalized job records, current catalogue counts, and historical observation for hiring intelligence.",
   alternates: { canonical: "/products/jobs" },
@@ -36,111 +31,34 @@ export const metadata: Metadata = {
 };
 
 export default function JobsProductPage() {
-  return (
-    <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: "Exende Jobs & Hiring Data",
-          description: "Reviewed public hiring data with current catalogue counts and historical observation.",
-          url: `${siteConfig.url}/products/jobs`,
-          brand: { "@type": "Brand", name: "Exende" },
-        }}
-      />
-
-      <section className="product-data-hero">
-        <div className="product-data-hero__art" aria-hidden="true">
-          <Image
-            src="/media/exende-data-api-core-v1.png"
-            alt=""
-            fill
-            preload
-            quality={90}
-            sizes="100vw"
-          />
-        </div>
-        <div className="page-shell product-data-hero__inner">
-          <div className="product-data-hero__copy">
-            <p className="eyebrow">Jobs & Hiring Data</p>
-            <h1>Public hiring data, observed over time.</h1>
-            <p>
-              A normalized data layer for teams researching roles, companies, sources, and hiring
-              movement across reviewed public career pages.
-            </p>
-            <div className="data-hero__actions">
-              <Link href="/docs/jobs" className="primary-cta">Read the public API <ArrowRight className="h-4 w-4" /></Link>
-              <Link href="#access" className="secondary-cta">Customer access</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="jobs-proof">
-        <div className="page-shell">
-          <Suspense fallback={<LiveOverviewFallback />}>
-            <LiveOverview />
-          </Suspense>
-        </div>
-      </section>
-
-      <section className="data-section">
-        <div className="page-shell">
-          <div className="section-heading section-heading--split">
-            <div>
-              <p className="eyebrow">A deliberate pipeline</p>
-              <h2>From public source to usable observation.</h2>
-            </div>
-            <p>
-              Exende focuses on reviewed structured career sources. It does not claim complete
-              global coverage, guaranteed real-time delivery, or access to private company data.
-            </p>
-          </div>
-
-          <div className="jobs-method">
-            <article><span>01</span><Radar /><h3>Review</h3><p>Sources are enabled deliberately rather than accepted as an unbounded crawl target.</p></article>
-            <article><span>02</span><Database /><h3>Normalize</h3><p>Public observations are transformed into a consistent canonical structure.</p></article>
-            <article><span>03</span><Clock3 /><h3>Observe</h3><p>Changes are retained over time so research can move beyond a single snapshot.</p></article>
-            <article><span>04</span><Search /><h3>Deliver</h3><p>Product-safe customer access is delivered through explicitly scoped API keys.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section className="product-depth-section">
-        <div className="page-shell product-depth-layout">
-          <div>
-            <p className="eyebrow">What the data supports</p>
-            <h2>Research with context, not invented conclusions.</h2>
-          </div>
-          <div className="product-depth-list">
-            <div><BriefcaseBusiness /><span><strong>Normalized job research</strong>Study current public listings through a consistent data model.</span></div>
-            <div><Building2 /><span><strong>Company hiring context</strong>Understand visible activity for companies represented in reviewed sources.</span></div>
-            <div><Clock3 /><span><strong>Historical movement</strong>Analyze observations over time once sufficient continuous history is available.</span></div>
-          </div>
-        </div>
-      </section>
-
-      <section className="data-section" id="access">
-        <div className="page-shell access-roadmap">
-          <div className="access-roadmap__copy">
-            <p className="eyebrow">Customer access</p>
-            <h2>Public proof and scoped API access, live now.</h2>
-            <p>
-              The aggregate overview remains public. Verified accounts receive complimentary
-              onboarding credits and can create scoped keys for search, company, and historical data.
-            </p>
-          </div>
-          <div className="access-roadmap__steps">
-            <div data-state="live"><span>Live</span><strong>Aggregate overview</strong><small>No key required</small></div>
-            <div data-state="live"><span>Live</span><strong>Customer accounts</strong><small>Authentication and onboarding credits</small></div>
-            <div data-state="live"><span>Live</span><strong>Product-safe APIs</strong><small>Scoped keys and documented routes</small></div>
-          </div>
-          <div className="access-security">
-            <ShieldCheck />
-            <p><strong>Security boundary</strong>The DataAPI operator dashboard, protected routes, internal source health, raw payloads, and management credentials remain private.</p>
-          </div>
-        </div>
-      </section>
-    </>
-  );
+  const overview = getPublicOverview();
+  return <>
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "WebAPI", name: "Exende Jobs & Hiring Data API", description: "Normalized public job listings, company hiring context, and observed changes through a scoped API.", url: `${siteConfig.url}/products/jobs`, documentation: `${siteConfig.url}/docs/jobs`, provider: { "@type": "Organization", name: "Exende" } }} />
+    <ProductHero eyebrow="Jobs & Hiring Data API" title={<>Jobs data.<br />Hiring changes.<br /><span>One API.</span></>} description="Search normalized public job listings, explore company hiring activity, and observe changes without building your own collection pipeline." aside={<DataExplorer />}>
+      <ProductActions primary="Explore the catalogue" href="#catalogue" secondary="Start with 2,500 free credits" secondaryHref="/account?mode=signup&next=/dashboard" />
+    </ProductHero>
+    <ProductSection id="catalogue" eyebrow="Observed coverage" title="Public data. Visible evidence." description="Current counts come directly from the catalogue. Freshness is the most recent canonical job observation, not a promise that every source was checked at that time.">
+      <div className={s.protocol} data-reveal><Suspense fallback={<CatalogueLoading />}><CatalogueMetrics overview={overview} /></Suspense></div>
+      <div className={s.actions}><PublicCatalogue surface="jobs" /></div>
+      <p className={s.note}><Link href="/coverage">Explore coverage & methodology <ArrowRight className="inline h-3 w-3" /></Link></p>
+    </ProductSection>
+    <ProductSection eyebrow="The data you work with" title={<>From a question<br />to a structured result.</>} description="Use a scoped key to search roles and skills, inspect a company, or retrieve the available history behind a listing.">
+      <div className={s.threeColumns}>
+        <FeatureCard title="Search jobs"><Search /><p>Filter current listings by role, company, location, country, skill, employment type, and workplace type.</p><code>GET /v1/jobs/search</code><Link href="/docs/jobs#search" className={s.secondary}>Search reference <ArrowRight /></Link></FeatureCard>
+        <FeatureCard title="Understand a company"><Building2 /><p>Connect a company domain with its active jobs, observed timeline, and hiring metrics.</p><code>GET /v1/companies/&#123;domain&#125;</code><Link href="/docs/jobs#companies" className={s.secondary}>Company reference <ArrowRight /></Link></FeatureCard>
+        <FeatureCard title="Follow observed changes"><History /><p>Read created, updated, and closed versions. Compare activity within the available observation window.</p><code>GET /v1/jobs/&#123;id&#125;/history</code><Link href="/docs/jobs#history" className={s.secondary}>History reference <ArrowRight /></Link></FeatureCard>
+      </div>
+    </ProductSection>
+    <ProductSection>
+      <div className={s.featured}><div data-reveal><p className={s.eyebrow}>Developer quickstart</p><h2>Your first request.<br />Five useful records.</h2><p>Create an account, verify your email, and generate a key with <code>jobs:read</code>. Run a small search, then inspect the returned records and credit usage in your dashboard.</p><p className={s.note}>A search returning 5 records costs 5 credits. A search returning no records costs 0 credits. Keep your key in a server environment variable.</p><ProductActions primary="Create free account" secondary="Read the quickstart" /></div><div data-reveal><CodeBlock code={jobsQuickstart} language="bash" title="Search with your Jobs Data API key" /></div></div>
+    </ProductSection>
+    <ProductSection eyebrow="Build with observed evidence" title="Hiring context for your work." description="Use the fields and history the API actually exposes. Coverage reflects reviewed sources and does not represent the entire hiring market.">
+      <div className={s.threeColumns}>
+        <FeatureCard title="Market intelligence"><ChartNoAxesCombined /><p>Compare visible hiring across observed companies, roles, and locations. Describe change within the recorded period.</p></FeatureCard>
+        <FeatureCard title="Recruiting products"><UsersRound /><p>Power job search, company enrichment, and research workflows with normalized records and source attribution.</p></FeatureCard>
+        <FeatureCard title="Applications & agents"><Code2 /><p>Give applications and agents scoped access to structured hiring data with an explicit request and credit contract.</p></FeatureCard>
+      </div>
+    </ProductSection>
+    <ProductClosing />
+  </>;
 }

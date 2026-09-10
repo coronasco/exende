@@ -1,5 +1,8 @@
 "use client";
 
+import { productEvent } from "@/lib/product-events";
+import { CopyButton } from "@/components/copy-button";
+import Link from "next/link";
 import type { ApiKeyCreation, ApiKeyMetadata } from "@/lib/control-plane-types";
 import { AlertTriangle, Check, Clipboard, KeyRound, Plus, ShieldCheck, Trash2, X } from "lucide-react";
 import { type FormEvent, useState } from "react";
@@ -35,6 +38,7 @@ export function ApiKeysManager({ initialKeys, dataApiUrl }: { initialKeys: ApiKe
         body: JSON.stringify({ name: form.get("name"), scopes, environment: "live" }),
       });
       setCreated(result);
+      productEvent("api_key_created", { scopeCount: scopes.length });
       setKeys((current) => [result.apiKey, ...current]);
       setCreating(false);
       formElement.reset();
@@ -58,9 +62,11 @@ export function ApiKeysManager({ initialKeys, dataApiUrl }: { initialKeys: ApiKe
 
   async function copySecret() {
     if (!created) return;
-    await navigator.clipboard.writeText(created.secret);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1_500);
+    try {
+      await navigator.clipboard.writeText(created.secret);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1_500);
+    } catch { setError("Clipboard access failed. Select and copy the key manually."); }
   }
 
   return (
@@ -74,7 +80,8 @@ export function ApiKeysManager({ initialKeys, dataApiUrl }: { initialKeys: ApiKe
         <section className="key-reveal" aria-live="polite">
           <div className="key-reveal__heading"><span><ShieldCheck /></span><div><p className="annotation">KEY CREATED</p><h2>Copy this key now.</h2><p>For security, it will not be shown again after you close this panel.</p></div><button type="button" onClick={() => setCreated(null)} aria-label="Close key reveal"><X /></button></div>
           <div className="key-secret"><code>{created.secret}</code><button type="button" onClick={copySecret}>{copied ? <Check /> : <Clipboard />}{copied ? "Copied" : "Copy"}</button></div>
-          <div className="key-example"><div><span>FIRST REQUEST</span><small>bash</small></div><pre><code>{`curl --get "${dataApiUrl}/v1/jobs/search" \\\n  --data-urlencode "q=software engineer" \\\n  --data-urlencode "limit=5" \\\n  -H "Authorization: Bearer ${created.secret}"`}</code></pre></div>
+          <div className="key-example"><div><span>FIRST REQUEST</span><CopyButton value={firstRequest(created, dataApiUrl)} /></div><pre><code>{firstRequest(created, dataApiUrl)}</code></pre></div>
+          <p className="mt-5 text-sm leading-7 text-[var(--color-muted)]">{!created.apiKey.scopes.includes("jobs:read") && !created.apiKey.scopes.includes("signals:read") ? <>First set <code>COMPANY_DOMAIN</code> to a known company domain. </> : null}Run this in your terminal, then <Link className="text-link" href="/dashboard/usage">inspect credit usage</Link>. Keep the key private. <Link className="text-link" href="/docs/jobs#quickstart">Read the quickstart.</Link></p>
         </section>
       ) : null}
 
@@ -109,3 +116,8 @@ async function managementRequest<T>(path: string, init: RequestInit): Promise<T>
 
 function formatDate(value: string): string { return new Intl.DateTimeFormat("en", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(value)); }
 function formatRelative(value: string): string { const hours = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 3_600_000)); return hours < 1 ? "Just now" : hours < 24 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`; }
+
+function firstRequest(created: ApiKeyCreation, base: string): string {
+  const route = created.apiKey.scopes.includes("jobs:read") ? "/v1/jobs?limit=5" : created.apiKey.scopes.includes("signals:read") ? "/v1/metrics/overview" : "/v1/companies/$COMPANY_DOMAIN";
+  return `curl "${base}${route}" -H "Authorization: Bearer ${created.secret}"`;
+}

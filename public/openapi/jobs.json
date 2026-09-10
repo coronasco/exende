@@ -1,0 +1,3476 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Exende Jobs & Hiring Data API",
+    "version": "1.0.0",
+    "description": "Customer read API and restricted public catalogue proof. Jobs Data uses scoped organization API keys and credits; Callback, Retry and Resolve x402 contracts are separate. This contract documents the current implementation, including route-specific pagination limits and legacy supplementary response fields.",
+    "contact": {
+      "email": "support@exende.dev",
+      "url": "https://www.exende.dev"
+    },
+    "license": {
+      "name": "Exende Terms of Service",
+      "url": "https://www.exende.dev/terms"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://data.exende.dev"
+    }
+  ],
+  "security": [
+    {
+      "CustomerKey": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Jobs Data",
+      "description": "Authenticated, credit-metered customer operations."
+    },
+    {
+      "name": "Public proof",
+      "description": "Bounded no-key aggregate information."
+    }
+  ],
+  "externalDocs": {
+    "url": "https://www.exende.dev/docs/jobs",
+    "description": "Quickstart and complete customer reference"
+  },
+  "paths": {
+    "/v1/jobs/search": {
+      "get": {
+        "operationId": "searchJobs",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Search jobs",
+        "description": "q is required. Search uses bounded, safely quoted FTS prefix terms. Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot. Credit cost: 1 per returned record. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size. Missing or invalid numeric values fall back to 50; the response never exceeds 100 records.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Trimmed FTS prefix query across title, department and description. Terms are combined with AND; at least one term must have two letters or numbers. Not a company or city search.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "description": "Exact canonical company ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "Company domain normalized by the API.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive source location substring; SQL LIKE % and _ wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "description": "ISO alpha-2 country, case-insensitive; normalized to uppercase.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z]{2}$"
+            }
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive job-title substring; SQL LIKE wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "description": "Normalized skill slug or recognized alias. Unknown skill returns an empty page.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "employmentType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized employment type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "full_time",
+                "part_time",
+                "contract",
+                "temporary",
+                "internship",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "workplaceType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized workplace type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "remote",
+                "hybrid",
+                "on_site",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Current canonical job status.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "closed"
+              ],
+              "default": "active"
+            }
+          },
+          {
+            "name": "firstSeenAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on first_seen_at.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "publishedAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on the source posted_at timestamp; missing publication dates do not match.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque nextCursor from the previous response. Preserve all other filters.",
+            "schema": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Returns data: [] when there are no matching records.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "operationId": "listJobs",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "List jobs",
+        "description": "Filter current normalized job records. Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot. Credit cost: 1 per returned record. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size. Missing or invalid numeric values fall back to 50; the response never exceeds 100 records.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Trimmed FTS prefix query across title, department and description. Terms are combined with AND; at least one term must have two letters or numbers. Not a company or city search.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "description": "Exact canonical company ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "Company domain normalized by the API.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive source location substring; SQL LIKE % and _ wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "description": "ISO alpha-2 country, case-insensitive; normalized to uppercase.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z]{2}$"
+            }
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive job-title substring; SQL LIKE wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "description": "Normalized skill slug or recognized alias. Unknown skill returns an empty page.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "employmentType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized employment type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "full_time",
+                "part_time",
+                "contract",
+                "temporary",
+                "internship",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "workplaceType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized workplace type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "remote",
+                "hybrid",
+                "on_site",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Current canonical job status.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "closed"
+              ],
+              "default": "active"
+            }
+          },
+          {
+            "name": "firstSeenAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on first_seen_at.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "publishedAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on the source posted_at timestamp; missing publication dates do not match.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque nextCursor from the previous response. Preserve all other filters.",
+            "schema": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Returns data: [] when there are no matching records.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/jobs/{id}": {
+      "get": {
+        "operationId": "getJob",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Job detail",
+        "description": "Retrieve one canonical job and its normalized skills. Not paginated. Credit cost: 1. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1",
+        "x-pagination": "Not paginated.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Canonical UUID from a job record.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Unknown job returns 404.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/JobDetail"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/jobs/{id}/history": {
+      "get": {
+        "operationId": "getJobHistory",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Job history",
+        "description": "Newest observed versions first, ordered by observed_at DESC, id DESC. Historical snapshot fields use camelCase. Not paginated. Credit cost: 1 per returned record. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Not paginated.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Canonical job UUID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size. Missing or invalid numeric values fall back to 50; the response never exceeds 100 records.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. An unknown job or a job without versions returns data: [].",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/JobVersion"
+                      },
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/history": {
+      "get": {
+        "operationId": "getHistoryFeed",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "History feed",
+        "description": "Latest 100 immutable version events, ordered by observed_at DESC, id DESC. Query limit and cursor are not supported. Not paginated. Credit cost: 1 per returned record. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Not paginated.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Returns data: [] when there are no matching records.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HistoryEvent"
+                      },
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/companies/{domain}": {
+      "get": {
+        "operationId": "getCompany",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Company detail",
+        "description": "Canonical identity with current active count and observation bounds. Not paginated. Credit cost: 2. Required scope: companies:read.",
+        "x-required-scope": "companies:read",
+        "x-credit-cost": "2",
+        "x-pagination": "Not paginated.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "domain",
+            "required": true,
+            "description": "Canonical company domain, for example a domain returned on a job record.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. A known company with no active jobs returns active_jobs: 0. Unknown company returns 404.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Company"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/companies/{domain}/jobs": {
+      "get": {
+        "operationId": "getCompanyJobs",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Company jobs",
+        "description": "Filters are combined with the company in the path. Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot. Credit cost: 1 per returned record. Required scope: companies:read.",
+        "x-required-scope": "companies:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Keyset pagination: default 50, max 100. Ordered by last_seen_at DESC, id DESC. Pass nextCursor as cursor with unchanged filters. Concurrent catalogue updates mean this is not a frozen snapshot.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "domain",
+            "required": true,
+            "description": "Canonical company domain or company UUID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size. Missing or invalid numeric values fall back to 50; the response never exceeds 100 records.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Trimmed FTS prefix query across title, department and description. Terms are combined with AND; at least one term must have two letters or numbers. Not a company or city search.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "description": "Exact canonical company ID.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "description": "Company domain normalized by the API.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive source location substring; SQL LIKE % and _ wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "description": "ISO alpha-2 country, case-insensitive; normalized to uppercase.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z]{2}$"
+            }
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive job-title substring; SQL LIKE wildcards retain their current meaning.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "description": "Normalized skill slug or recognized alias. Unknown skill returns an empty page.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "employmentType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized employment type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "full_time",
+                "part_time",
+                "contract",
+                "temporary",
+                "internship",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "workplaceType",
+            "in": "query",
+            "required": false,
+            "description": "Normalized workplace type.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "remote",
+                "hybrid",
+                "on_site",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Current canonical job status.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "closed"
+              ],
+              "default": "active"
+            }
+          },
+          {
+            "name": "firstSeenAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on first_seen_at.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "publishedAfter",
+            "in": "query",
+            "required": false,
+            "description": "Inclusive lower bound on the source posted_at timestamp; missing publication dates do not match.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque nextCursor from the previous response. Preserve all other filters.",
+            "schema": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. A valid but unmatched company domain or filter returns data: [], nextCursor: null.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/companies/{domain}/hiring": {
+      "get": {
+        "operationId": "getCompanyHiring",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Company hiring",
+        "description": "Deterministic role mix, history readiness and a daily timeline. Current summary and historical events have distinct meanings. Not paginated. Credit cost: 5. Required scope: companies:read.",
+        "x-required-scope": "companies:read",
+        "x-credit-cost": "5",
+        "x-pagination": "Not paginated.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "domain",
+            "required": true,
+            "description": "Canonical company domain.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "description": "Requested rolling observation window. Missing or invalid numeric values fall back to 30.",
+            "schema": {
+              "type": "integer",
+              "minimum": 7,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Unknown company returns 404. A known company can return zero counts and null acceleration.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CompanyHiring"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/skills": {
+      "get": {
+        "operationId": "getSkills",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Skill catalogue",
+        "description": "Up to 100 skills with active jobs, ordered by active_jobs DESC, canonical_name ASC. No query parameters supported. Not paginated. Credit cost: 1 per returned record. Required scope: jobs:read.",
+        "x-required-scope": "jobs:read",
+        "x-credit-cost": "1 per returned record",
+        "x-pagination": "Not paginated.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. Returns data: [] when there are no matching records.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SkillCount"
+                      },
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/metrics/overview": {
+      "get": {
+        "operationId": "getOverviewMetrics",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Overview metrics",
+        "description": "Active counts and daily visibility confirmations in the last 14 calendar days. The legacy failed_runs field is an aggregate, not a freshness guarantee. Not paginated. Credit cost: 2. Required scope: signals:read.",
+        "x-required-scope": "signals:read",
+        "x-credit-cost": "2",
+        "x-pagination": "Not paginated.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. A successful aggregate object costs 2 credits even if all counts are zero.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/OverviewMetrics"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/metrics/hiring": {
+      "get": {
+        "operationId": "getHiringMetrics",
+        "tags": [
+          "Jobs Data"
+        ],
+        "summary": "Hiring metrics",
+        "description": "Current role mix, version events, readiness-gated acceleration and top-12 groups. Timeline contains days with events; company-hiring timeline instead fills calendar days. Not paginated. Credit cost: 5. Required scope: signals:read.",
+        "x-required-scope": "signals:read",
+        "x-credit-cost": "5",
+        "x-pagination": "Not paginated.",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "description": "Requested rolling observation window. Missing or invalid numeric values fall back to 30.",
+            "schema": {
+              "type": "integer",
+              "minimum": 7,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful JSON response. A successful aggregate object costs 5 credits even if counts are zero or grouped arrays are empty.",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/HiringMetrics"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid_request: invalid query or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized: missing, invalid, revoked, expired key, or inactive organization.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "insufficient_credits: insufficient balance for the actual returned data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "insufficient_scope: key does not include the required route scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not_found: record or route not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "rate_limited: retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Retry delay in seconds.",
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "service_unavailable: a required service or limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected service failure. Upstream/platform failures can return a non-JSON body; clients must handle that safely."
+          }
+        }
+      }
+    },
+    "/v1/public/overview": {
+      "get": {
+        "operationId": "getPublicOverview",
+        "tags": [
+          "Public proof"
+        ],
+        "summary": "Public catalogue overview",
+        "description": "Aggregate-only public proof. No key and no credits. No listing, customer, or source-health records. Last updated is the latest canonical job observation.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Current aggregate overview.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PublicOverview"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests. Retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/search": {
+      "get": {
+        "operationId": "searchPublicCatalogue",
+        "summary": "Search the limited public catalogue preview",
+        "tags": [
+          "Public proof"
+        ],
+        "security": [],
+        "description": "Deterministic AND terms over public title, department, source location, company name/domain and normalized skills; exact country names and supported country codes filter country_code directly; skill aliases are recognized. Only q is accepted. No pagination or export. Sample membership is fixed by migration, with at most 12 enrolled jobs across all queries; responses contain at most 5. Full descriptions, source payloads, customer and operator data are excluded. Aggregates describe matching active canonical jobs, not just samples. Limits: public gateway 20 requests/minute per client IP and Data Plane 60/minute; Cloudflare limits are approximate.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "description": "Up to 80 characters and 6 terms; at least 2 characters when nonempty. Omit for catalogue-wide aggregates and the fixed sample. Control characters, wildcard-only queries and duplicate q are rejected. NFKC-normalized, case-insensitive.",
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid query, duplicate q, extra parameters, or extraction controls.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Preview rate limit exceeded. Retry after 60 seconds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "const": 60
+                },
+                "description": "Delay in seconds."
+              }
+            }
+          },
+          "503": {
+            "description": "The preview or required limiter is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Real matching aggregates and up to 5 enrolled samples. No matches returns zero counts and empty arrays. Matches can exist without any enrolled sample.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 180
+                },
+                "description": "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PublicCataloguePreview"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "CustomerKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Organization API key from the Exende dashboard. Scopes are declared on each operation."
+      }
+    },
+    "schemas": {
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Canonical source-scoped job identifier.",
+            "format": "uuid"
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Canonical company identifier.",
+            "format": "uuid"
+          },
+          "company": {
+            "type": "string",
+            "description": "Canonical company name."
+          },
+          "canonical_domain": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Canonical company domain; not an ATS hostname."
+          },
+          "title": {
+            "type": "string",
+            "description": "Source job title."
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source location text; not a normalized city identifier."
+          },
+          "country_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO alpha-2 country only when explicit evidence supports normalization; otherwise null.",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Department if provided."
+          },
+          "employment_type": {
+            "type": "string",
+            "enum": [
+              "full_time",
+              "part_time",
+              "contract",
+              "temporary",
+              "internship",
+              "unknown"
+            ]
+          },
+          "workplace_type": {
+            "type": "string",
+            "enum": [
+              "remote",
+              "hybrid",
+              "on_site",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "source_url": {
+            "type": "string",
+            "description": "Public listing URL retained for attribution.",
+            "format": "uri"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "description": "First Exende observation, not necessarily publication.",
+            "format": "date-time"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "description": "Most recent canonical observation; unchanged visibility is capped at once per UTC day.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "company_id",
+          "company",
+          "canonical_domain",
+          "title",
+          "location",
+          "country_code",
+          "department",
+          "employment_type",
+          "workplace_type",
+          "status",
+          "source_url",
+          "first_seen_at",
+          "last_seen_at"
+        ]
+      },
+      "JobPage": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Opaque keyset cursor, or null when there is no further page."
+          }
+        },
+        "required": [
+          "data",
+          "nextCursor"
+        ]
+      },
+      "Skill": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "canonical_name",
+          "category"
+        ]
+      },
+      "SkillCount": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "slug",
+          "canonical_name",
+          "category",
+          "active_jobs"
+        ]
+      },
+      "JobDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Canonical source-scoped job identifier.",
+            "format": "uuid"
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Canonical company identifier.",
+            "format": "uuid"
+          },
+          "company": {
+            "type": "string",
+            "description": "Canonical company name."
+          },
+          "canonical_domain": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Canonical company domain; not an ATS hostname."
+          },
+          "title": {
+            "type": "string",
+            "description": "Source job title."
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source location text; not a normalized city identifier."
+          },
+          "country_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ISO alpha-2 country only when explicit evidence supports normalization; otherwise null.",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Department if provided."
+          },
+          "employment_type": {
+            "type": "string",
+            "enum": [
+              "full_time",
+              "part_time",
+              "contract",
+              "temporary",
+              "internship",
+              "unknown"
+            ]
+          },
+          "workplace_type": {
+            "type": "string",
+            "enum": [
+              "remote",
+              "hybrid",
+              "on_site",
+              "unknown"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "source_url": {
+            "type": "string",
+            "description": "Public listing URL retained for attribution.",
+            "format": "uri"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "description": "First Exende observation, not necessarily publication.",
+            "format": "date-time"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "description": "Most recent canonical observation; unchanged visibility is capped at once per UTC day.",
+            "format": "date-time"
+          },
+          "website_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "description_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Available normalized description text; null when unavailable."
+          },
+          "posted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Source publication date when available.",
+            "format": "date-time"
+          },
+          "closed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Recorded closure time, if closed.",
+            "format": "date-time"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Skill"
+            }
+          },
+          "description_enrichment_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Legacy supplementary description-processing status. Do not use it as source freshness or a stable customer workflow signal.",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "id",
+          "company_id",
+          "company",
+          "canonical_domain",
+          "title",
+          "location",
+          "country_code",
+          "department",
+          "employment_type",
+          "workplace_type",
+          "status",
+          "source_url",
+          "first_seen_at",
+          "last_seen_at",
+          "website_url",
+          "description_text",
+          "posted_at",
+          "closed_at",
+          "skills",
+          "description_enrichment_status"
+        ]
+      },
+      "CompanyIdentity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "canonical_domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "canonical_domain",
+          "website_url"
+        ]
+      },
+      "Company": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "canonical_name": {
+            "type": "string"
+          },
+          "canonical_domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "website_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "first_seen_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Earliest job observation for the company.",
+            "format": "date-time"
+          },
+          "last_seen_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Latest job observation for the company.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "canonical_name",
+          "canonical_domain",
+          "website_url",
+          "active_jobs",
+          "first_seen_at",
+          "last_seen_at"
+        ]
+      },
+      "JobSnapshot": {
+        "type": "object",
+        "properties": {
+          "sourceExternalId": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "full_time",
+              "part_time",
+              "contract",
+              "temporary",
+              "internship",
+              "unknown"
+            ]
+          },
+          "workplaceType": {
+            "type": "string",
+            "enum": [
+              "remote",
+              "hybrid",
+              "on_site",
+              "unknown"
+            ]
+          },
+          "countryCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "descriptionText": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "postedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "sourceContentHash": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ]
+          }
+        },
+        "required": [
+          "sourceExternalId",
+          "sourceUrl",
+          "title",
+          "location",
+          "department",
+          "employmentType",
+          "postedAt",
+          "contentHash"
+        ],
+        "description": "Normalized historical snapshot. Older versions can omit newer normalization fields; this uses the original camelCase snapshot contract."
+      },
+      "JobVersion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Version ID; not guaranteed to be a UUID."
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "created",
+              "updated",
+              "closed"
+            ]
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "observedAt",
+          "changeType",
+          "contentHash",
+          "snapshot"
+        ]
+      },
+      "HistoryEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": [
+              "created",
+              "updated",
+              "closed"
+            ]
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "observed_at",
+          "change_type",
+          "job_id",
+          "title",
+          "company"
+        ]
+      },
+      "HiringSummary": {
+        "type": "object",
+        "properties": {
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "new_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remote_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "engineering_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sales_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ai_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "countries_hiring": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "country_classified_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "country_unclassified_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hiring_velocity": {
+            "type": "number",
+            "description": "Recorded created versions divided by period days. Initial ingestion can contribute."
+          },
+          "hiring_acceleration": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Recent creation rate minus preceding interval rate. Null until the history spans the requested window."
+          },
+          "history_complete": {
+            "type": "boolean",
+            "description": "The earliest immutable version reaches the requested window start. This is a readiness gate, not proof of uninterrupted or whole-market coverage."
+          }
+        },
+        "required": [
+          "active_jobs",
+          "new_jobs",
+          "updated_jobs",
+          "closed_jobs",
+          "remote_jobs",
+          "engineering_jobs",
+          "sales_jobs",
+          "ai_jobs",
+          "countries_hiring",
+          "country_classified_jobs",
+          "country_unclassified_jobs",
+          "hiring_velocity",
+          "hiring_acceleration",
+          "history_complete"
+        ]
+      },
+      "CompanyHiringSummary": {
+        "type": "object",
+        "properties": {
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remote_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "engineering_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sales_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ai_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "countries_hiring": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "country_classified_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "country_unclassified_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hiring_velocity": {
+            "type": "number",
+            "description": "Recorded created versions divided by period days. Initial ingestion can contribute."
+          },
+          "hiring_acceleration": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Recent creation rate minus preceding interval rate. Null until the history spans the requested window."
+          },
+          "history_complete": {
+            "type": "boolean",
+            "description": "The earliest immutable version reaches the requested window start. This is a readiness gate, not proof of uninterrupted or whole-market coverage."
+          }
+        },
+        "required": [
+          "active_jobs",
+          "created_jobs",
+          "updated_jobs",
+          "closed_jobs",
+          "remote_jobs",
+          "engineering_jobs",
+          "sales_jobs",
+          "ai_jobs",
+          "countries_hiring",
+          "country_classified_jobs",
+          "country_unclassified_jobs",
+          "hiring_velocity",
+          "hiring_acceleration",
+          "history_complete"
+        ]
+      },
+      "HiringDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed_jobs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "day",
+          "created_jobs",
+          "updated_jobs",
+          "closed_jobs"
+        ]
+      },
+      "CompanyHiringDay": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Active jobs reconstructed at the end of the UTC calendar day."
+          }
+        },
+        "required": [
+          "day",
+          "created_jobs",
+          "updated_jobs",
+          "closed_jobs",
+          "active_jobs"
+        ]
+      },
+      "HiringCompany": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "company": {
+            "type": "string"
+          },
+          "canonical_domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "new_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updated_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "closed_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remote_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "engineering_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sales_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ai_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "countries_hiring": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hiring_velocity": {
+            "type": "number",
+            "description": "Recorded created versions divided by period days. Initial ingestion can contribute."
+          },
+          "hiring_acceleration": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Recent creation rate minus preceding interval rate. Null until the history spans the requested window."
+          },
+          "history_complete": {
+            "type": "boolean",
+            "description": "The earliest immutable version reaches the requested window start. This is a readiness gate, not proof of uninterrupted or whole-market coverage."
+          },
+          "new_jobs_per_day": {
+            "type": "number",
+            "description": "Alias of hiring_velocity."
+          }
+        },
+        "required": [
+          "company_id",
+          "company",
+          "canonical_domain",
+          "active_jobs",
+          "new_jobs",
+          "updated_jobs",
+          "closed_jobs",
+          "remote_jobs",
+          "engineering_jobs",
+          "sales_jobs",
+          "ai_jobs",
+          "countries_hiring",
+          "hiring_velocity",
+          "hiring_acceleration",
+          "history_complete",
+          "new_jobs_per_day"
+        ]
+      },
+      "HiringMetrics": {
+        "type": "object",
+        "properties": {
+          "period_days": {
+            "type": "integer",
+            "minimum": 7,
+            "maximum": 90
+          },
+          "summary": {
+            "$ref": "#/components/schemas/HiringSummary"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HiringDay"
+            }
+          },
+          "companies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HiringCompany"
+            },
+            "maxItems": 12
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string"
+                },
+                "active_jobs": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "location",
+                "active_jobs"
+              ]
+            },
+            "maxItems": 12
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "country_code": {
+                  "type": "string"
+                },
+                "active_jobs": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "country_code",
+                "active_jobs"
+              ]
+            },
+            "maxItems": 12
+          }
+        },
+        "required": [
+          "period_days",
+          "summary",
+          "timeline",
+          "companies",
+          "locations",
+          "countries"
+        ]
+      },
+      "CompanyHiring": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "$ref": "#/components/schemas/CompanyIdentity"
+          },
+          "period_days": {
+            "type": "integer",
+            "minimum": 7,
+            "maximum": 90
+          },
+          "summary": {
+            "$ref": "#/components/schemas/CompanyHiringSummary"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyHiringDay"
+            },
+            "maxItems": 90
+          }
+        },
+        "required": [
+          "company",
+          "period_days",
+          "summary",
+          "timeline"
+        ]
+      },
+      "OverviewMetrics": {
+        "type": "object",
+        "properties": {
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_sources": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed_runs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Legacy aggregate currently returned by this authenticated route; not a freshness measure."
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "observations": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "day",
+                "observations"
+              ]
+            }
+          }
+        },
+        "required": [
+          "active_jobs",
+          "active_sources",
+          "failed_runs",
+          "daily"
+        ]
+      },
+      "PublicOverview": {
+        "type": "object",
+        "properties": {
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_companies": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "active_sources": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "last_updated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Most recent canonical job observation; not the timestamp when every source was checked.",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "active_jobs",
+          "active_companies",
+          "active_sources",
+          "last_updated_at"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object",
+                "description": "Optional query validation details."
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "PublicJobSample": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "company",
+          "location",
+          "country_code",
+          "employment_type",
+          "workplace_type",
+          "status",
+          "first_seen_at",
+          "last_seen_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 36,
+            "description": "Canonical job identifier."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 180,
+            "description": "Public job title, capped at 180 characters."
+          },
+          "company": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Canonical public company name."
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160,
+            "description": "Source location label, not a normalized city."
+          },
+          "country_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2,
+            "description": "Explicit supported country evidence, or null."
+          },
+          "employment_type": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "Normalized public classification; unknown values remain unknown."
+          },
+          "workplace_type": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "Normalized public classification; unknown values remain unknown."
+          },
+          "status": {
+            "type": "string",
+            "const": "active",
+            "description": "Only currently active enrolled samples are shown."
+          },
+          "first_seen_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "First canonical observation, or null."
+          },
+          "last_seen_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Latest canonical observation, or null."
+          }
+        }
+      },
+      "PublicCatalogueGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value",
+          "active_jobs"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 180
+          },
+          "active_jobs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PublicCataloguePreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "query",
+          "summary",
+          "top_locations",
+          "top_countries",
+          "top_roles",
+          "top_companies",
+          "sample_jobs",
+          "preview"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "active_jobs",
+              "companies",
+              "countries",
+              "locations",
+              "country_unclassified_jobs",
+              "first_observed_at",
+              "last_observed_at"
+            ],
+            "properties": {
+              "active_jobs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "companies": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "countries": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "locations": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "country_unclassified_jobs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "first_observed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "last_observed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              }
+            }
+          },
+          "top_locations": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/PublicCatalogueGroup"
+            }
+          },
+          "top_countries": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/PublicCatalogueGroup"
+            }
+          },
+          "top_roles": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/PublicCatalogueGroup"
+            }
+          },
+          "top_companies": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/PublicCatalogueGroup"
+            }
+          },
+          "sample_jobs": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/PublicJobSample"
+            }
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sample_limit",
+              "pool_limit",
+              "enrolled_samples",
+              "pagination",
+              "projection"
+            ],
+            "properties": {
+              "sample_limit": {
+                "type": "integer",
+                "const": 5
+              },
+              "pool_limit": {
+                "type": "integer",
+                "const": 12
+              },
+              "enrolled_samples": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 12
+              },
+              "pagination": {
+                "type": "boolean",
+                "const": false
+              },
+              "projection": {
+                "type": "string",
+                "const": "limited_public_fields"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

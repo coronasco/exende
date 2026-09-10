@@ -3025,9 +3025,9 @@ select {
 .auth-reset-card > p:not(.eyebrow) { margin: 1rem 0 1.5rem; color: #8e9aae; font-size: 0.8rem; line-height: 1.7; }
 .auth-reset-card .auth-form { padding: 1.7rem 0 0; text-align: left; }
 
-body:has(.dashboard-shell) .site-header,
-body:has(.dashboard-shell) .site-footer { display: none; }
-body:has(.dashboard-shell) #main-content { min-height: 100svh; }
+body:has(.site-header[data-dashboard-active="true"]) .site-header,
+body:has(.site-header[data-dashboard-active="true"]) .site-footer { display: none; }
+body:has(.site-header[data-dashboard-active="true"]) #main-content { min-height: 100svh; }
 
 .dashboard-shell {
   min-height: 100svh;

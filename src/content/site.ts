@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Exende",
-  title: "Exende — Public Hiring Data, Observed Over Time",
+  title: "Jobs Data API & Hiring Intelligence | Exende",
   description:
     "Reviewed public hiring data for market research, recruiting analytics, and data products, with infrastructure APIs for autonomous software.",
   url: "https://www.exende.dev",
@@ -13,6 +13,7 @@ export const siteConfig = {
   retryApiBase: "https://retry.exende.dev",
   resolveVersion: "1.0.0",
   resolveApiBase: "https://resolve.exende.dev",
+  jobsOpenApi: "/openapi/jobs.json",
   callbackOpenApi: "/openapi/callback.json",
   retryOpenApi: "/openapi/retry.json",
   resolveOpenApi: "/openapi/resolve.json",

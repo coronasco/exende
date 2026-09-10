@@ -2,7 +2,7 @@
 
 Canonical website: https://www.exende.dev
 
-Exende is a public-facing data product centered on Jobs & Hiring Data. It also provides three separate production infrastructure APIs for AI agents and automated workflows. The Exende website and future customer application are separate from the protected DataAPI operator dashboard.
+Exende is a public-facing data product centered on Jobs & Hiring Data. It also provides three separate production infrastructure APIs for AI agents and automated workflows. The Exende website and customer application are separate from the protected DataAPI operator dashboard.
 
 ## Jobs & Hiring Data
 
@@ -10,11 +10,11 @@ Purpose: provide reviewed public hiring data, current catalogue counts, and hist
 
 - Product: https://www.exende.dev/products/jobs
 - Documentation: https://www.exende.dev/docs/jobs
-- Current public endpoint: GET https://data.exende.dev/v1/public/overview
-- Authentication: none
+- Public overview endpoint: GET https://data.exende.dev/v1/public/overview
+- Overview authentication: none
 - Fields: `active_jobs`, `active_companies`, `active_sources`, and nullable ISO 8601 UTC `last_updated_at`
 - Cache-Control: `public, max-age=60, s-maxage=300, stale-while-revalidate=600`
-- Public boundary: aggregate values only
+- Overview boundary: aggregate values only
 - Customer API base: https://data.exende.dev
 - Customer authentication, onboarding credits, and scoped API keys: available
 - Paid subscriptions and plan upgrades: available through the authenticated dashboard
@@ -92,3 +92,24 @@ An unpaid creation request returns HTTP 402 with PAYMENT-REQUIRED. Build payment
 
 Canonical x402 docs: https://www.exende.dev/docs/x402
 API catalog: https://www.exende.dev/api/catalog.json
+
+## Jobs Data customer contract
+
+- Jobs OpenAPI 3.1: https://www.exende.dev/openapi/jobs.json
+- Developer quickstart: https://www.exende.dev/docs/jobs#quickstart
+- Coverage and methodology: https://www.exende.dev/coverage
+- Customer base URL: https://data.exende.dev
+- Authentication: organization bearer API key; scoped jobs:read, companies:read, or signals:read.
+- GET /v1/jobs/search requires q; GET /v1/jobs accepts optional q and normalized filters.
+- GET /v1/jobs/{id}; GET /v1/jobs/{id}/history; GET /v1/history; GET /v1/skills.
+- GET /v1/companies/{domain}; GET /v1/companies/{domain}/jobs; GET /v1/companies/{domain}/hiring.
+- GET /v1/metrics/overview; GET /v1/metrics/hiring.
+- Jobs list, search, and company jobs: default limit 50, maximum 100; pass nextCursor as cursor while retaining filters. Order: last_seen_at DESC, id DESC. Pages are not a frozen snapshot.
+- Job history: up to 100 versions with limit, no cursor. Skills and history feed: latest/top 100, no pagination parameters.
+- Hiring window: days 7–90, default 30. Hiring acceleration is null until historical readiness is met; it is not a prediction.
+- Errors use error.code and error.message. Codes include unauthorized, insufficient_scope, invalid_request, rate_limited, insufficient_credits, not_found, service_unavailable.
+- A Jobs Data 402 insufficient_credits response is not an x402 payment challenge. Callback, Retry, and Resolve have separate x402 contracts.
+- The free allowance is 2,500 credits for 14 days for new verified organizations. Paid plan selection requires explicit checkout confirmation.
+- Location text is not a normalized city. Country codes are nullable and require explicit supported evidence.
+
+Public catalogue preview: GET https://data.exende.dev/v1/public/search?q=engineer (no key). q only, at most 80 characters and 6 terms. Returns actual active-job aggregates plus at most 5 restricted sample jobs from a fixed pool of at most 12 across all searches. No pagination, full descriptions, bulk export, customer data, or operator metadata. Country/location counts describe explicit country evidence and source location labels, not normalized cities. Full customer access requires a scoped Jobs Data API key. See https://www.exende.dev/docs/jobs#public-search.
