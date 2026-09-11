@@ -97,13 +97,30 @@ test("machine-readable, crawler, analytics, and 404 surfaces are available", asy
   assert.match(robots, /Sitemap: https:\/\/www\.exende\.dev\/sitemap\.xml/);
 
   const home = await (await fetch(baseUrl)).text();
-  assert.doesNotMatch(home, /googletagmanager\.com|google-analytics|G-51HMFG32YE/);
+  assert.match(home, /googletagmanager\.com\/gtag\/js\?id=G-51HMFG32YE/);
 
   const missing = await fetch(`${baseUrl}/this-route-must-not-exist`);
   const missingHtml = await missing.text();
   assert.equal(missing.status, 404);
   assert.match(missingHtml, /Page not found/);
   assert.equal(occurrences(missingHtml, /<h1(?:\s|>)/gi), 1);
+});
+
+test("Jobs Data is described as a WebAPI rather than an incomplete Product snippet", async () => {
+  for (const route of ["/", "/products/jobs"]) {
+    const html = await (await fetch(`${baseUrl}${route}`)).text();
+    const nodes = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)]
+      .flatMap(([, json]) => {
+        const data = JSON.parse(json);
+        return Array.isArray(data) ? data : [data];
+      });
+    const jobs = nodes.find((node) => node["@type"] === "WebAPI");
+    assert.ok(jobs, `${route} is missing its Jobs Data WebAPI description`);
+    assert.equal(jobs.url, "https://www.exende.dev/products/jobs");
+    assert.equal(jobs.documentation, "https://www.exende.dev/docs/jobs");
+    assert.equal(jobs.provider["@type"], "Organization");
+    assert.ok(!nodes.some((node) => node["@type"] === "Product"), `${route} exposes obsolete Product markup`);
+  }
 });
 
 test("customer dashboard is private and omitted from discovery surfaces", async () => {

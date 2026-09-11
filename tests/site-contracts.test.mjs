@@ -217,7 +217,7 @@ test("official wordmark is present with intrinsic proportions", async () => {
   assert.match(logo, /<title[^>]*>EXENDE<\/title>/);
 });
 
-test("legal pages identify the operator and public support channel without Google Analytics", async () => {
+test("legal pages identify the operator and disclose the configured analytics providers", async () => {
   const terms = await readFile(path.join(projectRoot, "src/app/terms/page.tsx"), "utf8");
   const privacy = await readFile(path.join(projectRoot, "src/app/privacy/page.tsx"), "utf8");
   const layout = await readFile(path.join(projectRoot, "src/app/layout.tsx"), "utf8");
@@ -228,5 +228,9 @@ test("legal pages identify the operator and public support channel without Googl
     assert.match(page, /siteConfig\.supportEmail/);
   }
   assert.match(site, /supportEmail:\s*"support@exende\.dev"/);
-  assert.doesNotMatch(layout, /googletagmanager|google-analytics|analyticsId/);
+  assert.match(layout, /https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-51HMFG32YE/);
+  assert.match(layout, /gtag\('config', 'G-51HMFG32YE'\)/);
+  assert.match(privacy, /Google Analytics/);
+  assert.match(privacy, /Vercel Web Analytics/);
+  assert.doesNotMatch(privacy, /does not currently load Google Analytics/);
 });

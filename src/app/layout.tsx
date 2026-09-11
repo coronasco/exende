@@ -5,6 +5,7 @@ import { RouteExperience } from "@/components/product/route-experience";
 import { siteConfig } from "@/content/site";
 import { ProductAnalytics } from "@/components/product/product-analytics";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -123,6 +124,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main-content" tabIndex={-1}><RouteExperience>{children}</RouteExperience></main>
         <SiteFooter />
         <ProductAnalytics />
+        <Script id="google-analytics-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-51HMFG32YE');
+          `}
+        </Script>
+        <Script
+          id="google-analytics"
+          src="https://www.googletagmanager.com/gtag/js?id=G-51HMFG32YE"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
