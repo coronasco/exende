@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-const effectiveDate = "September 8, 2026";
+const effectiveDate = "September 11, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
           "@type": "PrivacyPolicy",
           name: "Exende Privacy Policy",
           url: `${siteConfig.url}/privacy`,
-          dateModified: "2026-09-08",
+          dateModified: "2026-09-11",
         }}
       />
       <div className="page-shell legal-page__layout">
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
               <li><strong>Developer data:</strong> API-key fingerprints, scopes, creation and revocation records, usage totals, and request metadata. Full API-key secrets are shown once and are not retained by Exende.</li>
               <li><strong>Billing data:</strong> plan, subscription status, credit grants, and Stripe customer, subscription, invoice, and payment references. Exende does not store complete payment-card numbers.</li>
               <li><strong>Support data:</strong> messages and information you choose to provide when contacting support.</li>
-              <li><strong>Website analytics:</strong> aggregate page, referrer, device, and broad location information provided by Vercel Web Analytics.</li>
+              <li><strong>Website analytics:</strong> page visits, referral sources, browser and device information, broad location information, and usage measurements provided by Vercel Web Analytics and Google Analytics.</li>
             </ul>
           </LegalSection>
 
@@ -82,6 +82,7 @@ export default function PrivacyPage() {
             <ul>
               <li><strong>Cloudflare:</strong> DNS, network delivery, Workers, databases, security, and inbound email routing.</li>
               <li><strong>Vercel:</strong> website hosting and privacy-focused aggregate Web Analytics.</li>
+              <li><strong>Google:</strong> Google Analytics for website traffic, page navigation, and usage measurement.</li>
               <li><strong>Stripe:</strong> checkout, subscriptions, invoices, tax-related checkout fields, payment methods, and the customer billing portal.</li>
               <li><strong>Resend:</strong> transactional account email such as verification and password-reset messages.</li>
               <li><strong>DataAPI infrastructure:</strong> product-safe hiring-data access, scoped credential enforcement, and usage accounting.</li>
@@ -96,7 +97,15 @@ export default function PrivacyPage() {
             <p>
               Exende uses essential storage required for secure sign-in and session operation. These mechanisms are not
               used for advertising. Vercel Web Analytics reports aggregate traffic without third-party cookies or
-              persistent cross-site identifiers. Exende does not currently load Google Analytics or advertising tags. Product events help us understand catalogue use, account creation, API-key setup, and checkout. These events exclude search text, API keys, emails, and record contents; analytics URLs omit query strings and fragments.
+              persistent cross-site identifiers. Google Analytics is also installed and may use first-party cookies
+              to distinguish browsers and measure visits and navigation. Google receives page and referrer URLs and
+              browser and device information through its tag. You can control cookies and tracking through your
+              browser settings.
+            </p>
+            <p>
+              Product events sent to Vercel help us understand catalogue use, account creation, API-key setup, and
+              checkout. These custom events exclude search text, API keys, emails, and record contents; Vercel
+              analytics URLs omit query strings and fragments.
             </p>
           </LegalSection>
 
