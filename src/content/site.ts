@@ -14,6 +14,8 @@ export const siteConfig = {
   resolveVersion: "1.0.0",
   resolveApiBase: "https://resolve.exende.dev",
   jobsOpenApi: "/openapi/jobs.json",
+  jobsIntelligenceOpenApi: "/openapi/jobs-intelligence.json",
+  testInboxOpenApi: "/openapi/test-inbox.json",
   callbackOpenApi: "/openapi/callback.json",
   retryOpenApi: "/openapi/retry.json",
   resolveOpenApi: "/openapi/resolve.json",
@@ -21,8 +23,6 @@ export const siteConfig = {
     "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=exende.dev&network=eip155%3A8453&scheme=exact&limit=20",
   x402Docs: "https://docs.x402.org/",
   supportEmail: "support@exende.dev",
-  legalOperator: "Daniel Zaharia",
-  legalAddress: "Largo Valgioie 22, Italy",
   // Legacy Callback aliases retained while the documentation is split by product.
   apiVersion: "1.0.0",
   apiBase: "https://api.exende.dev",
@@ -34,6 +34,8 @@ export const callbackApiBase = siteConfig.callbackApiBase;
 
 export const topNav: { label: string; href: string; external?: boolean }[] = [
   { label: "Data API", href: "/products/jobs" },
+  { label: "Jobs Intelligence", href: "/products/jobs-intelligence" },
+  { label: "Test Inbox", href: "/products/test-inbox" },
   { label: "Products", href: "/products" },
   { label: "Docs", href: "/docs" },
   { label: "Pricing", href: "/pricing" },

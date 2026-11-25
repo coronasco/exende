@@ -124,12 +124,32 @@ test("machine-readable catalog contains exact confirmed pricing and limits", asy
   assert.deepEqual(retry.api_key_limits, { max_attempts: 20 });
   assert.deepEqual(
     [resolve.payment.price, resolve.payment.amount_atomic, resolve.payment.currency, resolve.payment.network],
-    ["0.03", "30000", "USDC", "eip155:8453"],
+    ["0.01", "10000", "USDC", "eip155:8453"],
   );
   assert.deepEqual(
     [resolve.limits.download_bytes, resolve.limits.redirects, resolve.limits.output_bytes, resolve.limits.retention_seconds],
     [10485760, 3, 524288, 259200],
   );
+});
+
+test("Resolve price stays at one cent across public and agent-facing content", async () => {
+  for (const file of [
+    "public/api/catalog.json",
+    "public/llms.txt",
+    "public/llms-full.txt",
+    "src/content/docs.ts",
+    "src/content/pricing.ts",
+    "src/app/docs/page.tsx",
+    "src/app/docs/resolve/page.tsx",
+    "src/app/docs/x402/page.tsx",
+    "src/app/products/page.tsx",
+    "src/app/products/resolve/page.tsx",
+    "src/components/product/infrastructure-product.tsx",
+  ]) {
+    const content = await readFile(path.join(projectRoot, file), "utf8");
+    assert.match(content, /0\.01/, `${file} is missing the one-cent price`);
+    assert.doesNotMatch(content, /\b0\.03\b/, `${file} still advertises three cents`);
+  }
 });
 
 test("usage dashboard explains every customer credit cost before requests", async () => {
@@ -217,14 +237,15 @@ test("official wordmark is present with intrinsic proportions", async () => {
   assert.match(logo, /<title[^>]*>EXENDE<\/title>/);
 });
 
-test("legal pages identify the operator and disclose the configured analytics providers", async () => {
+test("legal pages use the service identity and disclose the configured analytics providers", async () => {
   const terms = await readFile(path.join(projectRoot, "src/app/terms/page.tsx"), "utf8");
   const privacy = await readFile(path.join(projectRoot, "src/app/privacy/page.tsx"), "utf8");
   const layout = await readFile(path.join(projectRoot, "src/app/layout.tsx"), "utf8");
   const site = await readFile(path.join(projectRoot, "src/content/site.ts"), "utf8");
 
   for (const page of [terms, privacy]) {
-    assert.match(page, /siteConfig\.legalOperator/);
+    assert.match(page, /siteConfig\.name/);
+    assert.doesNotMatch(page, /legalOperator|legalAddress|Italian law/);
     assert.match(page, /siteConfig\.supportEmail/);
   }
   assert.match(site, /supportEmail:\s*"support@exende\.dev"/);

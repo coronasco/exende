@@ -1,14 +1,16 @@
 import { DocsFrame } from "@/components/docs-frame";
+import { JobsIntelligenceEndpointList } from "@/components/jobs-intelligence/endpoint-list";
 import { JsonLd } from "@/components/json-ld";
 import { siteConfig } from "@/content/site";
-import { ArrowRight, BriefcaseBusiness, FileSearch, History, ShieldCheck, Webhook } from "lucide-react";
+import { testInboxStatus } from "@/content/test-inbox";
+import { ArrowRight, BriefcaseBusiness, FileSearch, History, ShieldCheck, Webhook, MailCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Documentation — Data and infrastructure APIs",
   description:
-    "Canonical documentation for Exende Jobs Data, Callback, Retry, Resolve, x402 payments, and machine-readable contracts.",
+    "Documentation for Exende Jobs Intelligence, Jobs Data, Callback, Retry, Resolve, x402 payments, and machine-readable contracts.",
   alternates: { canonical: "/docs" },
   openGraph: {
     title: "Exende API documentation",
@@ -26,6 +28,7 @@ export const metadata: Metadata = {
 
 const toc = [
   { id: "jobs-data", label: "Jobs Data" },
+  { id: "jobs-intelligence", label: "Jobs Intelligence · x402" },
   { id: "infrastructure", label: "Infrastructure APIs" },
   { id: "machine-readable", label: "Machine-readable contracts" },
 ] as const;
@@ -33,7 +36,8 @@ const toc = [
 const infrastructure = [
   { icon: Webhook, name: "Callback", href: "/docs/callback", detail: "Temporary event capture", price: "$0.01 USDC" },
   { icon: History, name: "Retry", href: "/docs/retry", detail: "Durable outbound HTTP", price: "$0.02 USDC" },
-  { icon: FileSearch, name: "Resolve", href: "/docs/resolve", detail: "Public resource resolution", price: "$0.03 USDC" },
+  { icon: FileSearch, name: "Resolve", href: "/docs/resolve", detail: "Public resource resolution", price: "$0.01 USDC" },
+  { icon: MailCheck, name: "Test Inbox", href: "/docs/test-inbox", detail: `Private email tests · ${testInboxStatus}`, price: "$0.02 USDC" },
 ] as const;
 
 export default function DocsOverviewPage() {
@@ -41,8 +45,9 @@ export default function DocsOverviewPage() {
     <DocsFrame
       currentHref="/docs"
       title="Exende documentation"
-      intro="Start with Jobs & Hiring Data for public catalogue aggregates. Use the separate infrastructure documentation for Callback, Retry, Resolve, and x402-paid agent access."
+      intro="Choose a hiring data API, connect an agent to a webhook or test inbox, or use x402 to pay for a request. Each guide includes endpoints, examples, and limits."
       toc={toc}
+      updatedAt="October 20, 2026"
     >
       <JsonLd
         data={{
@@ -51,15 +56,15 @@ export default function DocsOverviewPage() {
           headline: "Exende API documentation",
           description: "Documentation entry point for Exende data and infrastructure APIs.",
           url: `${siteConfig.url}/docs`,
-          dateModified: "2026-09-06",
+          dateModified: "2026-10-20",
           author: { "@type": "Organization", name: "Exende" },
         }}
       />
 
       <section id="jobs-data" className="docs-featured-product">
         <div>
-          <BriefcaseBusiness className="h-7 w-7 text-[#72a4ff]" />
-          <p className="annotation mt-6 text-[#72a4ff]">Primary data product</p>
+          <BriefcaseBusiness className="h-7 w-7 text-[var(--color-accent)]" />
+          <p className="annotation mt-6 text-[var(--color-accent)]">Primary data product</p>
           <h2>Jobs & Hiring Data</h2>
           <p>
             Use the public aggregate endpoint for current catalogue counts and freshness. Job search,
@@ -75,10 +80,18 @@ export default function DocsOverviewPage() {
         </dl>
       </section>
 
+      <section id="jobs-intelligence" className="surface-rule mt-12 pt-8">
+        <p className="annotation text-[var(--color-accent)]">Jobs Intelligence · x402</p>
+        <h2 className="mt-4 font-display text-[1.9rem] tracking-[-0.04em] text-white">Seven APIs. Pay per request.</h2>
+        <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">Search jobs, inspect company activity, and explore hiring signals, changes, skills, trends, and reports. No API key or subscription required. Each response includes coverage and freshness.</p>
+        <div className="mt-6"><JobsIntelligenceEndpointList compact /></div>
+        <Link href="/docs/jobs-intelligence" className="button-link mt-6" data-variant="accent">Jobs Intelligence quickstart <ArrowRight className="h-4 w-4" /></Link>
+      </section>
+
       <section id="infrastructure" className="surface-rule mt-12 pt-8">
         <div className="flex items-center gap-3"><ShieldCheck className="h-5 w-5 text-[var(--color-accent)]" /><h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">Infrastructure APIs</h2></div>
         <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-          Independent production contracts for event capture, durable requests, and public-resource resolution.
+          Contracts for event capture, durable requests, public-resource resolution, and private email tests. {testInboxStatus}.
         </p>
         <div className="docs-infra-list mt-6">
           {infrastructure.map(({ icon: Icon, ...item }) => (
@@ -97,6 +110,8 @@ export default function DocsOverviewPage() {
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link href="/docs/jobs" className="docs-page-link">Jobs overview contract <ArrowRight className="ml-auto h-4 w-4" /></Link>
+          <Link href={siteConfig.jobsIntelligenceOpenApi} className="docs-page-link">Jobs Intelligence OpenAPI <ArrowRight className="ml-auto h-4 w-4" /></Link>
+          <Link href={siteConfig.testInboxOpenApi} className="docs-page-link">Test Inbox OpenAPI <ArrowRight className="ml-auto h-4 w-4" /></Link>
           <Link href={siteConfig.callbackOpenApi} className="docs-page-link">Callback OpenAPI <ArrowRight className="ml-auto h-4 w-4" /></Link>
           <Link href={siteConfig.retryOpenApi} className="docs-page-link">Retry OpenAPI <ArrowRight className="ml-auto h-4 w-4" /></Link>
           <Link href={siteConfig.resolveOpenApi} className="docs-page-link">Resolve OpenAPI <ArrowRight className="ml-auto h-4 w-4" /></Link>

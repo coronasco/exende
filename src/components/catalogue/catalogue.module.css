@@ -79,3 +79,11 @@
 @keyframes preview-enter { from { opacity:0; transform:translateY(12px) scale(.99); } to { opacity:1; transform:none; } }
 @media(max-width:600px) { .modal { width:calc(100vw - 20px); max-height:calc(100dvh - 24px); border-radius:12px; } .modal .modalHeader { padding:20px; } .modal .modalHeader h2 { font-size:22px; } .modal .modalHeader .eyebrow { font-size:9px; letter-spacing:.07em; } .modal .intro h3 { font-size:25px; } .modal .explorer { padding-top:27px; } }
 @media(prefers-reduced-motion:reduce) { .modal[open] { animation:none; } .launchButton { transition:none; } .launchButton:hover { transform:none; } }
+.modal { border-radius: 6px; border-top: 2px solid #a1cde9; }
+.modal .modalHeader { background: linear-gradient(110deg,#152839f5,#08131df5); }
+.modal .modalHeader h2 { font-size: clamp(24px,2.7vw,38px); letter-spacing: -.055em; }
+.searchButton,.inputWrap,.launchButton { border-radius: 4px; }
+@media (prefers-reduced-motion:no-preference) {
+  .modal[open] { animation: catalogueDock .32s cubic-bezier(.18,.82,.24,1); }
+  @keyframes catalogueDock { from { clip-path: inset(0 0 12%); transform: perspective(1100px) translateY(22px) rotateX(2deg); } }
+}

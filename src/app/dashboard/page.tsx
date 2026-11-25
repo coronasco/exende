@@ -40,7 +40,7 @@ export default async function DashboardPage() {
         </article>
 
         <article className="dashboard-panel dashboard-plan-panel">
-          <div className="dashboard-panel__heading"><div><span className="annotation">CURRENT ENTITLEMENT</span><h2>{plan.name}</h2></div><span className="dashboard-plan-status"><i /> {overview.organization.subscriptionStatus}</span></div>
+          <div className="dashboard-panel__heading"><div><span className="annotation">CURRENT PLAN</span><h2>{plan.name}</h2></div><span className="dashboard-plan-status"><i /> {overview.organization.subscriptionStatus}</span></div>
           <strong>{plan.priceEurMonthly === null ? "Custom" : `€${plan.priceEurMonthly}`}<small>{plan.priceEurMonthly ? " / month" : ""}</small></strong>
           <p>{plan.description}</p>
           <dl><div><dt>Included credits</dt><dd>{formatNumber(plan.monthlyCredits)}</dd></div><div><dt>Current period ends</dt><dd>{formatDate(overview.organization.currentPeriodEnd)}</dd></div></dl>

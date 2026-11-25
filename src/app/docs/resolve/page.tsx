@@ -130,7 +130,7 @@ export default function ResolveDocsPage() {
       <section id="x402" className="surface-rule mt-12 pt-8">
         <h2 className="font-display text-[1.9rem] tracking-[-0.04em] text-white">x402 payment</h2>
         <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
-          One Resolve job costs $0.03 USDC using x402 v2, the exact scheme, and Base Mainnet
+          One Resolve job costs $0.01 USDC using x402 v2, the exact scheme, and Base Mainnet
           (<code>eip155:8453</code>). The server returns HTTP 402 before resource probing. Reuse the
           same payment identifier only when recovering the same logical paid request; a changed
           request returns <code>PAYMENT_IDENTIFIER_CONFLICT</code>.

@@ -1,5 +1,7 @@
 "use client";
 
+import design from "@/components/product/access.module.css";
+
 import { ArrowRight, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { accountHref } from "@/lib/account-intent";
@@ -31,8 +33,7 @@ export function ResetPasswordForm({ token, invalid, nextPath }: { token: string 
   }
 
   return (
-    <section className="auth-page auth-page--reset">
-      <div className="auth-page__grid" aria-hidden="true" />
+    <section className={`auth-page auth-page--reset ${design.access}`}>
       <div className="auth-reset-card">
         <LockKeyhole /><p className="eyebrow">Account recovery</p><h1>{complete ? "Password updated." : "Choose a new password."}</h1>
         {complete ? <><p>Your active sessions were revoked. Sign in again with the new password.</p><Link href={accountHref("signin", nextPath)} className="auth-submit">Return to sign in <ArrowRight /></Link></> : (
@@ -40,6 +41,7 @@ export function ResetPasswordForm({ token, invalid, nextPath }: { token: string 
             <label className="auth-field"><span>New password</span><input name="password" type="password" minLength={12} maxLength={128} autoComplete="new-password" required disabled={!token || invalid} /></label>
             <label className="auth-field"><span>Confirm password</span><input name="confirmation" type="password" minLength={12} maxLength={128} autoComplete="new-password" required disabled={!token || invalid} /></label>
             {error ? <p className="auth-message" data-tone="error" role="alert">{error}</p> : null}
+            {(!token || invalid) && <Link href={accountHref("signin", nextPath)} className="text-link">Return to account access <ArrowRight size={15} /></Link>}
             <button className="auth-submit" type="submit" disabled={pending || !token || invalid}>{pending ? "Updating..." : "Update password"}<ArrowRight /></button>
           </form>
         )}

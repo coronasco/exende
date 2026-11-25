@@ -1,5 +1,8 @@
 "use client";
 
+import { ProtocolFigure } from "@/components/product/protocol-figure";
+import design from "@/components/product/access.module.css";
+
 import { ArrowRight, Check, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
@@ -53,13 +56,13 @@ export function AuthPanel({ serviceAvailable, nextPath, initialMode = "signin" }
   }
 
   return (
-    <section className="auth-page">
-      <div className="auth-page__grid" aria-hidden="true" />
+    <section className={`auth-page ${design.access}`}>
       <div className="page-shell auth-page__inner">
         <div className="auth-page__intro">
           <p className="eyebrow">Jobs Data API access</p>
-          <h1>Your next product<br /><span>starts with data.</span></h1>
+          <h1>Your Jobs Data<br /><span>workspace.</span></h1>
           <p>Search public jobs, explore company hiring, and work with observed changes. Start with 2,500 free credits after email verification.</p>
+          <div className={design.keyDiagram}><ProtocolFigure kind="access" /></div>
           <div className="auth-page__signal"><span><KeyRound /></span><div><strong>Create your API key</strong><small>Choose scopes and keep your key in a server environment.</small></div></div>
           <div className="auth-page__signal"><span><ShieldCheck /></span><div><strong>Make your first request</strong><small>Copy a search request, receive data, and inspect credit usage.</small></div></div>
         </div>
@@ -67,15 +70,14 @@ export function AuthPanel({ serviceAvailable, nextPath, initialMode = "signin" }
         <div className="auth-card">
           <div className="auth-card__status"><span data-live={serviceAvailable}><i /> {serviceAvailable ? "Secure access online" : "Account service unavailable"}</span><LockKeyhole /></div>
           {mode !== "forgot" ? (
-            <div className="auth-tabs" role="group" aria-label="Account access">
+            <div className="auth-tabs" data-mode={mode} role="group" aria-label="Account access">
               <button type="button" aria-pressed={mode === "signin"} onClick={() => changeMode("signin")}>Sign in</button>
               <button type="button" aria-pressed={mode === "register"} onClick={() => changeMode("register")}>Create account</button>
             </div>
           ) : null}
-          <div className="auth-card__heading">
-            <span className="annotation">{mode === "register" ? "CREATE YOUR ACCOUNT" : mode === "forgot" ? "ACCOUNT RECOVERY" : "WELCOME BACK"}</span>
-            <h2>{mode === "register" ? "Start with 2,500 credits." : mode === "forgot" ? "Reset your password." : "Continue to Exende."}</h2>
-            <p>{mode === "register" ? "Your personal organization and 14-day onboarding grant are created after verification." : mode === "forgot" ? "We will send a one-hour reset link if the address is registered." : "Use the email address linked to your organization."}</p>
+          <div key={mode} className="auth-card__heading">
+            <h2>{mode === "register" ? "Create your account." : mode === "forgot" ? "Reset your password." : "Sign in to Exende."}</h2>
+            <p>{mode === "register" ? "Verify your email to activate 2,500 free credits for 14 days." : mode === "forgot" ? "We will send a one-hour reset link if the address is registered." : "Use the email address linked to your organization."}</p>
           </div>
 
           <form onSubmit={submit} className="auth-form">

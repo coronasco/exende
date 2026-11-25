@@ -1,0 +1,51 @@
+export const jobsIntelligenceEndpoints = [
+  {
+    id: "search", title: "Job Search", path: "/v1/jobs/search", price: "$0.02",
+    description: "Find up to 10 observed jobs with company, location, work mode, source links, and observation timestamps.",
+    example: "https://api.exende.dev/v1/jobs/search?keyword=engineer&limit=3",
+    parameters: "keyword, location, company, remote, employment_type, limit (1–10)",
+    returns: "Job IDs, titles, companies, locations, remote status, employment types, source URLs, and last-observed timestamps. Full descriptions are excluded.",
+  },
+  {
+    id: "company", title: "Company Hiring Intelligence", path: "/v1/jobs/company", price: "$0.05",
+    description: "Understand one company’s observed hiring activity, departments, and requested skills.",
+    example: "https://api.exende.dev/v1/jobs/company?company=stripe.com&period=7d",
+    parameters: "company (required domain), period (7d)",
+    returns: "Company name and domain, active and engineering job counts where coverage supports them, sample counts, top departments, skills, and freshness.",
+  },
+  {
+    id: "signals", title: "Hiring Signals", path: "/v1/jobs/signals", price: "$0.09",
+    description: "Find up to five companies showing observed hiring activity, with deterministic scores and supporting evidence.",
+    example: "https://api.exende.dev/v1/jobs/signals?role=engineer&period=7d&limit=5",
+    parameters: "role, location, department, period (7d), limit (1–5)",
+    returns: "Company context, observed active and recently observed jobs, activity score, supporting evidence, and observation period. Scores describe observed activity, not company growth.",
+  },
+  {
+    id: "changes", title: "Company Changes", path: "/v1/jobs/changes", price: "$0.04",
+    description: "Compare a company’s observed hiring catalogue across seven days when sufficient history exists.",
+    example: "https://api.exende.dev/v1/jobs/changes?company=stripe.com&period=7d",
+    parameters: "company (required domain), period (7d)",
+    returns: "Jobs entering or leaving the observed active catalogue, net observed change, and comparison timestamps. A disappearing listing does not prove a hire. Insufficient history returns HTTP 422.",
+  },
+  {
+    id: "skills", title: "Skills Intelligence", path: "/v1/jobs/skills", price: "$0.05",
+    description: "Explore skills recorded in matching jobs, with observed counts, sample sizes, and freshness.",
+    example: "https://api.exende.dev/v1/jobs/skills?role=engineer&period=7d",
+    parameters: "role, location, company, period (7d)",
+    returns: "Up to 10 skills, observed job counts, sample size, observation period, and data freshness. Uses current structured skill associations; it does not reconstruct historical skill demand.",
+  },
+  {
+    id: "trends", title: "Market Trends", path: "/v1/jobs/trends", price: "$0.09",
+    description: "Compare aggregate hiring observations, leading roles, skills, and available historical changes.",
+    example: "https://api.exende.dev/v1/jobs/trends?location=London&period=7d",
+    parameters: "role, location, department, period (7d)",
+    returns: "Matching job and company counts where coverage supports them, explicit sample counts, top roles and skills, available historical changes, freshness, and limitations.",
+  },
+  {
+    id: "report", title: "Intelligence Report", path: "/v1/jobs/report", price: "$0.25",
+    description: "Get a structured hiring report combining company activity, skills, history, methodology, and coverage.",
+    example: "https://api.exende.dev/v1/jobs/report?company=stripe.com&period=7d",
+    parameters: "role, location, company, period (7d)",
+    returns: "Report metadata, dataset coverage, job counts, hiring activity, company and skill statistics, available historical changes, timestamps, methodology, and limitations. Deterministic JSON; no AI-written commentary.",
+  },
+] as const;

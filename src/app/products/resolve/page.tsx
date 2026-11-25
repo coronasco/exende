@@ -2,7 +2,7 @@ import { InfrastructureProduct } from "@/components/product/infrastructure-produ
 import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Resolve API v1 — Public resources to machine-readable output",
-  description: "Resolve public web pages, PDFs, data, text, and image metadata into bounded machine-readable output for $0.03 USDC.",
+  description: "Resolve public web pages, PDFs, data, text, and image metadata into bounded machine-readable output for $0.01 USDC.",
   alternates: { canonical: "/products/resolve" },
   openGraph: {
     title: "Exende Resolve API v1",

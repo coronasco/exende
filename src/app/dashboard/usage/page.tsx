@@ -33,8 +33,8 @@ export default async function UsagePage({ searchParams }: { searchParams: Promis
   return (
     <>
         <header className="dashboard-heading">
-          <div><p className="eyebrow">Metered consumption</p><h1>Usage</h1><p>Every billable Data API operation is recorded without request or response payloads.</p></div>
-          <nav className="usage-period" aria-label="Usage period">{[7, 30, 90].map((period) => <Link key={period} href={`/dashboard/usage?days=${period}`} data-active={days === period}>{period}D</Link>)}</nav>
+          <div><p className="eyebrow">Metered consumption</p><h1>Usage</h1><p>Compare requests, records returned, and credits consumed over the selected period.</p></div>
+          <nav className="usage-period" aria-label="Usage period">{[7, 30, 90].map((period) => <Link key={period} href={`/dashboard/usage?days=${period}`} data-active={days === period} aria-current={days === period ? "page" : undefined}>{period}D</Link>)}</nav>
         </header>
 
         <section className="dashboard-stats dashboard-stats--usage">

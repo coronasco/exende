@@ -1,0 +1,4433 @@
+{
+  "openapi": "3.1.2",
+  "info": {
+    "title": "EXENDE JOBS INTELLIGENCE",
+    "version": "1.0.0",
+    "description": "Structured hiring intelligence for AI agents. Pay per request with x402. These deployed routes extend the existing api.exende.dev service. All seven routes passed live unpaid challenges, free CDP discovery validation, real paid response/schema checks and on-chain USDC settlement checks on 2026-10-19. A repeated settled payment was rejected with HTTP 409. Eight-endpoint marketplace visibility remains pending."
+  },
+  "x-release-status": "deployed_paid_verification_passed",
+  "servers": [
+    {
+      "url": "https://api.exende.dev",
+      "description": "Production Exende service; Jobs paid responses, on-chain settlement and replay rejection verified on 2026-10-19."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Jobs Intelligence",
+      "description": "Structured hiring intelligence for AI agents. Pay per request with x402; no API keys or subscriptions required for individual x402 requests."
+    }
+  ],
+  "paths": {
+    "/v1/jobs/search": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: search",
+        "description": "Search up to 10 observed jobs by keyword, location, company, work mode, and employment type. Costs $0.02 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsSearch",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.02",
+          "amount_atomic": "20000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive text filter; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120,
+              "description": "Case-insensitive text filter; at most eight terms."
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Source location text; at most eight terms. Not a normalized city.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Source location text; at most eight terms. Not a normalized city."
+            }
+          },
+          {
+            "name": "company",
+            "in": "query",
+            "required": false,
+            "description": "ASCII company domain; no URL scheme, port or path.",
+            "schema": {
+              "type": "string",
+              "maxLength": 253,
+              "description": "ASCII company domain; no URL scheme, port or path.",
+              "example": "example.com"
+            }
+          },
+          {
+            "name": "remote",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
+          },
+          {
+            "name": "employment_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "full_time",
+                "part_time",
+                "contract",
+                "temporary",
+                "internship",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "jobs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Opaque public job identifier."
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "company": {
+                                "type": "string"
+                              },
+                              "company_domain": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "location": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "remote_status": {
+                                "type": "string",
+                                "enum": [
+                                  "remote",
+                                  "hybrid",
+                                  "on_site",
+                                  "unknown"
+                                ]
+                              },
+                              "employment_type": {
+                                "type": "string",
+                                "enum": [
+                                  "full_time",
+                                  "part_time",
+                                  "contract",
+                                  "temporary",
+                                  "internship",
+                                  "unknown"
+                                ]
+                              },
+                              "source_url": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "last_observed_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "company",
+                              "company_domain",
+                              "location",
+                              "remote_status",
+                              "employment_type",
+                              "source_url",
+                              "last_observed_at"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "returned_jobs": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 10
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 10
+                        }
+                      },
+                      "required": [
+                        "jobs",
+                        "returned_jobs",
+                        "limit"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "jobs": [
+                          {
+                            "id": "eae2cf1f-43ab-4af8-8a3f-55d4e8239890",
+                            "title": "Software Engineer",
+                            "company": "Example",
+                            "company_domain": "example.com",
+                            "location": "London",
+                            "remote_status": "remote",
+                            "employment_type": "full_time",
+                            "source_url": "https://example.com/job/1",
+                            "last_observed_at": "2026-10-18T00:00:00.000Z"
+                          },
+                          {
+                            "id": "2a260d18-2a2a-470d-bea2-ef4f4b020096",
+                            "title": "Frontend Engineer",
+                            "company": "Example",
+                            "company_domain": "example.com",
+                            "location": "London",
+                            "remote_status": "hybrid",
+                            "employment_type": "full_time",
+                            "source_url": "https://example.com/job/2",
+                            "last_observed_at": "2026-10-18T00:00:00.000Z"
+                          }
+                        ],
+                        "returned_jobs": 2,
+                        "limit": 10
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "monitored catalogue",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/company": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: company",
+        "description": "Summarize a company’s observed hiring activity and data coverage over the past seven days. Costs $0.05 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsCompany",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.05",
+          "amount_atomic": "50000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "company",
+            "in": "query",
+            "required": true,
+            "description": "ASCII company domain; no URL scheme, port or path.",
+            "schema": {
+              "type": "string",
+              "maxLength": 253,
+              "description": "ASCII company domain; no URL scheme, port or path.",
+              "example": "example.com"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "company": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "domain": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "domain"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "active_job_count": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                        },
+                        "observed_sample_jobs": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "engineering_jobs_in_sample": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "engineering_job_count": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                        },
+                        "top_hiring_departments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "department": {
+                                "type": "string"
+                              },
+                              "observed_job_count": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "department",
+                              "observed_job_count"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "top_requested_skills": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "skill": {
+                                "type": "string"
+                              },
+                              "observed_job_count": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "sample_size": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "skill",
+                              "observed_job_count",
+                              "sample_size"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "last_observed_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "company",
+                        "active_job_count",
+                        "observed_sample_jobs",
+                        "engineering_jobs_in_sample",
+                        "engineering_job_count",
+                        "top_hiring_departments",
+                        "top_requested_skills",
+                        "last_observed_at"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "company": {
+                          "name": "Example",
+                          "domain": "example.com"
+                        },
+                        "active_job_count": 2,
+                        "observed_sample_jobs": 2,
+                        "engineering_jobs_in_sample": 2,
+                        "engineering_job_count": 2,
+                        "top_hiring_departments": [
+                          {
+                            "department": "Engineering",
+                            "observed_job_count": 2
+                          }
+                        ],
+                        "top_requested_skills": [
+                          {
+                            "skill": "TypeScript",
+                            "observed_job_count": 1,
+                            "sample_size": 2
+                          }
+                        ],
+                        "last_observed_at": "2026-10-18T00:00:00.000Z"
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "requested company",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/signals": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: signals",
+        "description": "Find up to five companies with evidence of hiring activity in Exende’s monitored catalogue. Costs $0.09 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsSignals",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.09",
+          "amount_atomic": "90000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Substring of current job title; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Substring of current job title; at most eight terms."
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Source location text; at most eight terms. Not a normalized city.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Source location text; at most eight terms. Not a normalized city."
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive exact match on a recorded department; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Case-insensitive exact match on a recorded department; at most eight terms."
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "default": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "companies": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "company": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "domain": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "domain"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "active_jobs": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                              },
+                              "observed_sample_jobs": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "recently_observed_jobs": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "hiring_activity_score": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 100,
+                                "description": "round(100 * recently_observed_jobs / observed_sample_jobs, 2), or zero if observed_sample_jobs is zero; a catalogue activity measure, not company growth."
+                              },
+                              "supporting_evidence": {
+                                "type": "object",
+                                "properties": {
+                                  "criterion": {
+                                    "type": "string"
+                                  },
+                                  "first_observed_jobs": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "matching_sample_jobs": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "scope": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "criterion",
+                                  "first_observed_jobs",
+                                  "matching_sample_jobs",
+                                  "scope"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "last_observed_at": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time"
+                              },
+                              "observation_period": {
+                                "type": "object",
+                                "properties": {
+                                  "start": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "end": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "days": {
+                                    "type": "integer",
+                                    "const": 7
+                                  }
+                                },
+                                "required": [
+                                  "start",
+                                  "end",
+                                  "days"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "company",
+                              "active_jobs",
+                              "observed_sample_jobs",
+                              "recently_observed_jobs",
+                              "hiring_activity_score",
+                              "supporting_evidence",
+                              "last_observed_at",
+                              "observation_period"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 5
+                        },
+                        "returned_companies": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 5
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 5
+                        },
+                        "matching_active_jobs": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                        },
+                        "observed_sample_jobs": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "companies",
+                        "returned_companies",
+                        "limit",
+                        "matching_active_jobs",
+                        "observed_sample_jobs"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "companies": [
+                          {
+                            "company": {
+                              "name": "Example",
+                              "domain": "example.com"
+                            },
+                            "active_jobs": 2,
+                            "observed_sample_jobs": 2,
+                            "recently_observed_jobs": 1,
+                            "hiring_activity_score": 50,
+                            "supporting_evidence": {
+                              "criterion": "Active matching jobs first observed during the period",
+                              "first_observed_jobs": 1,
+                              "matching_sample_jobs": 2,
+                              "scope": "matching catalogue"
+                            },
+                            "last_observed_at": "2026-10-18T00:00:00.000Z",
+                            "observation_period": {
+                              "start": "2026-10-12T12:00:00.000Z",
+                              "end": "2026-10-19T12:00:00.000Z",
+                              "days": 7
+                            }
+                          }
+                        ],
+                        "returned_companies": 1,
+                        "limit": 5,
+                        "matching_active_jobs": 2,
+                        "observed_sample_jobs": 2
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "monitored catalogue",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded.",
+                          "hiring_activity_score": "round(100 * recently_observed_jobs / observed_sample_jobs, 2); recent means first_seen_at in the rolling 7-day period; score is 0 if observed_sample_jobs is 0."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations.",
+                          "Hiring activity score measures observed catalogue activity, not company growth; newly monitored sources can produce high scores."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/changes": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: changes",
+        "description": "Inspect jobs entering or leaving one company’s observed active catalogue over the past seven days. Costs $0.04 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsChanges",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.04",
+          "amount_atomic": "40000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "company",
+            "in": "query",
+            "required": true,
+            "description": "ASCII company domain; no URL scheme, port or path.",
+            "schema": {
+              "type": "string",
+              "maxLength": 253,
+              "description": "ASCII company domain; no URL scheme, port or path.",
+              "example": "example.com"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "company": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "domain": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "domain"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "status": {
+                          "type": "string",
+                          "const": "available"
+                        },
+                        "newly_observed_jobs": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "no_longer_observed_jobs": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "net_observed_change": {
+                          "type": "integer"
+                        },
+                        "previous_observation": {
+                          "type": "object",
+                          "properties": {
+                            "at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "active_jobs": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "at",
+                            "active_jobs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "latest_observation": {
+                          "type": "object",
+                          "properties": {
+                            "at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "active_jobs": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "at",
+                            "active_jobs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "cohort_jobs": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 5000
+                        }
+                      },
+                      "required": [
+                        "company",
+                        "status",
+                        "newly_observed_jobs",
+                        "no_longer_observed_jobs",
+                        "net_observed_change",
+                        "previous_observation",
+                        "latest_observation",
+                        "cohort_jobs"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "company": {
+                          "name": "Example",
+                          "domain": "example.com"
+                        },
+                        "status": "available",
+                        "newly_observed_jobs": 1,
+                        "no_longer_observed_jobs": 0,
+                        "net_observed_change": 1,
+                        "previous_observation": {
+                          "at": "2026-10-12T12:00:00.000Z",
+                          "active_jobs": 1
+                        },
+                        "latest_observation": {
+                          "at": "2026-10-19T12:00:00.000Z",
+                          "active_jobs": 2
+                        },
+                        "cohort_jobs": 2
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "requested company",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Insufficient historical observations or bounded-history budget exceeded; changes cannot be calculated reliably.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/skills": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: skills",
+        "description": "Rank skills explicitly observed in matching job records, with denominators and coverage limits. Costs $0.05 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsSkills",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.05",
+          "amount_atomic": "50000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Substring of current job title; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Substring of current job title; at most eight terms."
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Source location text; at most eight terms. Not a normalized city.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Source location text; at most eight terms. Not a normalized city."
+            }
+          },
+          {
+            "name": "company",
+            "in": "query",
+            "required": false,
+            "description": "ASCII company domain; no URL scheme, port or path.",
+            "schema": {
+              "type": "string",
+              "maxLength": 253,
+              "description": "ASCII company domain; no URL scheme, port or path.",
+              "example": "example.com"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "skills": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "skill": {
+                                "type": "string"
+                              },
+                              "observed_job_count": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "sample_size": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "skill",
+                              "observed_job_count",
+                              "sample_size"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "sample_size": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "basis": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "skills",
+                        "sample_size",
+                        "observation_period",
+                        "basis"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "skills": [
+                          {
+                            "skill": "TypeScript",
+                            "observed_job_count": 1,
+                            "sample_size": 2
+                          }
+                        ],
+                        "sample_size": 2,
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "basis": "Current active jobs and their current structured skills; period does not reconstruct historical skills"
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "monitored catalogue",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/trends": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: trends",
+        "description": "Aggregate current hiring observations, skills, and available historical changes in Exende’s monitored catalogue. Costs $0.09 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsTrends",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.09",
+          "amount_atomic": "90000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Substring of current job title; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Substring of current job title; at most eight terms."
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Source location text; at most eight terms. Not a normalized city.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Source location text; at most eight terms. Not a normalized city."
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive exact match on a recorded department; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Case-insensitive exact match on a recorded department; at most eight terms."
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_matching_jobs": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                        },
+                        "matching_sample_jobs": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "companies_represented": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                        },
+                        "companies_in_sample": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "top_roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "observed_job_count": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "observed_job_count"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "top_skills": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "skill": {
+                                "type": "string"
+                              },
+                              "observed_job_count": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "sample_size": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "skill",
+                              "observed_job_count",
+                              "sample_size"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 10
+                        },
+                        "observed_hiring_changes": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "string",
+                                  "const": "available"
+                                },
+                                "newly_observed_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "no_longer_observed_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "net_observed_change": {
+                                  "type": "integer"
+                                },
+                                "previous_observation": {
+                                  "type": "object",
+                                  "properties": {
+                                    "at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "active_jobs": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "at",
+                                    "active_jobs"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "latest_observation": {
+                                  "type": "object",
+                                  "properties": {
+                                    "at": {
+                                      "type": "string",
+                                      "format": "date-time"
+                                    },
+                                    "active_jobs": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "at",
+                                    "active_jobs"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "cohort_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 5000
+                                }
+                              },
+                              "required": [
+                                "status",
+                                "newly_observed_jobs",
+                                "no_longer_observed_jobs",
+                                "net_observed_change",
+                                "previous_observation",
+                                "latest_observation",
+                                "cohort_jobs"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "string",
+                                  "const": "insufficient_history"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "status",
+                                "reason"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "sample_size": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "total_matching_jobs",
+                        "matching_sample_jobs",
+                        "companies_represented",
+                        "companies_in_sample",
+                        "top_roles",
+                        "top_skills",
+                        "observed_hiring_changes",
+                        "sample_size"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "total_matching_jobs": 2,
+                        "matching_sample_jobs": 2,
+                        "companies_represented": 1,
+                        "companies_in_sample": 1,
+                        "top_roles": [
+                          {
+                            "role": "Frontend Engineer",
+                            "observed_job_count": 1
+                          },
+                          {
+                            "role": "Software Engineer",
+                            "observed_job_count": 1
+                          }
+                        ],
+                        "top_skills": [
+                          {
+                            "skill": "TypeScript",
+                            "observed_job_count": 1,
+                            "sample_size": 2
+                          }
+                        ],
+                        "observed_hiring_changes": {
+                          "status": "available",
+                          "newly_observed_jobs": 1,
+                          "no_longer_observed_jobs": 0,
+                          "net_observed_change": 1,
+                          "previous_observation": {
+                            "at": "2026-10-12T12:00:00.000Z",
+                            "active_jobs": 1
+                          },
+                          "latest_observation": {
+                            "at": "2026-10-19T12:00:00.000Z",
+                            "active_jobs": 2
+                          },
+                          "cohort_jobs": 2
+                        },
+                        "sample_size": 2
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "monitored catalogue",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/report": {
+      "get": {
+        "tags": [
+          "Jobs Intelligence"
+        ],
+        "summary": "Jobs Intelligence: report",
+        "description": "Receive a bounded hiring report with current counts, company and skill statistics, available historical evidence, and coverage. Costs $0.25 USDC per request. Supports x402 v2 exact USDC on Base through EIP-3009 payload.authorization; other payment representations are rejected before upstream access or settlement. All observations describe the Exende monitored catalogue, not the global labour market. Unknown or duplicate query parameters are rejected; no cursor or offset pagination. Inputs are validated before payment.",
+        "operationId": "getJobsReport",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "x-x402": {
+          "version": 2,
+          "scheme": "exact",
+          "network": "eip155:8453",
+          "currency": "USDC",
+          "price": "0.25",
+          "amount_atomic": "250000",
+          "recipient_source": "Existing Exende PAY_TO; the current PAYMENT-REQUIRED response is authoritative."
+        },
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Substring of current job title; at most eight terms.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Substring of current job title; at most eight terms."
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "description": "Source location text; at most eight terms. Not a normalized city.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Source location text; at most eight terms. Not a normalized city."
+            }
+          },
+          {
+            "name": "company",
+            "in": "query",
+            "required": false,
+            "description": "ASCII company domain; no URL scheme, port or path.",
+            "schema": {
+              "type": "string",
+              "maxLength": 253,
+              "description": "ASCII company domain; no URL scheme, port or path.",
+              "example": "example.com"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Seven-day observation window; other periods are unsupported.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d"
+              ],
+              "default": "7d",
+              "description": "Seven-day observation window; other periods are unsupported."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded deterministic JSON result. Empty matches are represented by zero counts and empty arrays. Observation timestamps may precede generation time.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement response after a successful paid request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "report": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string",
+                              "const": "1"
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "role": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "maxLength": 80,
+                                  "description": "Substring of current job title; at most eight terms."
+                                },
+                                "location": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "maxLength": 80,
+                                  "description": "Source location text; at most eight terms. Not a normalized city."
+                                },
+                                "company": {
+                                  "type": "string",
+                                  "maxLength": 253,
+                                  "description": "ASCII company domain; no URL scheme, port or path.",
+                                  "example": "example.com"
+                                },
+                                "period": {
+                                  "type": "string",
+                                  "enum": [
+                                    "7d"
+                                  ],
+                                  "default": "7d",
+                                  "description": "Seven-day observation window; other periods are unsupported."
+                                }
+                              },
+                              "required": [
+                                "period"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "dataset_coverage": {
+                              "type": "object",
+                              "properties": {
+                                "scope": {
+                                  "type": "string",
+                                  "const": "Exende monitored catalogue"
+                                },
+                                "aggregation": {
+                                  "type": "string"
+                                },
+                                "sampled": {
+                                  "type": "boolean"
+                                },
+                                "candidate_limit": {
+                                  "type": "integer",
+                                  "const": 10000
+                                },
+                                "candidate_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 10000
+                                },
+                                "candidate_scope": {
+                                  "type": "string",
+                                  "enum": [
+                                    "requested company",
+                                    "monitored catalogue"
+                                  ]
+                                },
+                                "selection": {
+                                  "type": "string"
+                                },
+                                "pagination_available": {
+                                  "type": "boolean",
+                                  "const": false
+                                }
+                              },
+                              "required": [
+                                "scope",
+                                "aggregation",
+                                "sampled",
+                                "candidate_limit",
+                                "candidate_jobs",
+                                "candidate_scope",
+                                "selection",
+                                "pagination_available"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "relevant_job_counts": {
+                              "type": "object",
+                              "properties": {
+                                "active_jobs": {
+                                  "type": [
+                                    "integer",
+                                    "null"
+                                  ],
+                                  "minimum": 0,
+                                  "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                                },
+                                "observed_sample_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "companies_represented": {
+                                  "type": [
+                                    "integer",
+                                    "null"
+                                  ],
+                                  "minimum": 0,
+                                  "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                                },
+                                "companies_in_sample": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "engineering_jobs": {
+                                  "type": [
+                                    "integer",
+                                    "null"
+                                  ],
+                                  "minimum": 0,
+                                  "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                                },
+                                "engineering_jobs_in_sample": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "recently_observed_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "sample_size": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "active_jobs",
+                                "observed_sample_jobs",
+                                "companies_represented",
+                                "companies_in_sample",
+                                "engineering_jobs",
+                                "engineering_jobs_in_sample",
+                                "recently_observed_jobs",
+                                "sample_size"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "hiring_activity": {
+                              "type": "object",
+                              "properties": {
+                                "recently_observed_jobs": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "activity_score": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100,
+                                  "description": "round(100 * recently_observed_jobs / observed_sample_jobs, 2), or zero if observed_sample_jobs is zero; a catalogue activity measure, not company growth."
+                                },
+                                "score_formula": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "recently_observed_jobs",
+                                "activity_score",
+                                "score_formula"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "company_statistics": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "domain": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "active_jobs": {
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ],
+                                    "minimum": 0,
+                                    "description": "Null when the bounded cohort does not establish a full matching-catalogue total."
+                                  },
+                                  "observed_sample_jobs": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "last_observed_at": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "domain",
+                                  "active_jobs",
+                                  "observed_sample_jobs",
+                                  "last_observed_at"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 5
+                            },
+                            "skill_statistics": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "skill": {
+                                    "type": "string"
+                                  },
+                                  "observed_job_count": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "sample_size": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "skill",
+                                  "observed_job_count",
+                                  "sample_size"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 10
+                            },
+                            "top_roles": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "role": {
+                                    "type": "string"
+                                  },
+                                  "observed_job_count": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "role",
+                                  "observed_job_count"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 10
+                            },
+                            "historical_changes": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "status": {
+                                      "type": "string",
+                                      "const": "available"
+                                    },
+                                    "newly_observed_jobs": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "no_longer_observed_jobs": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "net_observed_change": {
+                                      "type": "integer"
+                                    },
+                                    "previous_observation": {
+                                      "type": "object",
+                                      "properties": {
+                                        "at": {
+                                          "type": "string",
+                                          "format": "date-time"
+                                        },
+                                        "active_jobs": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "at",
+                                        "active_jobs"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "latest_observation": {
+                                      "type": "object",
+                                      "properties": {
+                                        "at": {
+                                          "type": "string",
+                                          "format": "date-time"
+                                        },
+                                        "active_jobs": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "at",
+                                        "active_jobs"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "cohort_jobs": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 5000
+                                    }
+                                  },
+                                  "required": [
+                                    "status",
+                                    "newly_observed_jobs",
+                                    "no_longer_observed_jobs",
+                                    "net_observed_change",
+                                    "previous_observation",
+                                    "latest_observation",
+                                    "cohort_jobs"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "status": {
+                                      "type": "string",
+                                      "const": "insufficient_history"
+                                    },
+                                    "reason": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "status",
+                                    "reason"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "observation_timestamps": {
+                              "type": "object",
+                              "properties": {
+                                "period_start": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "period_end": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "last_observed_at": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "period_start",
+                                "period_end",
+                                "last_observed_at"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "methodology": {
+                              "type": "object",
+                              "properties": {
+                                "version": {
+                                  "type": "string"
+                                },
+                                "current_jobs": {
+                                  "type": "string"
+                                },
+                                "period": {
+                                  "type": "string"
+                                },
+                                "remote_false": {
+                                  "type": "string"
+                                },
+                                "historical_changes": {
+                                  "type": "string"
+                                },
+                                "hiring_activity_score": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "version",
+                                "current_jobs",
+                                "period",
+                                "remote_false"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "limitations": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "filters",
+                            "dataset_coverage",
+                            "relevant_job_counts",
+                            "hiring_activity",
+                            "company_statistics",
+                            "skill_statistics",
+                            "top_roles",
+                            "historical_changes",
+                            "observation_timestamps",
+                            "methodology",
+                            "limitations"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "report"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "product": {
+                          "type": "string",
+                          "const": "EXENDE JOBS INTELLIGENCE"
+                        },
+                        "generated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "observation_period": {
+                          "type": "object",
+                          "properties": {
+                            "start": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "end": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "days": {
+                              "type": "integer",
+                              "const": 7
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end",
+                            "days"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "freshness": {
+                          "type": "object",
+                          "properties": {
+                            "last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "oldest_last_observed_at": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "last_observed_at"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "coverage": {
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "type": "string",
+                              "const": "Exende monitored catalogue"
+                            },
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "sampled": {
+                              "type": "boolean"
+                            },
+                            "candidate_limit": {
+                              "type": "integer",
+                              "const": 10000
+                            },
+                            "candidate_jobs": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "candidate_scope": {
+                              "type": "string",
+                              "enum": [
+                                "requested company",
+                                "monitored catalogue"
+                              ]
+                            },
+                            "selection": {
+                              "type": "string"
+                            },
+                            "pagination_available": {
+                              "type": "boolean",
+                              "const": false
+                            }
+                          },
+                          "required": [
+                            "scope",
+                            "aggregation",
+                            "sampled",
+                            "candidate_limit",
+                            "candidate_jobs",
+                            "candidate_scope",
+                            "selection",
+                            "pagination_available"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "methodology": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "string"
+                            },
+                            "current_jobs": {
+                              "type": "string"
+                            },
+                            "period": {
+                              "type": "string"
+                            },
+                            "remote_false": {
+                              "type": "string"
+                            },
+                            "historical_changes": {
+                              "type": "string"
+                            },
+                            "hiring_activity_score": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "current_jobs",
+                            "period",
+                            "remote_false"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "limitations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "product",
+                        "generated_at",
+                        "observation_period",
+                        "freshness",
+                        "coverage",
+                        "methodology",
+                        "limitations"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Synthetic documentation example; not live catalogue data.",
+                    "value": {
+                      "data": {
+                        "report": {
+                          "version": "1",
+                          "filters": {
+                            "period": "7d"
+                          },
+                          "dataset_coverage": {
+                            "scope": "Exende monitored catalogue",
+                            "aggregation": "complete matching current catalogue",
+                            "sampled": false,
+                            "candidate_limit": 10000,
+                            "candidate_jobs": 2,
+                            "candidate_scope": "monitored catalogue",
+                            "selection": "most recently observed active jobs",
+                            "pagination_available": false
+                          },
+                          "relevant_job_counts": {
+                            "active_jobs": 2,
+                            "observed_sample_jobs": 2,
+                            "companies_represented": 1,
+                            "companies_in_sample": 1,
+                            "engineering_jobs": 2,
+                            "engineering_jobs_in_sample": 2,
+                            "recently_observed_jobs": 1,
+                            "sample_size": 2
+                          },
+                          "hiring_activity": {
+                            "recently_observed_jobs": 1,
+                            "activity_score": 50,
+                            "score_formula": "round(100 * recently_observed_jobs / observed_sample_jobs, 2); zero when observed_sample_jobs=0"
+                          },
+                          "company_statistics": [
+                            {
+                              "name": "Example",
+                              "domain": "example.com",
+                              "active_jobs": 2,
+                              "last_observed_at": "2026-10-18T00:00:00.000Z",
+                              "observed_sample_jobs": 2
+                            }
+                          ],
+                          "skill_statistics": [
+                            {
+                              "skill": "TypeScript",
+                              "observed_job_count": 1,
+                              "sample_size": 2
+                            }
+                          ],
+                          "top_roles": [
+                            {
+                              "role": "Frontend Engineer",
+                              "observed_job_count": 1
+                            },
+                            {
+                              "role": "Software Engineer",
+                              "observed_job_count": 1
+                            }
+                          ],
+                          "historical_changes": {
+                            "status": "available",
+                            "newly_observed_jobs": 1,
+                            "no_longer_observed_jobs": 0,
+                            "net_observed_change": 1,
+                            "previous_observation": {
+                              "at": "2026-10-12T12:00:00.000Z",
+                              "active_jobs": 1
+                            },
+                            "latest_observation": {
+                              "at": "2026-10-19T12:00:00.000Z",
+                              "active_jobs": 2
+                            },
+                            "cohort_jobs": 2
+                          },
+                          "observation_timestamps": {
+                            "period_start": "2026-10-12T12:00:00.000Z",
+                            "period_end": "2026-10-19T12:00:00.000Z",
+                            "last_observed_at": "2026-10-18T00:00:00.000Z"
+                          },
+                          "methodology": {
+                            "version": "deterministic-v1",
+                            "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                            "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                            "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                          },
+                          "limitations": [
+                            "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                            "Missing fields and unclassified workplace types are not inferred.",
+                            "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                            "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                            "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                          ]
+                        }
+                      },
+                      "meta": {
+                        "product": "EXENDE JOBS INTELLIGENCE",
+                        "generated_at": "2026-10-19T12:00:00.000Z",
+                        "observation_period": {
+                          "start": "2026-10-12T12:00:00.000Z",
+                          "end": "2026-10-19T12:00:00.000Z",
+                          "days": 7
+                        },
+                        "coverage": {
+                          "scope": "Exende monitored catalogue",
+                          "aggregation": "complete matching current catalogue",
+                          "sampled": false,
+                          "candidate_limit": 10000,
+                          "candidate_jobs": 2,
+                          "candidate_scope": "monitored catalogue",
+                          "selection": "most recently observed active jobs",
+                          "pagination_available": false
+                        },
+                        "methodology": {
+                          "version": "deterministic-v1",
+                          "current_jobs": "status=active; aggregates operate on at most 10000 indexed recent active jobs, scoped to the company when specified",
+                          "period": "Rolling seven-day UTC interval; current statistics describe the current catalogue.",
+                          "remote_false": "Only on_site jobs; hybrid and unknown are excluded."
+                        },
+                        "limitations": [
+                          "Synthetic documentation example generated from a local test fixture; not live hiring data.",
+                          "Statistics cover the Exende monitored catalogue, not the global labour market.",
+                          "Missing fields and unclassified workplace types are not inferred.",
+                          "Last observed timestamps may be coalesced to one observation per UTC day; they are not fetch timestamps.",
+                          "Current skill associations are deterministic title/description extractions, not a complete or historical skill census.",
+                          "A job no longer observed does not prove a hire. Collection gaps and source coverage can affect observations."
+                        ],
+                        "freshness": {
+                          "last_observed_at": "2026-10-18T00:00:00.000Z",
+                          "oldest_last_observed_at": "2026-10-18T00:00:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, unsupported filter or period, duplicate query parameter, or missing company. Rejected before payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, rejected, or not successfully settled. No protected data is released. Obtain fresh requirements and a new authorization for each request.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 v2 requirements including resource URL, Bazaar method/input/output schemas, and accepts entries with exact atomic amount, network, asset, payTo, scheme and timeout.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Company or resource not found in the monitored catalogue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Only GET is supported for this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Allow": {
+                "description": "Supported HTTP method.",
+                "schema": {
+                  "type": "string",
+                  "const": "GET"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PAYMENT_ALREADY_USED: this payment authorization has already been reserved or consumed and cannot purchase another response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Usage rate limit exceeded. Limits apply in addition to payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until a retry may be attempted when provided.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The internal Jobs service returned an invalid or oversized response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The internal Jobs service is unavailable or required deployment configuration is missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The authenticated Jobs request timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "PaymentSignature": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "PAYMENT-SIGNATURE",
+        "description": "Base64-encoded x402 v2 signed payment authorization. OpenAPI represents this custom header with the apiKey security-scheme type; it is a per-request payment proof, not an API key, account or subscription. Omit it for an unpaid 402 challenge, then use an x402 client to authorize and retry the same request."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message",
+              "request_id"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "request_id": {
+                "type": "string",
+                "example": "req_81731247-7585-44a8-8716-d9dda3e0ff61"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

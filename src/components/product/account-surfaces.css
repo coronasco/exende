@@ -1,0 +1,171 @@
+/* These classes belong to customer pages only. */
+.orbital-workspace {
+  min-height: 100svh;
+  background: radial-gradient(ellipse at 80% 0%,#1b243d,transparent 52rem),#080e18;
+  color: #eef5ff;
+  --color-accent: #b6d1ff;
+  --color-muted: #b3c3d8;
+  --color-border: #a5bde833;
+}
+.orbital-workspace .dashboard-shell { background: transparent; }
+.orbital-workspace .dashboard-sidebar { background: #0b1220ee; border-right: 1px solid #9bb6e32e; }
+.orbital-workspace .dashboard-sidebar nav a { border-radius: 3px; font-size: 14px; color: #bacbe1; min-height: 46px; }
+.orbital-workspace .dashboard-sidebar nav a[data-active=true] { color: #f2f6ff; background: #293753; }
+.orbital-workspace .dashboard-sidebar nav a > i { left: 0; background: #b4cdff; }
+.orbital-workspace .dashboard-topbar { background: #101a2bef; border-bottom: 1px solid #9bb6e32e; }
+.workspace-location { display: flex; align-items: center; gap: 12px; color: #bacbe1; font-size: 14px; }
+.workspace-location strong { font-weight: 500; color: #e3edfd; }
+.workspace-location span { color: #91a5c2; }
+.orbital-workspace .dashboard-heading { padding-bottom: 25px; border-bottom: 1px solid #a6bee043; }
+.orbital-workspace .dashboard-heading h1 { font-size: clamp(36px,4.5vw,70px); font-weight: 500; line-height: 1.03; letter-spacing: -.063em; }
+.orbital-workspace .dashboard-heading > div > p:not(.eyebrow) { color: #b7c6dd; font-size: 16px; }
+.orbital-workspace :is(.dashboard-panel,.billing-plan,.key-reveal,.billing-change,.dashboard-onboarding) { border: 1px solid #acc4f039; border-radius: 14px; background: linear-gradient(135deg,#1d2b43dc,#121c2ddc); box-shadow: none; }
+.orbital-workspace .dashboard-panel__heading { border-bottom: 1px solid #a6bbe333; margin-bottom: 0; padding-bottom: 18px; }
+.orbital-workspace .dashboard-panel__heading h2,.orbital-workspace .billing-plan h2 { color: #edf3ff; font-size: clamp(19px,1.7vw,27px); font-weight: 500; }
+.orbital-workspace .dashboard-stats { gap: 12px; background: none; border: 0; }
+.orbital-workspace .dashboard-stat { padding: clamp(16px,2vw,28px); border: 1px solid #a6bbe333; border-top: 2px solid #a9bcff; border-radius: 12px; background: linear-gradient(125deg,#203552,#1c233b); }
+.orbital-workspace .dashboard-stat > div { align-items: flex-start; }
+.orbital-workspace .dashboard-stat > div > span { border: 0; background: transparent; color: #adc9fa; width: 17px; height: 17px; }
+.orbital-workspace .dashboard-stat > div small { white-space: normal; color: #bdcce2; font-size: 11px; letter-spacing: .045em; }
+.orbital-workspace .dashboard-stat > p,.orbital-workspace .dashboard-empty p,.orbital-workspace .dashboard-onboarding > p { color: #b9c7d9; font-size: 13px; line-height: 1.65; }
+.orbital-workspace .dashboard-stat > strong { color: #f0f5fe; font-variant-numeric: tabular-nums; letter-spacing: -.055em; }
+.orbital-workspace .dashboard-stat > p { color: #afc3d9; }
+.orbital-workspace .dashboard-org :is(small,strong),.orbital-workspace .dashboard-profile :is(small,strong) { text-transform: none; }
+.orbital-workspace .dashboard-org > span,.orbital-workspace .dashboard-profile > span { border-radius: 50%; color: #dcf0ff; background: #243752; }
+.orbital-workspace :is(.dashboard-action,.billing-plan > button,.auth-field input) { border-radius: 4px; }
+.orbital-workspace .dashboard-action { text-transform: none; letter-spacing: 0; font-size: 14px; }
+.orbital-workspace :is(.billing-plan li,.billing-plan > p,.account-org-details dd,.usage-cost-routes code,.usage-log__table code,.key-create-panel fieldset small) { font-size: 13px; }
+.orbital-workspace .billing-plan[data-selected=true] { outline: 1px solid #b4cbfb; }
+.orbital-workspace .billing-notice a { text-decoration: underline; margin-left: auto; }
+.orbital-workspace .dashboard-chart > span > i,.orbital-workspace .usage-timeline__chart > div i { background: linear-gradient(0deg,#506daa,#c0dcff); transform-origin: bottom; }
+@media (prefers-reduced-motion:no-preference) {
+  .orbital-workspace .dashboard-content { animation: workspace-enter .4s cubic-bezier(.16,.8,.24,1); }
+  .orbital-workspace .dashboard-chart > span > i,.orbital-workspace .usage-timeline__chart > div i { animation: meter-draw .65s cubic-bezier(.2,.75,.2,1) both; }
+  @keyframes workspace-enter { from { transform: translateY(9px); } }
+  @keyframes meter-draw { from { transform: scaleY(.02); } }
+}
+@media (max-width:700px) {
+  .orbital-workspace .dashboard-stats { gap: 8px; }
+  .workspace-location { gap: 7px; margin-right: auto; margin-left: 10px; font-size: 12px; }
+  .orbital-workspace .dashboard-heading > div > p:not(.eyebrow) { font-size: 14px; }
+  .orbital-workspace .dashboard-stat { min-width: 0; }
+}
+.orbital-workspace .usage-period { border: 1px solid #abc7f042; border-radius: 4px; background: #162137; padding: 3px; }
+.orbital-workspace .usage-period a { min-width: 41px; text-align: center; border: 0; border-radius: 2px; padding: 9px 10px; color: #baccdf; font-size: 12px; }
+.orbital-workspace .usage-period a[data-active=true] { background: #c8dcff; color: #14203b; }
+.orbital-workspace .security-settings > div:not(:first-child),.orbital-workspace .api-key-row { border-color: #9db6de33; }
+.orbital-workspace .api-key-row__scopes span { background: #2e405e; color: #d5e6ff; }
+.orbital-workspace .key-create-panel fieldset label:has(input:checked) { background: #233853; border-color: #94b4dc; }
+.orbital-workspace .billing-plan[data-current=true] { border-top: 2px solid #bed5ff; }
+.orbital-workspace .danger-zone { border-color: #d59c972e; background: #1b181d; }
+@media (prefers-reduced-motion:no-preference) {
+  .orbital-workspace :is(.key-create-panel,.key-reveal,.billing-change) { animation: workspace-enter .3s ease-out; }
+}
+.orbital-workspace .api-key-table__head,.orbital-workspace .usage-log__table > div:first-child { font-size: 11px; color: #b5c5dd; letter-spacing: .05em; }
+.orbital-workspace .usage-log__table :is(time,span,code),.orbital-workspace .api-key-row :is(code,small) { font-size: 12px; color: #becce0; }
+.orbital-workspace .usage-log__table strong,.orbital-workspace .api-key-row strong { font-size: 13px; }
+.orbital-workspace .usage-log__table span[data-ok=true] { color: #88dbbd; }
+.orbital-workspace :is(.dashboard-profile,.dashboard-org) small { font-size: 11px; }
+.orbital-workspace .usage-credit-ledger dt,.orbital-workspace .dashboard-plan-panel dt { color: #b9cde3; font-size: 12px; }
+.orbital-workspace .dashboard-plan-panel dd { font-size: 13px; }
+@media (max-width:1000px) {
+  .orbital-workspace .dashboard-sidebar[data-open=false] { visibility: hidden; }
+  .orbital-workspace .dashboard-sidebar[data-open=true] { visibility: visible; }
+  .orbital-workspace .dashboard-topbar > .dashboard-profile { flex: 0 1 auto; margin-left: auto; }
+}
+.orbital-workspace .dashboard-content { max-width: 1460px; padding-inline: clamp(20px,5vw,82px); }
+.orbital-workspace .dashboard-heading h1 { color: #f2f7ff; font-family: var(--font-space-grotesk),sans-serif; font-weight: 500; }
+.orbital-workspace .dashboard-heading .eyebrow { color: #b8c7f0; }
+.orbital-workspace .dashboard-action { background: #ccddff; border-color: #ccddff; border-radius: 7px; color: #142037; }
+.orbital-workspace .dashboard-action--secondary { background: transparent; color: #d9e9ff; border-color: #7185a8; }
+.orbital-workspace .billing-plan > button { border-color: #859cc4; color: #e1eaff; background: #28354f; }
+.orbital-workspace .dashboard-stat > div > span { border-radius: 0; color: #b4d2ff; }
+.orbital-workspace .dashboard-stat > i { display: none; }
+.orbital-workspace .dashboard-panel::before { display: none; }
+.orbital-workspace .dashboard-org > span,.orbital-workspace .dashboard-profile > span { border-color: #6984ad; }
+.orbital-workspace :focus-visible { outline: 2px solid #aecbfb; outline-offset: 3px; }
+@media (min-width:1001px) {
+  .orbital-workspace .dashboard-sidebar { position: sticky; inset: 0 0 auto; width: 100%; height: 68px; flex-direction: row; align-items: center; gap: clamp(8px,1.5vw,26px); border-right: 0; border-bottom: 1px solid #a5c1f03d; padding: 0 3%; }
+  .orbital-workspace .dashboard-sidebar__brand { height: auto; padding: 0; border: 0; }
+  .orbital-workspace .dashboard-sidebar__brand a { width: clamp(100px,8.8vw,147px); }
+  .orbital-workspace .dashboard-sidebar__brand .brand-mark__image { width: 100%; height: auto; }
+  .orbital-workspace .dashboard-stats { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .orbital-workspace .dashboard-org { flex: 0 1 auto; min-width: 0; max-width: 185px; padding: 0 0 0 15px; border: 0; border-left: 1px solid #a8c5ef42; }
+  .orbital-workspace .dashboard-org > span { display: none; }
+  .orbital-workspace .dashboard-sidebar nav { display: flex; align-items: center; min-width: 0; gap: 3px; padding: 0; margin-inline: auto; }
+  .orbital-workspace .dashboard-sidebar nav a { padding: 0 clamp(8px,1vw,16px); min-height: 38px; border-radius: 24px; gap: 7px; white-space: nowrap; }
+  .orbital-workspace .dashboard-sidebar nav a > i { display: none; }
+  .orbital-workspace .dashboard-sidebar__footer { display: flex; margin: 0; padding: 0; gap: 4px; border: 0; }
+  .orbital-workspace .dashboard-sidebar__footer :is(a,button) { width: auto; white-space: nowrap; font-size: 12px; padding: 0 8px; gap: 6px; color: #bfd0e6; }
+  .orbital-workspace .dashboard-workspace { margin: 0; }
+  .orbital-workspace .dashboard-topbar { position: relative; top: auto; height: 54px; padding-inline: 5%; }
+}
+@media (min-width:1001px) and (max-width:1180px) {
+  .orbital-workspace .dashboard-sidebar nav svg { display: none; }
+}
+.orbital-workspace {--color-accent:#ade7c2;--color-muted:#b5c6bd;--color-border:#90b19e35;background:radial-gradient(ellipse at 85% 0%,#1a3029,transparent 45rem),#0c1418;}
+.orbital-workspace .dashboard-sidebar {background:#101b1cef;border-color:#94ad9d3d;}
+.orbital-workspace .dashboard-topbar {background:#12201eef;border-color:#94ad9d35;}
+.orbital-workspace .dashboard-sidebar nav a[data-active=true] {background:#2b4336;color:#d3f8df;}
+.orbital-workspace .dashboard-sidebar nav a > i {background:#9de4b7;}
+.orbital-workspace :is(.dashboard-panel,.billing-plan,.key-reveal,.billing-change,.dashboard-onboarding) {background:linear-gradient(135deg,#1d2d27,#152023);border-color:#94af9f39;}
+.orbital-workspace .dashboard-stat {background:linear-gradient(125deg,#23372d,#1a2826);border-color:#95ac9e3b;border-top-color:#8fc9a5;}
+.orbital-workspace .dashboard-action {background:#9ae6ba;color:#0d2818;border-color:#a4e6bf;}
+.orbital-workspace .dashboard-action--secondary {color:#c9ebd3;border-color:#759784;background:transparent;}
+.orbital-workspace .dashboard-chart > span > i,.orbital-workspace .usage-timeline__chart > div i {background:linear-gradient(0deg,#47755d,#a1e4ba);}
+.orbital-workspace .usage-period a[data-active=true] {background:#c0e8cc;color:#11271c;}
+
+.orbital-workspace .dashboard-sidebar nav a { color: #c2d3c8; }
+.orbital-workspace .dashboard-sidebar nav a:hover { color: #effaf2; background: #23372c; }
+.orbital-workspace .dashboard-sidebar nav a[data-active=true] {
+  background: linear-gradient(120deg,#36503e,#253a30);
+  color: #e2fae9;
+  box-shadow: inset 0 0 0 1px #9acba343;
+}
+.orbital-workspace .dashboard-sidebar nav a[data-active=true] svg { color: #a7f0bf; }
+.orbital-workspace .dashboard-sidebar__brand .brand-mark { display: inline-flex; width: auto; gap: 8px; }
+.orbital-workspace .dashboard-sidebar__brand .brand-mark::before {
+  content: '';
+  flex: 0 0 29px;
+  width: 29px; height: 29px;
+  border: 1px solid #98d2ae54; border-radius: 8px;
+  background: url('/media/landing/orbit-mark.svg') center / 20px no-repeat, linear-gradient(145deg,#304d3e,#172720);
+}
+.orbital-workspace .dashboard-sidebar__brand .brand-mark__image { width: clamp(88px,7.2vw,116px); }
+.orbital-workspace .dashboard-sidebar__footer :is(button,a), .orbital-workspace .workspace-location { color: #c1d5c8; }
+.orbital-workspace .dashboard-profile > span, .orbital-workspace .dashboard-org > span {
+  border: 1px solid #8dc49f70; background: #263e30; color: #d3f6de;
+}
+@media (min-width: 1001px) {
+  .orbital-workspace .dashboard-sidebar {
+    top: 6px; width: min(calc(100% - 32px), 1460px); height: 54px; margin: 6px auto;
+    border: 1px solid var(--nav-rim); border-radius: 15px; padding-inline: clamp(10px,1.4vw,21px);
+    background: var(--nav-glass); box-shadow: var(--nav-shadow); backdrop-filter: blur(22px) saturate(135%);
+  }
+  .orbital-workspace .dashboard-sidebar nav { gap: 2px; padding: 3px; border: 1px solid #aacfbb22; border-radius: 10px; background: #08100e57; }
+  .orbital-workspace .dashboard-sidebar nav a { min-height: 34px; border-radius: 7px; }
+  .orbital-workspace .dashboard-topbar { height: 46px; background: transparent; backdrop-filter: none; }
+}
+@media (max-width: 1000px) {
+  .orbital-workspace .dashboard-topbar {
+    top: 6px; width: calc(100% - 20px); height: 50px; margin: 6px auto; padding: 0 8px;
+    border: 1px solid var(--nav-rim); border-radius: 13px; background: var(--nav-glass);
+    box-shadow: var(--nav-shadow); backdrop-filter: blur(22px) saturate(135%);
+  }
+  .orbital-workspace .dashboard-menu {
+    display: grid; place-items: center; width: 38px; height: 38px; border-radius: 8px;
+    background: #253c2e; border: 1px solid #91bd9b44; color: #d5f7df;
+  }
+  .orbital-workspace .dashboard-sidebar {
+    inset: 6px auto 6px 6px; max-width: calc(100% - 18px); border: 1px solid var(--nav-rim);
+    border-radius: 14px; overflow-y: auto; background: #101e1a; box-shadow: var(--nav-shadow);
+  }
+  .orbital-workspace .dashboard-sidebar nav a { border-radius: 8px; }
+  .orbital-workspace .dashboard-sidebar nav a > i { display: none; }
+}
+@media (min-width: 1001px) {
+  body:has([data-site-start=true]) .orbital-workspace .dashboard-sidebar { background: var(--nav-over-copper); backdrop-filter: blur(.6px); }
+}
+@media (max-width: 1000px) {
+  body:has([data-site-start=true]) .orbital-workspace .dashboard-topbar { background: var(--nav-over-copper); backdrop-filter: blur(.6px); }
+}

@@ -1,14 +1,16 @@
 import { JsonLd } from "@/components/json-ld";
+import { JobsIntelligenceEndpointList } from "@/components/jobs-intelligence/endpoint-list";
 import { ProductHero, ProductActions, ProductSection, ProductClosing, productStyles as s } from "@/components/product/product-ui";
 import { DataExplorer } from "@/components/landing/data-explorer";
-import { ArrowUpRight, Webhook, RotateCw, ScanSearch } from "lucide-react";
+import { ArrowUpRight, Webhook, RotateCw, ScanSearch, MailCheck } from "lucide-react";
+import { testInboxStatus } from "@/content/test-inbox";
 import { siteConfig } from "@/content/site";
 import type { Metadata } from "next";
 import Link from "next/link";
 export const metadata: Metadata = {
   title: "Products — Data APIs and agent infrastructure",
   description:
-    "Explore Exende Jobs & Hiring Data, plus Callback, Retry, and Resolve infrastructure APIs.",
+    "Explore Exende Jobs Intelligence with seven pay-per-request APIs, Jobs & Hiring Data subscriptions, and Callback, Retry, and Resolve.",
   alternates: { canonical: "/products" },
   openGraph: {
     title: "Exende products",
@@ -27,14 +29,21 @@ export const metadata: Metadata = {
 const infrastructure = [
   { name: "Callback", description: "Receive asynchronous events through temporary webhook endpoints.", price: "$0.01 USDC", href: "/products/callback", icon: Webhook },
   { name: "Retry", description: "Run outbound HTTPS requests with durable retries and attempt history.", price: "$0.02 USDC", href: "/products/retry", icon: RotateCw },
-  { name: "Resolve", description: "Turn a public resource into a bounded, machine-readable result.", price: "$0.03 USDC", href: "/products/resolve", icon: ScanSearch },
+  { name: "Resolve", description: "Turn a public resource into a bounded, machine-readable result.", price: "$0.01 USDC", href: "/products/resolve", icon: ScanSearch },
+  { name: "Test Inbox", description: `Private inboxes for signup, password reset, and OTP tests. ${testInboxStatus}.`, price: "$0.02 USDC", href: "/products/test-inbox", icon: MailCheck },
 ];
 export default function ProductsPage() {
   return <>
-    <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Exende products", itemListElement: [{ "@type": "ListItem", position: 1, name: "Jobs & Hiring Data", url: `${siteConfig.url}/products/jobs` }, ...infrastructure.map((p,i) => ({ "@type": "ListItem", position: i+2, name: p.name, url: `${siteConfig.url}${p.href}` }))] }} />
-    <ProductHero eyebrow="Exende products" title={<>Hiring data.<br /><span>Ready to build with.</span></>} description="Search public job listings, understand company hiring activity, and follow observed changes through one consistent API.">
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Exende products", itemListElement: [{ "@type": "ListItem", position: 1, name: "Jobs & Hiring Data", url: `${siteConfig.url}/products/jobs` }, { "@type": "ListItem", position: 2, name: "Jobs Intelligence", url: `${siteConfig.url}/products/jobs-intelligence` }, ...infrastructure.map((p,i) => ({ "@type": "ListItem", position: i+3, name: p.name, url: `${siteConfig.url}${p.href}` }))] }} />
+    <ProductHero path="/products" eyebrow="Exende products" title={<>Hiring data &amp;<br /><span>agent APIs.</span></>} description="Choose scoped API access for a data product, or pay per request for hiring intelligence and agent infrastructure.">
       <ProductActions primary="Explore Jobs Data" href="/products/jobs" secondary="View plans" secondaryHref="/pricing" />
+      <p className={s.note}>For agents: <Link href="/products/jobs-intelligence">explore seven Jobs Intelligence APIs with x402 pay-per-request access.</Link></p>
     </ProductHero>
+    <ProductSection id="jobs-intelligence" eyebrow="Jobs Intelligence · x402" title={<>Hiring intelligence.<br />One request at a time.</>} description="Seven focused APIs for AI agents, from job search to hiring reports. Pay in USDC on Base for the request you need. No API key or subscription required.">
+      <div className="orbital-directory"><JobsIntelligenceEndpointList /></div>
+      <ProductActions primary="Explore Jobs Intelligence" href="/products/jobs-intelligence" secondary="API docs & examples" secondaryHref="/docs/jobs-intelligence" />
+      <p className={s.note}>These seven routes extend the existing api.exende.dev service. Responses describe Exende’s monitored catalogue and include freshness, coverage, and limitations.</p>
+    </ProductSection>
     <ProductSection id="jobs">
       <div className={s.featured}>
         <div data-reveal><p className={s.eyebrow}>Jobs & Hiring Data API</p><h2>A changing market.<br />A consistent record.</h2><p>Normalized jobs, company context, skills, and timestamped history from reviewed public career sources. Query the current catalogue or compare what changed over time.</p><ProductActions secondary="Coverage & methodology" secondaryHref="/coverage" /><p className={s.note}>Account access · Scoped API keys · Credit-based usage</p></div>

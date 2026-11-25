@@ -75,7 +75,7 @@ Purpose: resolve one public HTTP or HTTPS URL into bounded machine-readable web 
 - Base: https://resolve.exende.dev
 - Create: POST /v1/resolve
 - Read: GET /v1/resolves/{id}
-- Price: $0.03 USDC per job through x402 v2 exact on Base
+- Price: $0.01 USDC per job through x402 v2 exact on Base
 - Inputs: `url` required; `output` is auto/markdown/text/json; `render` is auto/always/never
 - Formats: static HTML, rendered HTML when needed, PDF text, JSON, CSV, XML-as-text, plain text, and PNG/JPEG/GIF/WebP metadata
 - Limits: 10 MiB download, 3 redirects, 30 seconds browser runtime, 250 content-bearing browser requests, 4 document navigations, 500 PDF pages, 512 KiB output
@@ -113,3 +113,25 @@ API catalog: https://www.exende.dev/api/catalog.json
 - Location text is not a normalized city. Country codes are nullable and require explicit supported evidence.
 
 Public catalogue preview: GET https://data.exende.dev/v1/public/search?q=engineer (no key). q only, at most 80 characters and 6 terms. Returns actual active-job aggregates plus at most 5 restricted sample jobs from a fixed pool of at most 12 across all searches. No pagination, full descriptions, bulk export, customer data, or operator metadata. Country/location counts describe explicit country evidence and source location labels, not normalized cities. Full customer access requires a scoped Jobs Data API key. See https://www.exende.dev/docs/jobs#public-search.
+
+
+## EXENDE JOBS INTELLIGENCE release contract
+
+The existing api.exende.dev service now includes seven deployed deterministic x402 GET routes. Live unpaid challenges, free CDP discovery validation, real paid response/schema checks and on-chain USDC settlement checks passed for all seven routes on 2026-10-19. A repeated settled payment was rejected with HTTP 409. Eight-endpoint marketplace inclusion remains pending. Payments support x402 v2 exact USDC on Base through EIP-3009 authorization; other payment representations are rejected before upstream access or settlement. See https://www.exende.dev/openapi/jobs-intelligence.json for parameters, seven prices, bounded response schemas, nullable sampled totals, error semantics and payment discovery. This is an extension of the same service and wallet, using the existing authenticated Jobs data source, not a second database or subscription API. Search is capped at 10 results, signals at 5 companies, and supported periods at 7d. Current queries use at most 10,000 recent active jobs; historical calculations require a complete bounded cohort of at most 5,000 jobs. No pagination or AI inference is provided. Check coverage.sampled and timestamps before interpreting statistics.
+
+## Test Inbox · Available
+
+- Status: Available. Private email reception is activated.
+- Product: https://www.exende.dev/products/test-inbox
+- Documentation and runnable TypeScript quickstart: https://www.exende.dev/docs/test-inbox
+- OpenAPI: https://www.exende.dev/openapi/test-inbox.json
+- POST https://api.exende.dev/v1/inboxes: $0.02 USDC per new inbox via x402 v2 exact on Base (eip155:8453).
+- Limits: 24 hours; up to 3 accepted messages; 1,048,576 bytes per email; wait up to 60 seconds per call. No outbound email or attachments.
+- Required request fields: access_token (client-generated 32 random bytes encoded as 64 hexadecimal characters, saved before payment), expected_from (exact case-insensitive SMTP envelope sender mailbox, not the display From header). Optional subject_contains, otp_length (4–8, default 6), link_host.
+- Use Authorization: Bearer <access_token> for GET /v1/inboxes/lookup, GET /v1/inboxes/{id}/messages, GET /v1/inboxes/{id}/wait?timeout=60&after={message_id}, and DELETE /v1/inboxes/{id}. Never put the token in a URL. These operations have no additional payment.
+- Recovery: lookup returns creation metadata. Repeating POST with the same token and identical body returns HTTP 200 without another payment while the inbox is active; a different body returns HTTP 409. The server does not generate another read token.
+- Message fields: id, received_at, from, subject, text, text_truncated, otp, verification_url, otp_status, link_status. Extraction statuses are found/not_found/ambiguous; link_status is not_requested without link_host. Missing or ambiguous extracted values are null.
+- Wait returns HTTP 200 with received, timeout, message (nullable), and next_after. Use next_after as the next after cursor. No endless polling loop.
+- The sender filter is not sender authentication. Verification URLs require an exact HTTPS hostname supplied as link_host; Exende never opens those URLs.
+- Processing budget: at most 30 incoming email processing attempts per inbox, including invalid MIME and subject mismatches; at most three messages are stored.
+- Unconfirmed payment settlement: creation returns HTTP 502 and lookup returns HTTP 409 while pending. Preserve the same token and body; do not authorize a second independent payment.

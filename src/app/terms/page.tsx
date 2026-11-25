@@ -25,7 +25,24 @@ export const metadata: Metadata = {
 // Public source availability and an operator admission are not a grant of these rights.
 // INTERNAL TODO — accountant to confirm VAT position and inclusive price wording against current Stripe
 // Price tax_behavior, invoices, countries served and legal operator identity. Do not infer a tax regime.
-const effectiveDate = "September 8, 2026";
+const updatedDate = "November 25, 2026";
+
+const sections = [
+  "1. Operator and contact",
+  "2. Account eligibility and security",
+  "3. Services and product boundaries",
+  "4. Acceptable use",
+  "5. Public data and API output",
+  "6. Plans, prices, and renewal",
+  "7. Credits",
+  "8. Cancellation and refunds",
+  "9. Availability and changes",
+  "10. Suspension and termination",
+  "11. Intellectual property",
+  "12. Liability",
+  "13. Governing law",
+  "14. Changes to these terms",
+] as const;
 
 export default function TermsPage() {
   return (
@@ -36,26 +53,28 @@ export default function TermsPage() {
           "@type": "WebPage",
           name: "Exende Terms of Service",
           url: `${siteConfig.url}/terms`,
-          dateModified: "2026-09-08",
+          dateModified: "2026-11-25",
         }}
       />
       <div className="page-shell legal-page__layout">
         <header className="legal-page__aside">
           <p className="eyebrow">Legal</p>
           <h1>Terms of Service</h1>
-          <p>Effective {effectiveDate}. These terms apply to Exende accounts, APIs, data products, and paid plans.</p>
+          <p>Updated {updatedDate}. These terms apply to Exende accounts, APIs, data products, and paid plans.</p>
+          <details className="legal-contents"><summary>On this page</summary>
+            <nav aria-label="On this page"><ol>{sections.map((title,i) => <li key={title}><a href={`#section-${i+1}`}>{title}</a></li>)}</ol></nav>
+          </details>
         </header>
 
         <div className="legal-page__content">
-          <LegalSection title="1. Operator and contact">
+          <LegalSection title={sections[0]}>
             <p>
-              Exende is operated by <strong>{siteConfig.legalOperator}</strong>, {siteConfig.legalAddress}.
-              No VAT identification number is currently registered. Questions about these terms can be sent to{" "}
+              <strong>{siteConfig.name}</strong> provides online APIs for hiring data and agent infrastructure. For questions about these terms, contact{" "}
               <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a>.
             </p>
           </LegalSection>
 
-          <LegalSection title="2. Account eligibility and security">
+          <LegalSection title={sections[1]}>
             <p>
               You must provide accurate account information and keep passwords and API keys confidential. You are
               responsible for activity performed with credentials issued to your organization. Notify us promptly if
@@ -63,7 +82,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="3. Services and product boundaries">
+          <LegalSection title={sections[2]}>
             <p>
               Exende provides access to public hiring-data products and independent infrastructure APIs. Product
               availability, endpoints, limits, retention periods, and supported operations are described in the
@@ -71,7 +90,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="4. Acceptable use">
+          <LegalSection title={sections[3]}>
             <p>You may not use Exende to:</p>
             <ul>
               <li>break applicable law or the rights of another person;</li>
@@ -82,7 +101,7 @@ export default function TermsPage() {
             </ul>
           </LegalSection>
 
-          <LegalSection title="5. Public data and API output">
+          <LegalSection title={sections[4]}>
             <p>
               Hiring data is collected from reviewed public career sources, normalized, and observed over time. It may
               be delayed, incomplete, duplicated at source, or later corrected. You must independently evaluate output
@@ -91,7 +110,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="6. Plans, prices, and renewal">
+          <LegalSection title={sections[5]}>
             <p>
               Paid plans renew monthly until canceled. The price and included credits shown at checkout apply to the
               selected plan. Where the interface states that taxes are included, the displayed amount is the total plan
@@ -100,7 +119,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="7. Credits">
+          <LegalSection title={sections[6]}>
             <p>
               Credits are service units, not money. They cannot be transferred, redeemed for cash, or used after their
               applicable period ends. Monthly grants do not roll over unless Exende explicitly states otherwise.
@@ -108,7 +127,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="8. Cancellation and refunds">
+          <LegalSection title={sections[7]}>
             <p>
               You may cancel a subscription through the billing portal at any time. Cancellation takes effect at the end
               of the current paid period, and access continues until then. Charges are generally non-refundable and are
@@ -119,7 +138,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="9. Availability and changes">
+          <LegalSection title={sections[8]}>
             <p>
               We work to keep production services available, but do not guarantee uninterrupted or error-free operation.
               We may change or discontinue features to maintain security, legal compliance, or product quality. Material
@@ -127,7 +146,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="10. Suspension and termination">
+          <LegalSection title={sections[9]}>
             <p>
               We may suspend or terminate access when necessary to address non-payment, abuse, security risk, legal
               requirements, or a material breach of these terms. You may stop using the service and request account
@@ -135,7 +154,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="11. Intellectual property">
+          <LegalSection title={sections[10]}>
             <p>
               Exende, its software, documentation, and branding remain the property of their respective owner. These
               terms give you a limited, non-exclusive right to use the service during your authorized access period.
@@ -143,7 +162,7 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="12. Liability">
+          <LegalSection title={sections[11]}>
             <p>
               To the maximum extent permitted by law, Exende is not liable for indirect, incidental, special, or
               consequential loss, lost profits, or decisions made from API output. Nothing in these terms excludes
@@ -151,15 +170,15 @@ export default function TermsPage() {
             </p>
           </LegalSection>
 
-          <LegalSection title="13. Governing law">
+          <LegalSection title={sections[12]}>
             <p>
-              These terms are governed by Italian law. If you are a consumer, mandatory protections and jurisdiction
+              These terms are governed by the law of the place where the service provider is established. If you are a consumer, mandatory protections and jurisdiction
               rights available in your country of residence continue to apply. Before starting formal proceedings,
               please contact us so we can try to resolve the issue directly.
             </p>
           </LegalSection>
 
-          <LegalSection title="14. Changes to these terms">
+          <LegalSection title={sections[13]}>
             <p>
               We may update these terms as the service develops. The effective date at the top identifies the current
               version. Continued use after an update means the revised terms apply from their stated effective date,
@@ -174,7 +193,7 @@ export default function TermsPage() {
 
 function LegalSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="legal-section">
+    <section className="legal-section" id={`section-${title.split(".")[0]}`}>
       <h2>{title}</h2>
       {children}
     </section>

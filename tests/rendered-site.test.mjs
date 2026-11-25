@@ -6,6 +6,8 @@ const routes = [
   "/",
   "/products",
   "/products/jobs",
+  "/products/jobs-intelligence",
+  "/products/test-inbox",
   "/products/callback",
   "/products/retry",
   "/products/resolve",
@@ -13,6 +15,8 @@ const routes = [
   "/coverage",
   "/docs",
   "/docs/jobs",
+  "/docs/jobs-intelligence",
+  "/docs/test-inbox",
   "/docs/callback",
   "/docs/retry",
   "/docs/resolve",
@@ -80,7 +84,7 @@ test("all crawlable internal page links resolve", async () => {
 });
 
 test("machine-readable, crawler, analytics, and 404 surfaces are available", async () => {
-  for (const route of ["/openapi/jobs.json", "/favicon.svg", "/openapi/callback.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"]) {
+  for (const route of ["/openapi/jobs.json", "/favicon.svg", "/openapi/callback.json", "/openapi/test-inbox.json", "/openapi/retry.json", "/openapi/resolve.json", "/api/catalog.json", "/llms.txt", "/llms-full.txt", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert.equal(response.status, 200, `${route} did not return HTTP 200`);
   }
@@ -134,4 +138,42 @@ test("customer dashboard is private and omitted from discovery surfaces", async 
   const account = await (await fetch(`${baseUrl}/account`)).text();
   assert.match(account, /<meta[^>]+name="robots"[^>]+content="noindex, nofollow"/i);
   assert.doesNotMatch(sitemap, /<loc>https:\/\/www\.exende\.dev\/account/);
+});
+
+test("product navigation exposes matching breadcrumbs and working section anchors in the initial HTML", async () => {
+  const publicPages = routes.filter(route => route.startsWith("/products") || ["/pricing", "/coverage", "/api"].includes(route));
+
+  for (const route of publicPages) {
+    const html = await (await fetch(baseUrl + route)).text();
+    const navigation = html.match(/<nav[^>]*aria-label="On this page"[^>]*>([\s\S]*?)<\/nav>/i);
+    assert.ok(navigation, `${route} is missing its section index`);
+    const anchors = [...navigation[1].matchAll(/href="#([^"]+)"/g)].map(match => match[1]);
+    assert.ok(anchors.length > 0, `${route} has no section links`);
+    for (const anchor of anchors) assert.ok(html.includes(`id="${anchor}"`), `${route}#${anchor} is missing`);
+
+    const nodes = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)]
+      .flatMap(([, json]) => JSON.parse(json));
+    const breadcrumb = nodes.find(node => node["@type"] === "BreadcrumbList");
+    assert.equal(breadcrumb?.itemListElement.at(-1)?.item, `https://www.exende.dev${route}`);
+  }
+});
+
+test("homepage explains the catalogue, all seven hiring endpoints, and agent access in the initial HTML", async () => {
+  const response = await fetch(baseUrl);
+  const markup = (await response.text()).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+  for (const section of ["listing", "catalogue", "data-apis", "capabilities", "history", "jobs-intelligence", "use-cases", "infrastructure", "access"]) {
+    assert.ok(markup.includes(`id="${section}"`), `missing ${section} section`);
+  }
+  for (const endpoint of ["search", "company", "signals", "changes", "skills", "trends", "report"]) {
+    assert.ok(markup.includes(`href="/docs/jobs-intelligence#${endpoint}"`), `missing ${endpoint} contract`);
+  }
+  for (const product of ["callback", "retry", "resolve", "test-inbox"]) {
+    assert.ok(markup.includes(`href="/products/${product}"`), `missing ${product} product`);
+  }
+  assert.ok(markup.indexOf('id="listing"') < markup.indexOf('id="data-apis"'));
+  assert.match(markup, /Senior Machine Learning Engineer - Messaging Platform/);
+  assert.match(markup, /5 search results = 5 credits/);
+  assert.match(markup, /first_seen_at/);
+  assert.match(markup, /last_seen_at/);
+  assert.match(markup, /2,500/);
 });

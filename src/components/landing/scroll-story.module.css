@@ -1,0 +1,9 @@
+.story { position: relative; scroll-margin-top: var(--site-nav-height); }
+.pin { display: grid; align-items: center; }
+.window { min-width: 0; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: #476d58 #101e19; }
+.track { display: flex; list-style: none; margin: 0; padding: 0; }
+.slide { display: grid; flex: 0 0 100%; min-width: 0; scroll-snap-align: start; }
+.story[data-pinned=true] { height: calc(var(--pin-height) + var(--travel)); }
+.story[data-pinned=true] .pin { position: sticky; top: var(--site-nav-height); height: var(--pin-height); }
+.story[data-pinned=true] .window { overflow: clip; scroll-snap-type: none; }
+.story[data-pinned=true] .track { transform: translate3d(var(--shift, 0px), 0, 0); will-change: transform; }

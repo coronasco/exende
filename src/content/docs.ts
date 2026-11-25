@@ -22,6 +22,27 @@ export const docsGroups = [
     ],
   },
   {
+    label: "Jobs Intelligence · x402",
+    items: [
+      { label: "Overview & quickstart", href: "/docs/jobs-intelligence" },
+      { label: "Seven APIs & prices", href: "/docs/jobs-intelligence#search" },
+      { label: "Payment flow", href: "/docs/jobs-intelligence#payments" },
+      { label: "Coverage & limits", href: "/docs/jobs-intelligence#coverage" },
+      { label: "Errors", href: "/docs/jobs-intelligence#errors" },
+    ],
+  },
+  {
+    label: "Test Inbox · x402",
+    items: [
+      { label: "Overview & quickstart", href: "/docs/test-inbox" },
+      { label: "Create an inbox", href: "/docs/test-inbox#create" },
+      { label: "Token & recovery", href: "/docs/test-inbox#recovery" },
+      { label: "Read, wait & delete", href: "/docs/test-inbox#read-wait" },
+      { label: "Filters & extraction", href: "/docs/test-inbox#extraction" },
+      { label: "Limits & errors", href: "/docs/test-inbox#limits" },
+    ],
+  },
+  {
     label: "Callback API",
     items: [
       { label: "Overview & quickstart", href: "/docs/callback" },
@@ -65,6 +86,8 @@ export const docsNavigation = docsGroups.reduce<{ label: string; href: string }[
 export const docsSequence = [
   { label: "Documentation", href: "/docs" },
   { label: "Jobs Data API", href: "/docs/jobs" },
+  { label: "Jobs Intelligence", href: "/docs/jobs-intelligence" },
+  { label: "Test Inbox", href: "/docs/test-inbox" },
   { label: "Callback API", href: "/docs/callback" },
   { label: "Retry API v1", href: "/docs/retry" },
   { label: "Resolve API v1", href: "/docs/resolve" },
@@ -261,7 +284,7 @@ export const retryEndpointRows = [
 
 export const resolveFacts = [
   { label: "API version", value: siteConfig.resolveVersion },
-  { label: "Price", value: "$0.03 USDC per Resolve job" },
+  { label: "Price", value: "$0.01 USDC per Resolve job" },
   { label: "Payment", value: "x402 v2 exact on Base Mainnet" },
   { label: "Input", value: "Public HTTP or HTTPS URL" },
   { label: "Redirects", value: "3 maximum" },
@@ -273,7 +296,7 @@ export const resolveFacts = [
 ] as const;
 
 export const resolveEndpointRows = [
-  ["POST", "/v1/resolve", "Resolve one public resource.", "x402 payment required ($0.03 USDC)."],
+  ["POST", "/v1/resolve", "Resolve one public resource.", "x402 payment required ($0.01 USDC)."],
   ["GET", "/v1/resolves/{id}", "Read current state or result.", "Job-scoped read token; no additional payment."],
   ["GET", "/health", "Service health.", "None."],
   ["GET", "/openapi.json", "OpenAPI specification.", "None."],

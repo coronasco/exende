@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "name": "Exende API catalog",
   "canonical_url": "https://www.exende.dev/api/catalog.json",
-  "updated_at": "2026-09-10T00:00:00.000Z",
+  "updated_at": "2026-10-20T00:00:00.000Z",
   "products": [
     {
       "id": "jobs-data",
@@ -168,7 +168,82 @@
         "payload_bytes_per_event": 262144
       },
       "documentation": "https://www.exende.dev/docs/callback",
-      "openapi": "https://www.exende.dev/openapi/callback.json"
+      "openapi": "https://www.exende.dev/openapi/callback.json",
+      "service_extensions": {
+        "jobs_intelligence": {
+          "name": "EXENDE JOBS INTELLIGENCE",
+          "status": "deployed_paid_verification_passed",
+          "description": "Structured hiring intelligence for AI agents. Pay per request with x402. No API keys or subscriptions required for individual x402 requests.",
+          "service_domain": "api.exende.dev",
+          "marketplace_service_id": "api-exende-dev",
+          "marketplace_verification": "All seven Jobs endpoints passed real paid verification on 2026-10-19. Marketplace indexing is asynchronous; inspect the existing service for current inclusion.",
+          "openapi": "https://www.exende.dev/openapi/jobs-intelligence.json",
+          "endpoints": [
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/search",
+              "price": "0.02",
+              "amount_atomic": "20000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/company",
+              "price": "0.05",
+              "amount_atomic": "50000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/signals",
+              "price": "0.09",
+              "amount_atomic": "90000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/changes",
+              "price": "0.04",
+              "amount_atomic": "40000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/skills",
+              "price": "0.05",
+              "amount_atomic": "50000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/trends",
+              "price": "0.09",
+              "amount_atomic": "90000"
+            },
+            {
+              "method": "GET",
+              "url": "https://api.exende.dev/v1/jobs/report",
+              "price": "0.25",
+              "amount_atomic": "250000"
+            }
+          ],
+          "payment": {
+            "protocol": "x402",
+            "version": 2,
+            "scheme": "exact",
+            "currency": "USDC",
+            "network": "eip155:8453",
+            "recipient": "same existing Exende payment recipient; current PAYMENT-REQUIRED is authoritative",
+            "asset_transfer_method": "eip3009"
+          },
+          "limits": {
+            "search_jobs": 10,
+            "signal_companies": 5,
+            "current_candidate_jobs": 10000,
+            "historical_cohort_jobs": 5000,
+            "period": "7d",
+            "pagination": false
+          },
+          "coverage": "Monitored catalogue only. Current queries use a bounded recent cohort. Full totals are null when sampled; history may be unavailable. No AI inference.",
+          "subscription_api": "Existing authenticated Jobs Data subscriptions and prices are unchanged.",
+          "deployment_verification": "All seven routes passed live unpaid challenges, free CDP discovery validation, real paid response/schema checks and on-chain USDC settlement checks on 2026-10-19. A repeated settled payment was rejected with HTTP 409. Eight-endpoint marketplace visibility remains pending."
+        }
+      }
     },
     {
       "id": "retry",
@@ -220,8 +295,8 @@
         "protocol": "x402",
         "version": 2,
         "scheme": "exact",
-        "price": "0.03",
-        "amount_atomic": "30000",
+        "price": "0.01",
+        "amount_atomic": "10000",
         "decimals": 6,
         "currency": "USDC",
         "network": "eip155:8453"
@@ -236,6 +311,71 @@
       },
       "documentation": "https://www.exende.dev/docs/resolve",
       "openapi": "https://www.exende.dev/openapi/resolve.json"
+    },
+    {
+      "id": "test-inbox",
+      "name": "Exende Test Inbox",
+      "status": "available",
+      "activation": "active",
+      "description": "Private temporary inboxes for application signup, password-reset, and OTP tests. Private email reception is activated.",
+      "base_url": "https://api.exende.dev",
+      "create": {
+        "method": "POST",
+        "url": "https://api.exende.dev/v1/inboxes"
+      },
+      "payment": {
+        "protocol": "x402",
+        "version": 2,
+        "scheme": "exact",
+        "price": "0.02",
+        "amount_atomic": "20000",
+        "decimals": 6,
+        "currency": "USDC",
+        "network": "eip155:8453",
+        "unit": "new inbox",
+        "read_wait_lookup_delete_surcharge": false
+      },
+      "limits": {
+        "messages": 3,
+        "message_bytes": 1048576,
+        "ttl_seconds": 86400,
+        "wait_seconds": 60
+      },
+      "authentication": {
+        "type": "bearer",
+        "token": "client-generated 32 random bytes encoded as 64 hexadecimal characters; save before payment",
+        "token_in_url": false
+      },
+      "request": {
+        "required": [
+          "access_token",
+          "expected_from"
+        ],
+        "optional": [
+          "subject_contains",
+          "otp_length",
+          "link_host"
+        ],
+        "expected_from": "Exact case-insensitive SMTP envelope sender mailbox; not sender authentication",
+        "otp_length": {
+          "minimum": 4,
+          "maximum": 8,
+          "default": 6
+        },
+        "link_host": "Exact HTTPS hostname required to return a verification URL; URLs are never opened"
+      },
+      "recovery": {
+        "lookup": "GET /v1/inboxes/lookup",
+        "create_replay": "Same token and identical body returns existing active inbox with HTTP 200 and no additional payment. Different body returns 409."
+      },
+      "features": {
+        "outbound_email": false,
+        "attachments": false,
+        "automatic_link_visits": false
+      },
+      "documentation": "https://www.exende.dev/docs/test-inbox",
+      "product": "https://www.exende.dev/products/test-inbox",
+      "openapi": "https://www.exende.dev/openapi/test-inbox.json"
     }
   ],
   "discovery": {

@@ -6,6 +6,7 @@ const footerGroups = [
     label: "Data products",
     links: [
       { label: "Jobs & Hiring Data", href: "/products/jobs" },
+      { label: "Jobs Intelligence · x402", href: "/products/jobs-intelligence" },
       { label: "Jobs API docs", href: "/docs/jobs" },
       { label: "Coverage & methodology", href: "/coverage" },
       { label: "Pricing", href: "/pricing" },
@@ -17,12 +18,15 @@ const footerGroups = [
       { label: "Callback API", href: "/products/callback" },
       { label: "Retry API", href: "/products/retry" },
       { label: "Resolve API", href: "/products/resolve" },
+      { label: "Test Inbox", href: "/products/test-inbox" },
     ],
   },
   {
     label: "Documentation",
     links: [
       { label: "Documentation", href: "/docs" },
+      { label: "Jobs Intelligence docs", href: "/docs/jobs-intelligence" },
+      { label: "Test Inbox docs", href: "/docs/test-inbox" },
       { label: "API index", href: "/api" },
       { label: "x402 payments", href: "/docs/x402" },
       { label: "Account access", href: "/account" },

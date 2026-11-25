@@ -1,0 +1,23 @@
+.figure { display:block; width:100%; height:100%; min-width:0; overflow:visible; color:#b8e9ce; }
+.figure text { fill:#c4dad1; font:11px var(--font-ibm-plex-mono),monospace; }
+.tile { stroke:#75a18d; stroke-width:1; fill:#1a302b; filter:drop-shadow(0 3px 3px #030c0b66); }
+.wire,.pulse { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.wire { stroke:#648c7f; stroke-width:1.35; }.pulse {stroke:#a3ffc8;stroke-width:3;stroke-dasharray:7 93;filter:drop-shadow(0 0 3px #66ffad);}
+.dot { fill:#96f4bc; stroke:#3a805c; stroke-width:3; }
+.halo {fill:none;stroke:#82d4ab;stroke-width:1;stroke-dasharray:4 6;transform-box:fill-box;transform-origin:center;}
+.grid {fill:none;stroke:#527865;stroke-width:1;stroke-dasharray:2 5;}
+.signal,.scanner {fill:none;stroke:#adffd1;stroke-width:2;filter:drop-shadow(0 0 3px #76edab80);}
+@media(prefers-reduced-motion:no-preference) {
+  .halo {animation:rotateRing 16s linear infinite;}
+  .signal {stroke-dasharray:100;animation:plot 4.5s ease-in-out infinite;}
+  .scanner {animation:scan 3s ease-in-out infinite alternate;}
+  @keyframes rotateRing {to{transform:rotate(360deg);}}
+  @keyframes plot {0%{stroke-dashoffset:100;}60%,100%{stroke-dashoffset:0;}}
+  @keyframes scan {from{transform:translateY(-13px);}to{transform:translateY(28px);}}
+  .pulse { animation:packet 3.1s linear infinite; animation-delay:var(--delay,0s); }
+  .sheet { animation:assemble 4.7s cubic-bezier(.45,0,.25,1) infinite; animation-delay:var(--delay,0s); }
+  .stamp { animation:stamp 4s cubic-bezier(.55,.05,.18,.95) infinite; animation-delay:var(--delay,0s); }
+  @keyframes packet { from { stroke-dashoffset:100; } to { stroke-dashoffset:0; } }
+  @keyframes assemble { 0%,18%,100% {transform:translate(0,0);} 42%,62% {transform:translate(-32px,16px) skewY(-5deg);} 78% {transform:translate(6px,-2px);} }
+  @keyframes stamp { 0%,18%,100% {transform:translateY(0);} 36%,55% {transform:translateY(-12px);} }
+}
