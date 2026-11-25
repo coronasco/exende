@@ -2,16 +2,42 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { HoverCard } from "@/components/landing/landing-experience";
+import { ProtocolFigure, productFigures } from "./protocol-figure";
+import { ProductBreadcrumb, SectionLinks, type ProductPath } from "./product-navigation";
 import s from "./product.module.css";
 
 export { s as productStyles };
-export function ProductHero({ eyebrow, title, description, children, aside }: { eyebrow: string; title: ReactNode; description: string; children?: ReactNode; aside?: ReactNode }) {
-  return <section className={`${s.hero} ${aside ? s.heroSplit : ""}`}>
-    <div className={s.shell}><div className={aside ? s.split : s.heroCopy}>
-      <div><p className={s.eyebrow}>{eyebrow}</p><h1>{title}</h1><p className={s.lead}>{description}</p>{children}</div>
-      {aside ? <div className={s.heroAside}>{aside}</div> : null}
-    </div></div>
-  </section>;
+type HeroProps = {
+  path?: ProductPath;
+  eyebrow: string;
+  title: ReactNode;
+  description: string;
+  children?: ReactNode;
+  aside?: ReactNode;
+};
+
+export function ProductHero({ path, eyebrow, title, description, children, aside }: HeroProps) {
+  const figure = path ? productFigures[path] : undefined;
+  return <header className={s.hero}>
+    <div className={s.shell}>
+      {path && <ProductBreadcrumb path={path} />}
+      <div className={s.masthead}>
+        <div className={s.heroCopy}>
+          <p className={s.eyebrow}>{eyebrow}</p>
+          <h1>{title}</h1>
+          <p className={s.lead}>{description}</p>
+          {children}
+        </div>
+        {aside ? <div className={s.heroAside}>{aside}</div> : figure && (
+          <figure className={s.heroArt} data-motion-scene>
+            <ProtocolFigure kind={figure.kind} />
+            <figcaption>{figure.caption}</figcaption>
+          </figure>
+        )}
+      </div>
+      {path && <SectionLinks path={path} />}
+    </div>
+  </header>;
 }
 export function ProductSection({ eyebrow, title, description, children, id }: { eyebrow?: string; title?: ReactNode; description?: string; children: ReactNode; id?: string }) {
   return <section className={s.section} id={id}><div className={s.shell}>

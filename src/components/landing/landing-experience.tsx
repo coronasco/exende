@@ -9,18 +9,21 @@ export const useLandingMotion = () => useContext(MotionContext);
 
 export function LandingExperience({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
-  const nebulaProgress = useRef(0);
+
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const element = root.current;
     if (!element) return;
+    if (!("IntersectionObserver" in window)) return;
     const reveals = element.querySelectorAll<HTMLElement>("[data-reveal]");
     // Without JavaScript every section stays visible. Enhancement is opt-in.
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          (entry.target as HTMLElement).dataset.revealed = "true";
+          const target = entry.target as HTMLElement;
+          if (!target.dataset.revealed) target.dataset.entered = "true";
+          target.dataset.revealed = "true";
           observer.unobserve(entry.target);
         }
       });
@@ -29,64 +32,16 @@ export function LandingExperience({ children }: { children: ReactNode }) {
       if (node.getBoundingClientRect().top < window.innerHeight - 24) node.dataset.revealed = "true";
       observer.observe(node);
     });
+    const sceneObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) (entry.target as HTMLElement).dataset.onscreen = String(entry.isIntersecting);
+    }, { rootMargin: "80px" });
+    element.querySelectorAll("[data-motion-scene]").forEach(scene => sceneObserver.observe(scene));
     element.dataset.enhanced = "true";
-    return () => { observer.disconnect(); delete element.dataset.enhanced; };
+    return () => { observer.disconnect(); sceneObserver.disconnect(); delete element.dataset.enhanced; };
   }, []);
-
-  useEffect(() => {
-    const element = root.current;
-    if (!element) return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let frame = 0;
-    let current = nebulaProgress.current;
-    let target = 0;
-    let distance = 1;
-    const paint = () => {
-      nebulaProgress.current = current;
-      element.style.setProperty("--nebula-x", `${current * -90}px`);
-      element.style.setProperty("--nebula-y", `${current * -200}px`);
-      element.style.setProperty("--star-y", `${current * -340}px`);
-      element.style.setProperty("--nebula-turn", `${current * 7}deg`);
-    };
-    const tick = () => {
-      current += (target - current) * 0.085;
-      paint();
-      frame = Math.abs(target - current) > 0.0001 ? requestAnimationFrame(tick) : 0;
-    };
-    const update = () => {
-      if (paused || media.matches || document.hidden) return;
-      target = Math.max(0, Math.min(1, window.scrollY / distance));
-      if (!frame) frame = requestAnimationFrame(tick);
-    };
-    const resize = () => {
-      distance = Math.max(1, element.scrollHeight - window.innerHeight);
-      update();
-    };
-    const sync = () => {
-      cancelAnimationFrame(frame); frame = 0;
-      if (media.matches) { current = 0; paint(); }
-      else update();
-    };
-    const observer = new ResizeObserver(resize);
-    observer.observe(element);
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", resize, { passive: true });
-    media.addEventListener("change", sync);
-    document.addEventListener("visibilitychange", sync);
-    resize();
-    return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", resize);
-      media.removeEventListener("change", sync);
-      document.removeEventListener("visibilitychange", sync);
-    };
-  }, [paused]);
 
   return <MotionContext.Provider value={{ paused, toggle: () => setPaused(value => !value) }}>
     <div ref={root} className={styles.landing} data-paused={paused}>
-      <div className={styles.universe} aria-hidden="true"><div className={styles.nebula} /><div className={styles.distantStars} /><div className={styles.nearStars} /></div>
       {children}
     </div>
   </MotionContext.Provider>;

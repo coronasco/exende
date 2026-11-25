@@ -3,14 +3,22 @@
 import { BookOpen, Command, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { jobsIntelligenceEndpoints } from "@/content/jobs-intelligence";
 
 const searchItems = [
   { label: "Choose a product", detail: "Jobs Data and infrastructure APIs", href: "/docs" },
-  { label: "Jobs Data public overview", detail: "GET /v1/public/overview", href: "/docs/jobs" },
-  { label: "Jobs Data response", detail: "Catalogue aggregate schema", href: "/docs/jobs#response" },
+  { label: "Jobs Data public overview", detail: "GET /v1/public/overview", href: "/docs/jobs#public-overview" },
+  { label: "Jobs Data search response", detail: "Job fields and pagination", href: "/docs/jobs#response" },
   { label: "Jobs Data caching", detail: "Freshness and fallback", href: "/docs/jobs#caching" },
   { label: "Jobs Data customer access", detail: "Scoped API keys and routes", href: "/docs/jobs#access" },
+  { label: "Jobs Intelligence quickstart", detail: "Seven APIs paid per request with x402", href: "/docs/jobs-intelligence#quickstart" },
+  ...jobsIntelligenceEndpoints.map(endpoint => ({ label: `Jobs Intelligence · ${endpoint.title}`, detail: `GET ${endpoint.path} · ${endpoint.price} USDC`, href: `/docs/jobs-intelligence#${endpoint.id}` })),
   { label: "Create callback", detail: "POST /v1/callbacks", href: "/docs/callback#create-callback" },
+  { label: "Test Inbox quickstart", detail: "Private email inbox · OTP · signup · password reset", href: "/docs/test-inbox#quickstart" },
+  { label: "Create Test Inbox", detail: "POST /v1/inboxes · $0.02 USDC · 24 hours · 3 messages", href: "/docs/test-inbox#create" },
+  { label: "Test Inbox recovery", detail: "Saved access token · GET /v1/inboxes/lookup · no repeat charge", href: "/docs/test-inbox#recovery" },
+  { label: "Test Inbox read and wait", detail: "Bearer token · messages · wait 60 seconds · delete", href: "/docs/test-inbox#read-wait" },
+  { label: "Test Inbox extraction", detail: "SMTP envelope sender · OTP · exact HTTPS link host · ambiguity", href: "/docs/test-inbox#extraction" },
   { label: "Send a webhook", detail: "cb.exende.dev/hooks/{id}", href: "/docs/callback#send-webhook" },
   { label: "Wait for an event", detail: "Long-polling behavior", href: "/docs/callback#wait-event" },
   { label: "Read all events", detail: "Event retrieval", href: "/docs/callback#read-events" },
@@ -53,7 +61,19 @@ export function DocsSearch() {
     : [];
 
   return (
-    <div className="docs-search">
+    <div className="docs-search" role="search"
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}
+      onKeyDown={event => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setQuery("");
+          inputRef.current?.focus();
+        }
+        if (event.key === "ArrowDown" && event.target === inputRef.current) {
+          const first = event.currentTarget.querySelector<HTMLAnchorElement>(".docs-search__results a");
+          if (first) { event.preventDefault(); first.focus(); }
+        }
+      }}>
       <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-muted)]" />
       <input
         ref={inputRef}
@@ -61,7 +81,6 @@ export function DocsSearch() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onFocus={() => setFocused(true)}
-        onBlur={() => window.setTimeout(() => setFocused(false), 120)}
         className="docs-search__input"
         placeholder="Search documentation..."
         aria-label="Search documentation"
@@ -71,11 +90,12 @@ export function DocsSearch() {
       </span>
 
       {focused && normalizedQuery ? (
-        <div className="docs-search__results" role="listbox">
+        <div className="docs-search__results" role="region" aria-label="Search results">
           {results.length ? results.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setQuery("")}
               className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 last:border-b-0 hover:bg-[var(--color-accent-soft)]"
             >
               <BookOpen className="h-4 w-4 shrink-0 text-[var(--color-accent)]" />

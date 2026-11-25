@@ -72,7 +72,7 @@ export function ApiKeysManager({ initialKeys, dataApiUrl }: { initialKeys: ApiKe
   return (
     <>
       <header className="dashboard-heading">
-        <div><p className="eyebrow">Developer access</p><h1>API keys</h1><p>Create narrowly scoped credentials. Full secrets are returned once and never stored by Exende.</p></div>
+        <div><p className="eyebrow">Developer access</p><h1>API keys</h1><p>Choose which APIs each key can access. Copy the secret when you create the key and store it on your server.</p></div>
         <button className="dashboard-action" type="button" onClick={() => { setCreating(true); setError(null); }}><Plus /> Create API key</button>
       </header>
 
@@ -100,7 +100,7 @@ export function ApiKeysManager({ initialKeys, dataApiUrl }: { initialKeys: ApiKe
       {!creating && error ? <p className="auth-message dashboard-message" data-tone="error"><AlertTriangle />{error}</p> : null}
 
       <section className="dashboard-panel api-key-list">
-        <div className="dashboard-panel__heading"><div><span className="annotation">CREDENTIAL INVENTORY</span><h2>{keys.length} {keys.length === 1 ? "key" : "keys"}</h2></div><span className="api-key-list__legend"><i /> active</span></div>
+        <div className="dashboard-panel__heading"><div><span className="annotation">YOUR API KEYS</span><h2>{keys.length} {keys.length === 1 ? "key" : "keys"}</h2></div><span className="api-key-list__legend"><i /> active</span></div>
         {keys.length ? <div className="api-key-table"><div className="api-key-table__head"><span>Name</span><span>Credential</span><span>Scopes</span><span>Last used</span><span>Status</span><span /></div>{keys.map((key) => <div key={key.id} className="api-key-row"><div><span className="api-key-row__icon"><KeyRound /></span><span><strong>{key.name}</strong><small>Created {formatDate(key.createdAt)}</small></span></div><code>{key.display}</code><div className="api-key-row__scopes">{key.scopes.map((scope) => <span key={scope}>{scope}</span>)}</div><span>{key.lastUsedAt ? formatRelative(key.lastUsedAt) : "Never"}</span><span className="api-key-row__status" data-status={key.status}><i /> {key.status}</span><button type="button" onClick={() => revokeKey(key)} disabled={key.status === "revoked"} aria-label={`Revoke ${key.name}`}><Trash2 /></button></div>)}</div> : <div className="dashboard-empty"><KeyRound /><strong>No API keys</strong><p>Create the first credential for your integration.</p></div>}
       </section>
     </>

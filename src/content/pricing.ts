@@ -1,3 +1,5 @@
+import { testInboxStatus } from "@/content/test-inbox";
+
 export const dataAccessPlans = [
   {
     name: "Explore",
@@ -31,5 +33,6 @@ export const dataAccessPlans = [
 export const infrastructurePrices = [
   { name: "Callback", price: "$0.01", unit: "per callback creation", href: "/docs/callback" },
   { name: "Retry", price: "$0.02", unit: "per x402-paid job", href: "/docs/retry" },
-  { name: "Resolve", price: "$0.03", unit: "per x402-paid job", href: "/docs/resolve" },
+  { name: "Resolve", price: "$0.01", unit: "per x402-paid job", href: "/docs/resolve" },
+  { name: "Test Inbox", price: "$0.02", unit: `per 24-hour inbox · ${testInboxStatus}`, href: "/docs/test-inbox" },
 ] as const;

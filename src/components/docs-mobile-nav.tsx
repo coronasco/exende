@@ -1,8 +1,7 @@
 "use client";
 
-import { docsGroups } from "@/content/docs";
-import { Braces, BriefcaseBusiness, CreditCard, FileSearch, Menu, RefreshCw, Rocket, Webhook, X } from "lucide-react";
-import Link from "next/link";
+import { DocsNavigation } from "@/components/docs-sidebar";
+import { BookOpen, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type DocsMobileNavProps = {
@@ -14,16 +13,6 @@ export function DocsMobileNav({ currentHref }: DocsMobileNavProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const icons = {
-    "/docs": Rocket,
-    "/docs/jobs": BriefcaseBusiness,
-    "/docs/callback": Webhook,
-    "/docs/retry": RefreshCw,
-    "/docs/resolve": FileSearch,
-    "/docs/x402": CreditCard,
-    "/api": Braces,
-  } as const;
-
   useEffect(() => {
     if (!open) return;
 
@@ -41,9 +30,9 @@ export function DocsMobileNav({ currentHref }: DocsMobileNavProps) {
       if (event.key !== "Tab" || !panelRef.current) return;
       const focusable = Array.from(
         panelRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'a[href], summary, button:not([disabled]), [tabindex]:not([tabindex="-1"])',
         ),
-      );
+      ).filter(element => element.getClientRects().length > 0);
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
 
@@ -90,10 +79,7 @@ export function DocsMobileNav({ currentHref }: DocsMobileNavProps) {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
-              <div>
-                <p className="font-display text-[1.5rem] tracking-[0.08em] text-[var(--color-foreground)]">EXENDE</p>
-                <p className="annotation mt-2 text-[var(--color-muted)]">Documentation</p>
-              </div>
+              <strong className="guide-drawer-title"><BookOpen size={19} /> Documentation</strong>
               <button
                 ref={closeRef}
                 type="button"
@@ -105,31 +91,8 @@ export function DocsMobileNav({ currentHref }: DocsMobileNavProps) {
               </button>
             </div>
 
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-8">
-              {docsGroups.map((group) => (
-                <div key={group.label}>
-                  <p className="annotation py-2 text-[var(--color-muted)]">{group.label}</p>
-                  {group.items.map((item) => {
-                    const baseHref = item.href.split("#")[0] as keyof typeof icons;
-                    const active = !item.href.includes("#") && baseHref === currentHref;
-                    const Icon = icons[baseHref];
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between border-b border-[var(--color-border)] py-3 text-sm ${
-                          active ? "text-[var(--color-accent)]" : "text-[var(--color-foreground)]"
-                        }`}
-                      >
-                        <span className="flex items-center gap-3"><Icon className="h-4 w-4" />{item.label}</span>
-                        <span className="annotation">{active ? "active" : "open"}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ))}
+            <div className="min-h-0 flex-1 overflow-y-auto pb-8">
+              <DocsNavigation currentHref={currentHref} onNavigate={() => setOpen(false)} />
             </div>
           </div>
         </div>

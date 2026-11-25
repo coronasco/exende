@@ -1,0 +1,1249 @@
+{
+  "openapi": "3.1.2",
+  "info": {
+    "title": "Exende Test Inbox",
+    "version": "1.0.0",
+    "description": "Private temporary email inboxes for AI agents and automated tests. Production email reception is activated. One $0.02 USDC x402 payment per inbox."
+  },
+  "x-release-status": "live",
+  "security": [],
+  "servers": [
+    {
+      "url": "https://api.exende.dev"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/v1/inboxes": {
+      "post": {
+        "tags": [
+          "Test Inbox"
+        ],
+        "operationId": "createTestInbox",
+        "summary": "Create a private temporary test email inbox",
+        "description": "One $0.02 USDC x402 payment on Base. Includes up to 3 attachment-free inbound emails of at most 1 MiB each for 24 hours; no outbound email. At most 30 admitted email-processing attempts per session, including malformed messages and subject mismatches; further attempts are rejected. Save access_token before purchase. Repeating the identical body/token after success returns 200 without another charge. A different body with the same token returns 409. After an interrupted response, recover via authenticated GET /v1/inboxes/lookup. In preview/unavailable mode returns 503 before any payment verification or settlement. No authentication codes, raw tokens or raw email are logged. Messages and matching rules expire with the session; minimal payment/audit metadata is retained for 30 days.",
+        "security": [
+          {
+            "PaymentSignature": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "access_token",
+                  "expected_from"
+                ],
+                "properties": {
+                  "access_token": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "writeOnly": true,
+                    "description": "Generate a fresh 32-byte cryptographic secret and save it privately BEFORE purchase. Encode as 64 lowercase hex characters. This is also the Bearer token for lookup, reads, waits and deletion. Never use a sample value."
+                  },
+                  "expected_from": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254,
+                    "description": "Exact case-insensitive SMTP envelope sender. This filter is not proof of sender authenticity. It may differ from the visible From header."
+                  },
+                  "subject_contains": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "description": "Optional case-insensitive literal substring of the decoded subject."
+                  },
+                  "otp_length": {
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 8,
+                    "default": 6
+                  },
+                  "link_host": {
+                    "type": "string",
+                    "maxLength": 253,
+                    "description": "Optional exact DNS hostname. Only HTTPS links on this host with no credentials or nonstandard port qualify. Links are never fetched or followed."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Existing inbox recovered without another payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^ib_[a-f0-9]{40}$"
+                    },
+                    "address": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "status": {
+                      "type": "string",
+                      "const": "active"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "messages_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "wait_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "limits": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "messages": {
+                          "type": "integer",
+                          "const": 3
+                        },
+                        "message_bytes": {
+                          "type": "integer",
+                          "const": 1048576
+                        },
+                        "ttl_seconds": {
+                          "type": "integer",
+                          "const": 86400
+                        },
+                        "wait_seconds": {
+                          "type": "integer",
+                          "const": 60
+                        }
+                      },
+                      "required": [
+                        "messages",
+                        "message_bytes",
+                        "ttl_seconds",
+                        "wait_seconds"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "address",
+                    "status",
+                    "expires_at",
+                    "messages_url",
+                    "wait_url",
+                    "limits"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Payment settled and inbox created.",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64 x402 settlement result.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^ib_[a-f0-9]{40}$"
+                    },
+                    "address": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "status": {
+                      "type": "string",
+                      "const": "active"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "messages_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "wait_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "limits": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "messages": {
+                          "type": "integer",
+                          "const": 3
+                        },
+                        "message_bytes": {
+                          "type": "integer",
+                          "const": 1048576
+                        },
+                        "ttl_seconds": {
+                          "type": "integer",
+                          "const": 86400
+                        },
+                        "wait_seconds": {
+                          "type": "integer",
+                          "const": 60
+                        }
+                      },
+                      "required": [
+                        "messages",
+                        "message_bytes",
+                        "ttl_seconds",
+                        "wait_seconds"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "address",
+                    "status",
+                    "expires_at",
+                    "messages_url",
+                    "wait_url",
+                    "limits"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed private Bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "x402 v2 payment challenge. Use the current header as the authoritative amount, asset, network and recipient.",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox not found or does not belong to this token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration conflict or pending/failed payment. Keep the same token; never automatically repay after an uncertain result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Inbox expired or deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Create body exceeds 4096 bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON content type required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate, creation or concurrent-wait limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Payment outcome needs reconciliation; do not repay automatically.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reception is not activated or the service is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inboxes/lookup": {
+      "get": {
+        "tags": [
+          "Test Inbox"
+        ],
+        "operationId": "lookupTestInbox",
+        "summary": "Recover the inbox using the saved access token",
+        "security": [
+          {
+            "inboxToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Existing active inbox; no additional payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^ib_[a-f0-9]{40}$"
+                    },
+                    "address": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "status": {
+                      "type": "string",
+                      "const": "active"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "messages_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "wait_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "limits": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "messages": {
+                          "type": "integer",
+                          "const": 3
+                        },
+                        "message_bytes": {
+                          "type": "integer",
+                          "const": 1048576
+                        },
+                        "ttl_seconds": {
+                          "type": "integer",
+                          "const": 86400
+                        },
+                        "wait_seconds": {
+                          "type": "integer",
+                          "const": 60
+                        }
+                      },
+                      "required": [
+                        "messages",
+                        "message_bytes",
+                        "ttl_seconds",
+                        "wait_seconds"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "address",
+                    "status",
+                    "expires_at",
+                    "messages_url",
+                    "wait_url",
+                    "limits"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed private Bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox not found or does not belong to this token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration conflict or pending/failed payment. Keep the same token; never automatically repay after an uncertain result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Inbox expired or deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Create body exceeds 4096 bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON content type required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate, creation or concurrent-wait limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Payment outcome needs reconciliation; do not repay automatically.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reception is not activated or the service is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inboxes/{id}/messages": {
+      "get": {
+        "tags": [
+          "Test Inbox"
+        ],
+        "operationId": "listTestInboxMessages",
+        "summary": "Read accepted email messages",
+        "security": [
+          {
+            "inboxToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ib_[a-f0-9]{40}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages in receipt order. No additional payment. Duplicate decoded content does not consume another message slot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "inbox_id": {
+                      "type": "string",
+                      "pattern": "^ib_[a-f0-9]{40}$"
+                    },
+                    "status": {
+                      "type": "string",
+                      "const": "active"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "maxItems": 3,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^im_[0-9a-f-]{36}$"
+                          },
+                          "received_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "from": {
+                            "type": "string",
+                            "description": "SMTP envelope sender, not an authenticated identity."
+                          },
+                          "subject": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "Decoded text, at most 128 KiB UTF-8; no raw HTML or attachments."
+                          },
+                          "text_truncated": {
+                            "type": "boolean"
+                          },
+                          "otp": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "verification_url": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "uri"
+                          },
+                          "otp_status": {
+                            "type": "string",
+                            "enum": [
+                              "found",
+                              "not_found",
+                              "ambiguous"
+                            ]
+                          },
+                          "link_status": {
+                            "type": "string",
+                            "enum": [
+                              "found",
+                              "not_found",
+                              "ambiguous",
+                              "not_requested"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "received_at",
+                          "from",
+                          "subject",
+                          "text",
+                          "text_truncated",
+                          "otp",
+                          "verification_url",
+                          "otp_status",
+                          "link_status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "inbox_id",
+                    "status",
+                    "expires_at",
+                    "messages"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed private Bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox not found or does not belong to this token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration conflict or pending/failed payment. Keep the same token; never automatically repay after an uncertain result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Inbox expired or deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Create body exceeds 4096 bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON content type required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate, creation or concurrent-wait limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Payment outcome needs reconciliation; do not repay automatically.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reception is not activated or the service is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inboxes/{id}/wait": {
+      "get": {
+        "tags": [
+          "Test Inbox"
+        ],
+        "operationId": "waitForTestInboxMessage",
+        "summary": "Wait for the next accepted email",
+        "description": "Event-driven wait for up to 60 seconds, maximum 4 concurrent waits per inbox. Use next_after on the next request; omit after to return the first message. Unknown cursors and repeated/unknown query parameters are rejected. A timeout is not an email-delivery failure. No extra x402 payment.",
+        "security": [
+          {
+            "inboxToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ib_[a-f0-9]{40}$"
+            }
+          },
+          {
+            "name": "timeout",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 60,
+              "default": 60
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^im_[0-9a-f-]{36}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message received or wait timed out.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "received": {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        "timeout": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "message": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^im_[0-9a-f-]{36}$"
+                            },
+                            "received_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "from": {
+                              "type": "string",
+                              "description": "SMTP envelope sender, not an authenticated identity."
+                            },
+                            "subject": {
+                              "type": "string"
+                            },
+                            "text": {
+                              "type": "string",
+                              "description": "Decoded text, at most 128 KiB UTF-8; no raw HTML or attachments."
+                            },
+                            "text_truncated": {
+                              "type": "boolean"
+                            },
+                            "otp": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "verification_url": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uri"
+                            },
+                            "otp_status": {
+                              "type": "string",
+                              "enum": [
+                                "found",
+                                "not_found",
+                                "ambiguous"
+                              ]
+                            },
+                            "link_status": {
+                              "type": "string",
+                              "enum": [
+                                "found",
+                                "not_found",
+                                "ambiguous",
+                                "not_requested"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "received_at",
+                            "from",
+                            "subject",
+                            "text",
+                            "text_truncated",
+                            "otp",
+                            "verification_url",
+                            "otp_status",
+                            "link_status"
+                          ]
+                        },
+                        "next_after": {
+                          "type": "string",
+                          "pattern": "^im_[0-9a-f-]{36}$"
+                        }
+                      },
+                      "required": [
+                        "received",
+                        "timeout",
+                        "message",
+                        "next_after"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "received": {
+                          "type": "boolean",
+                          "const": false
+                        },
+                        "timeout": {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        "message": {
+                          "type": "null"
+                        },
+                        "next_after": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "received",
+                        "timeout",
+                        "message",
+                        "next_after"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed private Bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox not found or does not belong to this token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration conflict or pending/failed payment. Keep the same token; never automatically repay after an uncertain result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Inbox expired or deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Create body exceeds 4096 bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON content type required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate, creation or concurrent-wait limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Payment outcome needs reconciliation; do not repay automatically.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reception is not activated or the service is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inboxes/{id}": {
+      "delete": {
+        "tags": [
+          "Test Inbox"
+        ],
+        "operationId": "deleteTestInbox",
+        "summary": "Revoke inbox access and erase stored messages",
+        "security": [
+          {
+            "inboxToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ib_[a-f0-9]{40}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access revoked and messages erased. Minimal settlement audit remains for 30 days.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^ib_[a-f0-9]{40}$"
+                    },
+                    "deleted": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "deleted"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed private Bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox not found or does not belong to this token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Configuration conflict or pending/failed payment. Keep the same token; never automatically repay after an uncertain result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Inbox expired or deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Create body exceeds 4096 bytes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "JSON content type required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate, creation or concurrent-wait limit reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Payment outcome needs reconciliation; do not repay automatically.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reception is not activated or the service is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "PaymentSignature": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "PAYMENT-SIGNATURE",
+        "description": "Base64-encoded x402 v2 signed payment authorization. OpenAPI represents this custom header with the apiKey security-scheme type; it is a per-request payment proof, not an API key, account or subscription. Omit it for an unpaid 402 challenge, then use an x402 client to authorize and retry the same request."
+      },
+      "inboxToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "64 lowercase hex characters",
+        "description": "Client-generated private access_token saved before purchase. Never put it in a URL. The server stores its SHA-256 hash, not the raw token."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message",
+              "request_id"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "request_id": {
+                "type": "string",
+                "example": "req_81731247-7585-44a8-8716-d9dda3e0ff61"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

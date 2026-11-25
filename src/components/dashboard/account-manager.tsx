@@ -62,7 +62,7 @@ export function AccountManager({ identity }: { identity: AccountIdentity }) {
 
   return (
     <>
-      <header className="dashboard-heading"><div><p className="eyebrow">Identity & security</p><h1>Account</h1><p>Manage your profile and active sessions without exposing internal organization identifiers.</p></div></header>
+      <header className="dashboard-heading"><div><p className="eyebrow">Identity & security</p><h1>Account</h1><p>Update your profile, manage signed-in devices, and review your organization.</p></div></header>
       {message ? <p className="billing-notice" data-tone={message.tone}>{message.tone === "success" ? <Check /> : <AlertTriangle />}{message.text}</p> : null}
       <section className="account-settings-grid">
         <article className="dashboard-panel account-settings-card">
@@ -78,7 +78,7 @@ export function AccountManager({ identity }: { identity: AccountIdentity }) {
         <article className="dashboard-panel account-settings-card">
           <div className="dashboard-panel__heading"><div><span className="annotation">ORGANIZATION</span><h2>{identity.organization.name}</h2></div><ShieldCheck /></div>
           <dl className="account-org-details"><div><dt>Role</dt><dd>{identity.organization.role}</dd></div><div><dt>Plan</dt><dd>{identity.organization.planKey}</dd></div><div><dt>Status</dt><dd>{identity.organization.status}</dd></div></dl>
-          <p>The account model supports future organization members while keeping billing, credits, and keys owned by the organization.</p>
+          <p>Your organization owns its API keys, credit balance, and billing plan.</p>
         </article>
       </section>
 
@@ -90,7 +90,7 @@ export function AccountManager({ identity }: { identity: AccountIdentity }) {
       </section>
 
       <section className="dashboard-panel danger-zone">
-        <div><span><Trash2 /></span><div><p className="annotation">CONTROLLED DELETION</p><h2>Request account deletion</h2><p>This creates an auditable request. It does not bypass subscription review, retention requirements, or cross-plane cleanup.</p></div></div>
+        <div><span><Trash2 /></span><div><p className="annotation">CONTROLLED DELETION</p><h2>Request account deletion</h2><p>We review your subscription and retention obligations before closing your account.</p></div></div>
         <button type="button" onClick={requestDeletion} disabled={pending !== null || deletionRequested}>{deletionRequested ? "Request pending" : pending === "deletion" ? "Submitting..." : "Request deletion"}</button>
       </section>
     </>

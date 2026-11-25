@@ -10,7 +10,7 @@ export function DocsToc({ sections }: DocsTocProps) {
   return (
     <aside className="docs-toc">
       <p className="annotation text-[var(--color-muted)]">On this page</p>
-      <nav className="mt-5 space-y-1">
+      <nav className="mt-5 space-y-1" aria-label="On this page">
         {sections.map((section) => (
           <a
             key={section.id}
